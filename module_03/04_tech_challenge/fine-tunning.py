@@ -273,6 +273,7 @@ print("#########################################################################
 print("# Iniciando o Treinamento do Modelo...")
 print()
 trainer_stats = trainer.train()
+
 print()
 # Análise das estatísticas de treinamento
 print("Estatísticas do Treinamento")
@@ -370,6 +371,11 @@ print()
 print("###############################################################################")
 print("# Salvando o Modelo Treinado...")
 print()
-model.save_pretrained(lora_model) 
+model.save_pretrained(lora_model) #This ONLY saves the LoRA adapters, and not the full model.
 tokenizer.save_pretrained(lora_model)
+model.save_pretrained_merged(
+    lora_model,                   # Diretório onde o modelo será salvo
+    tokenizer,                    # Tokenizer usado com o modelo
+    save_method = "merged_16bit", # Método de salvamento em precisão de 16 bits
+)
 print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> FIM Do TREINAMENTO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
