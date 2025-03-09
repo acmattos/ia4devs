@@ -26,21 +26,30 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 {}"""
 
 # 1. Primeiro carrega o modelo base
-base_model = "unsloth/llama-3-8b-bnb-4bit"  # Modelo base do LLaMA-3
-#base_model = "./lora_model_llama-3-8b-bnb-4bit"
+#base_model = "unsloth/llama-3-8b-bnb-4bit"  # Modelo base do LLaMA-3
+base_model = "./lora_model_llama-3-8b-bnb-4bit"
 
-model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name = base_model, # YOUR MODEL YOU USED FOR TRAINING
-    max_seq_length = max_seq_length,
-    dtype = dtype,
+from peft import AutoPeftModelForCausalLM
+from transformers import AutoTokenizer
+model = AutoPeftModelForCausalLM.from_pretrained(
+    base_model, # YOUR MODEL YOU USED FOR TRAINING
     load_in_4bit = load_in_4bit,
 )
+tokenizer = AutoTokenizer.from_pretrained(base_model)
 
-# 3. Carrega os pesos do LoRA
-model.load_adapter("./lora_model_llama-3-8b-bnb-4bit")
 
-# Prepara o modelo para inferência
-FastLanguageModel.for_inference(model)
+# model, tokenizer = FastLanguageModel.from_pretrained(
+#     model_name = base_model, # YOUR MODEL YOU USED FOR TRAINING
+#     max_seq_length = max_seq_length,
+#     dtype = dtype,
+#     load_in_4bit = load_in_4bit,
+# )
+
+# # 3. Carrega os pesos do LoRA
+# #model.load_adapter("./lora_model_llama-3-8b-bnb-4bit")
+
+# # Prepara o modelo para inferência
+# FastLanguageModel.for_inference(model)
 # Tokeniza e move para GPU
 inputs = tokenizer(
      # Lista com os prompts
