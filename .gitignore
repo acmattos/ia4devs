@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
+amazon_titles_reasoning.json
+trn_500 copy.json
+trn.json
