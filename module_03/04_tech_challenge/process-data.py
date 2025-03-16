@@ -1,4 +1,5 @@
 import json
+import re
 from tqdm import tqdm
 
 def count_records(file):
@@ -13,6 +14,12 @@ def read_json_file(file, total_lines):
          json_data.append(json_datum)   
    return json_data
 
+# Função para remover caracteres especiais
+def clean_text(text):
+    # Remover caracteres especiais (mantém apenas letras, números e espaços)
+    cleaned_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    return cleaned_text
+
 def remove_invalid_records(json_data):
    filtered_records = []
    # Processa cada registro
@@ -25,22 +32,22 @@ def remove_invalid_records(json_data):
    return filtered_records
 
 def process_item(product, description):
-    # Processa cada linha do arquivo JSON, que contém os campos 'product' e 'description'
-    return {
-        "input": f"GET THE DESCRIPTION OF THIS PRODUCT.\n[|Product|]{product}[|eProduct|]\n\n[|Description|]{description}[|eDescription|]"
-    }
+   return {
+        'product': clean_text(product),
+        'description': clean_text(description)
+   }
 
 def write_json_file(filtered_records, output_file):
-   with open(output_file, 'w', encoding='utf-8') as file:
-      file.write('[\n')
-      for i, item in enumerate(tqdm(filtered_records, desc="Salvando registros processado em arquivo   ")):
-         file.write(' ')
-         json.dump(item, file, ensure_ascii=False)
-         if i < len(filtered_records) - 1:
-            file.write(',\n')
-         else:
-            file.write('\n')      
-      file.write(']')  
+    with open(output_file, 'w', encoding='utf-8') as file:
+        file.write('[\n')
+        for i, item in enumerate(tqdm(filtered_records, desc="Salvando registros processado em arquivo   ")):
+            file.write(' ')
+            json.dump(item, file, ensure_ascii=False)
+            if i < len(filtered_records) - 1:
+                file.write(',\n')
+            else:
+                file.write('\n')      
+        file.write(']')  
 
 def process_json_file(input_file, output_file):
    print() 
@@ -61,11 +68,7 @@ def process_json_file(input_file, output_file):
    print(f"Arquivo processado salvo em                : {output_file}")
    print() 
 
-# Uso
-process_json_file('trn.json', 'trn_processed.json')      
-
-
-
-
-
+# Executando a função principal
+if __name__ == "__main__":
+    process_json_file('trn.json', 'trn_processed.json')
 
