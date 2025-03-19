@@ -73,7 +73,7 @@ def create_unsloth_configurations(model = 2):
     chosen_model = fourbit_models[model]
     unsloth_config = {
         # Tamanho máximo da sequência de entrada
-        "max_seq_length"      :  2048,               # Máximo de tokens que o modelo pode processar de uma vez
+        "max_seq_length"      :  8192,               # Máximo de tokens que o modelo pode processar de uma vez
         # Tipo de dados para os pesos do modelo
         "dtype"               : torch_dtype,         # Formato de precisão reduzida para economia de memória
                                                      # bfloat16 é bom para treinar em GPUs modernas
@@ -100,7 +100,7 @@ def get_pretrained_model_and_tokenizer(uc):
     print("###############################################################################\n")
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name          = uc["model"],               # Usa LLaMA-3 8B (índice 2 da lista)
-        max_seq_length      = uc["max_seq_length"],      # Tamanho máximo da sequência (2048)
+        max_seq_length      = uc["max_seq_length"],      # Tamanho máximo  dos tokens
         dtype               = uc["dtype"],               # Tipo de dados (bfloat16)
         load_in_4bit        = uc["load_in_4bit"],        # Quantização em 4 bits
         attn_implementation = uc["attn_implementation"], # Usa Flash Attention 2
@@ -120,7 +120,7 @@ def get_peft_model(model):
     peft_model = FastLanguageModel.get_peft_model(
         # Aplica LoRA para fine-tuning eficiente
         model,                                  # Modelo base carregado
-        r                          = 16,        # Rank da matriz LoRA
+        r                          = 32,        # Controla o processo de finetuning (v: +rápido,-memória; ^:+acurácia, +memória, +overfiting)
         # Camadas que serão adaptadas
         target_modules             = [
             "q_proj",                           # Query projection
@@ -132,8 +132,8 @@ def get_peft_model(model):
             "down_proj",                        # Downscaling projection
         ],
         # Configura parâmetros de treinamento
-        lora_alpha                 = 16,        # Escala de adaptação
-        lora_dropout               = 0,         # Sem dropout
+        lora_alpha                 = 32,        # Escala de adaptação
+        lora_dropout               = 0,         # Sem dropout (Não previne overfitting.)
         bias                       = "none",    # Não treina bias
         # Otimiza uso de memória
         use_gradient_checkpointing = "unsloth", # Economia de memória
@@ -286,28 +286,28 @@ def get_configured_stftrainer(uc, peft_model, prompt_dataset, tokenizer):
     print("###############################################################################\n")
     training_arguments = TrainingArguments(
         # Tamanho dos batches e gradientes
-        per_device_train_batch_size = 2,            # Exemplos por batch na GPU
-        gradient_accumulation_steps = 4,            # Acumula gradientes antes de atualizar
+        per_device_train_batch_size = 2,                 # Exemplos por batch na GPU
+        gradient_accumulation_steps = 4,                 # Acumula gradientes antes de atualizar
         # Etapas de treinamento
-        warmup_steps                = 5,            # Passos de aquecimento
-        max_steps                   = 60,           # Total de passos de treinamento (teste)
-        #num_train_epochs            = 1,            # Configuracao de treinamento real
+        warmup_steps                = 5,                 # Passos de aquecimento
+        max_steps                   = 60,                # Total de passos de treinamento (teste)
+        #num_train_epochs            = 2,                 # Configuracao de treinamento real
         # Taxa de aprendizado e otimização
-        learning_rate               = 2e-4,         # Taxa de aprendizado
-        weight_decay                = 0.01,         # Regularização L2
-        lr_scheduler_type           = "linear",     # Decaimento linear da taxa
+        learning_rate               = 2e-4,              # Taxa de aprendizado
+        weight_decay                = 0.01,              # Regularização L2
+        lr_scheduler_type           = "linear",          # Decaimento linear da taxa
         # Precisão e performance
-        fp16 = not is_bfloat16_supported(),         # Usa FP16 se bfloat16 não disponível
-        bf16 = is_bfloat16_supported(),             # Usa bfloat16 se disponível
-        gradient_checkpointing      = True,         # Ativa gradient checkpointing
-        optim                       = "adamw_8bit", # Otimizador em 8 bits
-        max_grad_norm               = 0.3,          # Limita gradientes
+        fp16 = not is_bfloat16_supported(),              # Usa FP16 se bfloat16 não disponível
+        bf16 = is_bfloat16_supported(),                  # Usa bfloat16 se disponível
+        gradient_checkpointing      = True,              # Ativa gradient checkpointing
+        optim                       = "adamw_8bit",      # Otimizador em 8 bits
+        max_grad_norm               = 0.3,               # Limita gradientes
         # Logging e saída
-        logging_steps               = 1,            # Frequência de log
-        output_dir                  = "outputs",    # Diretório de saída
-        save_steps                  = 1000,         # Frequência de salvamento do modelo
+        logging_steps               = 1,                 # Frequência de log
+        output_dir                  = "trainer_outputs", # Diretório de saída
+        save_steps                  = 1000,              # Frequência de salvamento do modelo
         # Reprodutibilidade
-        seed                        = 3407,         # Semente aleatória
+        seed                        = 3407,              # Semente aleatória
     )
 
     trainer = SFTTrainer(
@@ -368,16 +368,10 @@ def prepare_model_for_inference(peft_model):
     print("\nModelo preparado para inferência!")
     return peft_model
 
-def prepare_product_for_tokenization(product, tokenizer):
-    """
-    Prepares ``product`` for tokenization.
-    """
-    print("\n###############################################################################")
-    print(f"# Preparando '{product}' para ser tokenizado e passar por inferência...")
-    print("###############################################################################")
+def generate_inputs(tokenizer, product):
     alpaca_prompt = create_alpaca_prompt()
     # Tokeniza e move para GPU
-    inputs = tokenizer(
+    return tokenizer(
         # Lista com os prompts
         [
             # Formata o prompt usando template Alpaca
@@ -387,8 +381,21 @@ def prepare_product_for_tokenization(product, tokenizer):
                 "",                                      # Resposta vazia
             )
         ],
+        padding        = True,
+        truncation     = True,
         return_tensors = "pt"  # Retorna tensores PyTorch
     ).to("cuda")               # Move para GPU
+
+def prepare_product_for_tokenization(tokenizer, product):
+    """
+    Prepares ``product`` for tokenization.
+    """
+    print("\n###############################################################################")
+    print(f"# Preparando '{product}' para ser tokenizado e passar por inferência...")
+    print("###############################################################################")
+    alpaca_prompt = create_alpaca_prompt()
+    # Tokeniza e move para GPU
+    inputs = generate_inputs(tokenizer, product)
     print("\nTokenização realizada com sucesso!")
     return inputs
 
@@ -507,19 +514,18 @@ def fine_tuning():
     peft_model = prepare_model_for_inference(peft_model)
 
     # Prepara o prompt para o produto "Girls Ballet Tutu Neon Blue" e tokeniza
-    inputs = prepare_product_for_tokenization("Mog's Kittens", tokenizer)
+    inputs = prepare_product_for_tokenization(tokenizer, "Mog's Kittens")
     # Realiza a consulta no modelo usando o prompt tokenizado, gerando uma resposta
     responses = query_model(peft_model, inputs, tokenizer)
     print(f"\nResposta do modelo: [{extract_response_from(responses[0])}]")
 
     # Prepara o prompt para outro produto "Mog's Kittens" e tokeniza
-    inputs = prepare_product_for_tokenization("Mog's Kittens", tokenizer)
+    inputs = prepare_product_for_tokenization(tokenizer,"Mog's Kittens")
     # Realiza uma consulta em fluxo (streaming) no modelo usando o prompt tokenizado
     query_model_stream(peft_model, inputs, tokenizer)
 
     # Salva o modelo fine-tunado e o tokenizador no diretório configurado, incluindo LoRA
     save_all(uc, peft_model, tokenizer)
-
 
 processed_file = "trn_processed.json"
 dataset_file   = "trn_processed_dataset.json"
