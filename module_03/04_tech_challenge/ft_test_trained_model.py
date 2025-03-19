@@ -1,41 +1,14 @@
-import torch
+
+from fine_tuning import  create_unsloth_configurations, generate_inputs
 from peft import AutoPeftModelForCausalLM
 from transformers import AutoTokenizer
-from unsloth import FastLanguageModel
 from transformers import TextStreamer
 
-###############################################################################
-# Configuração para o Unsloth
-###############################################################################
-# Tamanho máximo da sequência de entrada
-max_seq_length = 2048           # Máximo de tokens que o modelo pode processar de uma vez
-# Tipo de dados para os pesos do modelo
-dtype          = torch.bfloat16 # Formato de precisão reduzida para economia de memória
-                                # bfloat16 é bom para treinar em GPUs modernas
-# Habilita quantização em 4 bits
-load_in_4bit   = True           # Reduz uso de memória mantendo boa performance
-
-
-alpaca_prompt = """
-Below is an instruction that describes a task, paired with an input that 
-provides further context. Write a response that appropriately completes 
-the request.
-
-### Instruction:
-{}
-
-### Input:
-{}
-
-### Response:
-{}
-"""
-
 # Carrega o modelo base
-def get_model(base_model):
+def get_model(base_model, uc):
     model = AutoPeftModelForCausalLM.from_pretrained(
-        base_model, # YOUR MODEL YOU USED FOR TRAINING
-        load_in_4bit = load_in_4bit,
+        base_model,
+        load_in_4bit = uc["load_in_4bit"],
     )
     return model
 
@@ -43,27 +16,8 @@ def get_tokenizer(base_model):
     tokenizer = AutoTokenizer.from_pretrained(base_model)
     return tokenizer
 
-
-def get_inputs(tokenizer, product):
-    # Tokeniza e move para GPU
-    inputs = tokenizer(
-        # Lista com os prompts
-        [  
-            # Formata o prompt usando template Alpaca
-            alpaca_prompt.format(
-                "GET THE DESCRIPTION OF THIS PRODUCT", # Instrução
-                product,                               # Produto
-                "",                                    # Resposta vazia
-            ),
-        ],
-        padding=True,
-        truncation=True,
-        return_tensors = "pt"  # Retorna tensores PyTorch 
-    ).to("cuda")  # Move para GPU
-    return inputs             
-
 def get_text_streamer(tokenizer):
-    text_streamer = TextStreamer(tokenizer, skip_prompt=True)
+    text_streamer = TextStreamer(tokenizer, skip_prompt = True)
     return text_streamer
 
 def get_outputs(model, inputs, text_streamer):
@@ -84,34 +38,47 @@ def decode_responses(tokenizer, outputs):
     responses = tokenizer.batch_decode(outputs)
     return responses
 
-def ask_the_model(base_model, product):
-    model = get_model(base_model)
+def ask_the_model(base_model, uc, product):
+    model = get_model(base_model, uc)
     tokenizer = get_tokenizer(base_model)
-    inputs = get_inputs(tokenizer, product)
+    inputs = generate_inputs(tokenizer, product)
     text_streamer = get_text_streamer(tokenizer)
     outputs = get_outputs(model, inputs, text_streamer)
     print("Query: ", product)
     decode_responses(tokenizer, outputs)
 
-def ask_questions_to_the_model(base_model):
-    model = get_model(base_model)
+def ask_questions_to_the_model(base_model, uc):
+    model = get_model(base_model, uc)
     tokenizer = get_tokenizer(base_model)
-    questions = ["Girls Ballet Tutu Neon Blue",
+    products = ["Girls Ballet Tutu Neon Blue",
                  "Mog's Kittens",
                  "The Prophet",
                  "The Book of Revelation"]
-    for question in questions:
-        inputs = get_inputs(tokenizer, question)
+    for product in products:
+        inputs = generate_inputs(tokenizer, product)
         text_streamer = get_text_streamer(tokenizer)
-        print("\nQuery: ", question)
+        print("\nQuery: ", product)
         outputs = get_outputs(model, inputs, text_streamer)
         decode_responses(tokenizer, outputs)
 
-base_model = "./lora_model_llama-3-8b-bnb-4bit"
+def ask():
+    uc = create_unsloth_configurations()
+    base_trained_model = "./_" + uc["lora_model"]
 
-# ask_the_model(base_model, "Girls Ballet Tutu Neon Blue")
-# ask_the_model(base_model, "Mog's Kittens")
-# ask_the_model(base_model, "The Prophet")
-# ask_the_model(base_model, "The Book of Revelation")
+    #ask_the_model(base_trained_model, uc, "Passenger to Frankfurt")
+    # ask_the_model(base_trained_model, uc, "Mog's Kittens")
+    # ask_the_model(base_trained_model, uc, "The Prophet")
+    # ask_the_model(base_trained_model, uc, "The Book of Revelation")
 
-ask_questions_to_the_model(base_model)
+    # print("\n###############################################################################")
+    # print(f"# Perguntando ao modelo base: {uc['model']}")
+    # print("###############################################################################\n")
+    # ask_questions_to_the_model(uc["model"], uc)
+    print("\n###############################################################################")
+    print(f"# Perguntando ao modelo treinado: {base_trained_model}")
+    print("###############################################################################\n")
+    ask_questions_to_the_model(base_trained_model, uc)
+
+# Executando a função main
+if __name__ == "__main__":
+    ask()
