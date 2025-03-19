@@ -388,7 +388,7 @@ Resposta do modelo:
 # RAG
 
 O processo de RAG (Retrieval Augmented Generation) do modelo envolve duas 
-etapas: na primenira, realizamos a indexação dos dados que iremos trabalhar
+etapas: na primeira, realizamos a indexação dos dados que iremos trabalhar
 com o modelo de IA escolhido ("unsloth/llama-3-8b-bnb-4bit") enquanto na 
 segunda, interrogamos o modelo utilizando a base de dados indexada, utilizando  
 RAG.
@@ -396,16 +396,30 @@ Uma etapa intermediária foi introduzida, apenas para verificar a indexação do
 dados de trabalho (trn_processed.json). 
 
 ## Indexação dos Dados
-Nosso código para o treinamento do modelo está disponível no arquivo 
-"fine_tuning.py".
-rag_indexing.py
+
+Nosso código para a indexação dos dados para realização e RAG está disponível no
+arquivo "rag_indexing.py".
+
+O início do processo se dá com o consumo do arquivo "trn_processed.json". Ele é 
+carregado para que seus dados sejam preparados para a indexação na vector store
+(ChromaDB). Para otimizar as busca, os dados são quebrados em pedaçoes menores 
+(chunks), antes de serem convertidos em vetores de embeddings. Com os embeddings
+gerados, chegou o momento de converter os dados processados em documentos que 
+serão armazenados na vector store. Tendo os documentos prontamente convertidos, 
+chegou o momento de instanciar a vector store e então armazenar documentos e 
+embeddings criados.  
+
+## Exemplo de execução:
+
 
 ## Verificação dos Dados Indexados (Passo Intermediário)
-Nosso código para o treinamento do modelo está disponível no arquivo 
-"fine_tuning.py".
-rag_search_vs.py
+Nosso código para a verificação dos dados que foram indexados anteriormente está
+disponível no arquivo "rag_search_vs.py".
+
+## Exemplo de execução:
 
 ## Testando o Modelo com RAG
-Nosso código para o treinamento do modelo está disponível no arquivo 
-"fine_tuning.py".
-rag_model_retriever.py
+Nosso código para a realização de consultas ao modelo, utilizando RAG está 
+disponível no arquivo "rag_model_retriever.py".
+
+## Exemplo de execução:
