@@ -27,7 +27,7 @@ def remove_invalid_records(json_data):
       title = item["title"] 
       content = item["content"] 
       # Apenas adiciona se ambos os campos não estiverem vazios
-      if title and content:
+      if title and content and len(content) >= 100:
          filtered_records.append(process_item(title, content))
    return filtered_records
 
