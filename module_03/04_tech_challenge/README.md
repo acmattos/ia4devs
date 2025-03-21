@@ -10,6 +10,7 @@ necessários para o trabalho serem executados, podem ser visto abaixo (executar
 na ordem):
 
 * [CUDA Toolkit 12.6](https://developer.nvidia.com/cuda-12-6-3-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local)
+* [cuDNN 9.8.0 Downloads](https://developer.nvidia.com/cudnn-downloads)
 * [triton-windows](https://github.com/woct0rdho/triton-windows)
 * [PyTorch](https://pytorch.org/get-started/locally/)
 * [Unsloth](https://docs.unsloth.ai/get-started/installing-+-updating/windows-installation)
