@@ -106,8 +106,11 @@ inferências. Duas consultas são realizadas, apenas para mostrar as capacidades
 de exibição das respostas às consultas: a exibição completa, após o resultado 
 retornado ou sua apresentação conforme o modelo vai gerando a resposta.
 
-Concluído este pequeno teste, salvamos o modelo e seus adaptadores LoRA em 
+Concluído este pequeno teste, salvamos o modelo e seus adaptadores LoRA 
 localmente.
+
+O modelo treinado fica disponível no seguinte link: 
+(ACMattosHE/lora_model_llama-3-8b-bnb-4bit)[https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit/tree/main]
 
 A seguir, o log de execução deste código:
 
