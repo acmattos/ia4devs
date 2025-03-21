@@ -15,7 +15,7 @@ na ordem):
 * [PyTorch](https://pytorch.org/get-started/locally/)
 * [Unsloth](https://docs.unsloth.ai/get-started/installing-+-updating/windows-installation)
 
-**Observação**: O Unsloth teve um problema em sua versão 2025.2.X. Fui obrigado 
+**Observação**: O Unsloth teve um problema em sua versão 2025.2.X. Fomos obrigados 
 a usar a verão anterior, para que o trabalho fosse executado.       
   
 pip install unsloth==2025.1.5  
