@@ -1,52 +1,71 @@
 # Preparação do Ambiente
 
-0 - https://developer.nvidia.com/cuda-12-6-3-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local
-1 - https://github.com/woct0rdho/triton-windows
-2 - https://pytorch.org/get-started/locally/
-3 - https://docs.unsloth.ai/get-started/installing-+-updating/windows-installation
-OBS:   pip install unsloth==2025.1.5
-       pip install --no-deps "unsloth>=2025.3.8" "unsloth_zoo>=2025.3.7" --upgrade --force-reinstall
+Este trabalho foi planejado para rodar no Windows. Pata isto precisamos ter 
+atenção na hora de instalar as bibliotecas e dependências para poder rodar os 
+arquivos.
 
-##################
-RAG:
+Todos os arquivos rodam no Windows 11 com o Python 3.12.6 em uma GPU RTX 4060. 
+Também utilizamos o CUDA 12.6 e cuDNN 9.8. Os passos para instalar os arquivos 
+necessários para o trabalho serem executados, podem ser visto abaixo (executar 
+na ordem):
 
-pip install huggingface_hub
-pip install langchain langchain-community chromadb
+* [CUDA Toolkit 12.6](https://developer.nvidia.com/cuda-12-6-3-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local)
+* [triton-windows](https://github.com/woct0rdho/triton-windows)
+* [PyTorch](https://pytorch.org/get-started/locally/)
+* [Unsloth](https://docs.unsloth.ai/get-started/installing-+-updating/windows-installation)
 
+**Observação**: O Unsloth teve um problema em sua versão 2025.2.X. Fui obrigado 
+a usar a verão anterior, para que o trabalho fosse executado.       
+  
+pip install unsloth==2025.1.5  
+
+Possivelmente a verão de março funcione:  
+  
+pip install --no-deps "unsloth>=2025.3.8" "unsloth_zoo>=2025.3.7" --upgrade --force-reinstall
+  
 # Processamento dos Dados
-process_data.py
 
-The AmazonTitles-1.3MM".(https://drive.google.com/file/d/12zH4mL2RX8iSvH0VCNnd3QxO4DzuHWnK/view?usp=sharing)
+Os dados utilizados para o trabalho foram obtidos do [The AmazonTitles-1.3MM](https://drive.google.com/file/d/12zH4mL2RX8iSvH0VCNnd3QxO4DzuHWnK/view?usp=sharing).
 
-2248619
-trn.json
+Em particular, trabalhamos com o arquivo trn.json, que contém os nossos dados de
+treino. O arquivo tem este formato:
 
+```json 
 {"uid": "0001360000", "title": "Mog's Kittens", "content": "Judith Kerr&#8217;s best&#8211;selling adventures of that endearing (and exasperating) cat Mog have entertained children for more than 30 years. Now, even infants and toddlers can enjoy meeting this loveable feline. These sturdy little board books&#8212;with their bright, simple pictures, easy text, and hand&#8211;friendly formats&#8212;are just the thing to delight the very young. Ages 6 months&#8211;2 years.", "target_ind": [146, 147, 148, 149, 495], "target_rel": [1.0, 1.0, 1.0, 1.0, 1.0]}
 {"uid": "0000031895", "title": "Girls Ballet Tutu Neon Blue", "content": "Dance tutu for girls ages 2-8 years. Perfect for dance practice, recitals and performances, costumes or just for fun!", "target_ind": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 27, 31, 33, 42, 46, 54, 58, 111, 113, 125, 126, 159, 163, 202, 203, 204, 205, 206, 207], "target_rel": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}
+```
+O arquivo trn.json contém 2.248.619 registros. Em particular, vamos trabalhar 
+com os campos `title` e `content`. Os demais campos serão descartados.
 
-utilizar title e content
-remover title e content vazios, bem como content com conteudo menor do que 100 caracteres
-1216560
-trn_processed.json
+O arquivos `process_data.py` realiza o processamento dos dados. Vamos descartar 
+os registros com `content` vazio ou com o conteúdo menor do que 100 caracteres.
+Com isto, geramos o arquivo `trn_processed.json`, com 1.216.560 registros aptos 
+a serem usados no treinamento do modelo.
+
+O arquivo tem este formato:
+
+```json 
 [
  {"product": "Mogs Kittens", "description": "Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers can enjoy meeting this loveable feline These sturdy little board books8212with their bright simple pictures easy text and hand8211friendly formats8212are just the thing to delight the very young Ages 6 months82112 years"},
  {"product": "Girls Ballet Tutu Neon Blue", "description": "Dance tutu for girls ages 28 years Perfect for dance practice recitals and performances costumes or just for fun"},
 ]
+```
 
-## Execução 
-
-> python .\process_data.py  
+## Exemplo de execução:
+``` 
+(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\process_data.py  
   
-Lendo os registros do arquivo              : 100%|████████████████████████| 2248619/2248619 [00:35<00:00, 62903.00it/s]  
-Processando registros lidos                : 100%|████████████████████████| 2248619/2248619 [00:14<00:00, 155615.25it/s]  
-Salvando registros processado em arquivo   : 100%|████████████████████████| 1216560/1216560 [00:10<00:00, 117362.03it/s]  
+Lendo os registros do arquivo              : 100%|███████████████| 2248619/2248619 [00:35<00:00, 62903.00it/s]  
+Processando registros lidos                : 100%|███████████████| 2248619/2248619 [00:14<00:00, 155615.25it/s]  
+Salvando registros processado em arquivo   : 100%|███████████████| 1216560/1216560 [00:10<00:00, 117362.03it/s]  
 Total de registros no arquivo original     : 2,248,619  
 Total de registros processados (não vazios): 1,216,560  
 Arquivo processado salvo em                : trn_processed.json  
+```
 
 # Fine-Tuning
 
-O processo de fine-tuning do modelo envolve duas etapas: na primenira, 
+O processo de fine-tuning do modelo envolve duas etapas: na primeira, 
 realizamos o fine-tuning do modelo escolhido ("unsloth/llama-3-8b-bnb-4bit") 
 enquanto na segunda, interrogamos o modelo treinado 
 (./lora_model_llama-3-8b-bnb-4bit).
@@ -54,10 +73,10 @@ enquanto na segunda, interrogamos o modelo treinado
 ## Treinamento do Modelo
 
 Nosso código para o treinamento do modelo está disponível no arquivo 
-"fine_tuning.py".
+`fine_tuning.py`.
 
 O proceso de fine-tuning é feito a partir do arquivo processado 
-(trn_processed.json) na fase de preparação dos dados para treinamento.
+`trn_processed.json` na fase de preparação dos dados para treinamento.
 
 Inicialmente, a configuração do Unsloth é feita, de forma a preparar o modelo 
 para fine-tuning. Com a configuração pronta, modelo e tokenizador são carregados
@@ -65,40 +84,41 @@ e retornado. Depois, aplicamos os adaptadores LoRA ao mesmo modelo, Deixando-o
 pronto para o treinamento.
 
 Neste momento, iniciamos a preparação dos dados que serão utilizados para o 
-finetunig do modelo. Ele é preparado de forma a agrupar os produtos como 
-grupo de entrada (input) e as descrições como grupo de saída (output). As 
+fine-tuning do modelo. Ele é preparado de forma a agrupar os produtos como 
+grupo de entrada (`input`) e as descrições como grupo de saída (`output`). As 
 instruções (perguntas que serão feitas ao modelo) ficam no grupo de 
-instruções (instructions). Esta preparação é salva em arquivo 
-(trn_processed_dataset.json) para ser utilizada mais adiante.
+instruções (`instructions`). Esta preparação é salva em arquivo 
+(`trn_processed_dataset.json`) para ser utilizada mais adiante.
 
 Após ser carregado como um dataset, é transformado em um "prompt dataset"
-para ser passado para o treinador do modelo. Então, o trainamento pe realizado.
-Neste momento, uma mudançao de foco precisou ser feita: a quantidade de itens 
+para ser passado para o treinador do modelo. Então, o treinamento é realizado.
+Neste momento, uma mudança de foco precisou ser feita: a quantidade de itens 
 a serem treinadas (1.216.560) implicava em um tempo de treinamento que excediam 
 7 dias. Com isto, o "prompt dataset" foi reduzido para 5000 item, o que permitiu
-a aplicação de duas épocas de treinamento (algo em torno de 1250 iterações) tomando
-um total 2:30 para que a tarefa fosse realizada. É importante ressaltar que a 
-configuração presente no código, a GPU utilizada e o conjunto de dados de treino
-influenciam diretamente no tempo de execução do treinamento. Algumas estatísticas 
-são mostradas após o treino (tempo gasto, consumo de memória).
+a aplicação de duas épocas de treinamento (algo em torno de 1250 iterações) 
+tomando um total 2:30 para que a tarefa fosse realizada. É importante ressaltar 
+que a configuração presente no código, a GPU utilizada e o conjunto de dados de 
+treino influenciam diretamente no tempo de execução do treinamento. Algumas 
+estatísticas são mostradas após o treino (tempo gasto, consumo de memória).
 
 Ao finalizarmos esta etapa, preparamos o modelo treinado para a realização de 
 inferências. Duas consultas são realizadas, apenas para mostrar as capacidades 
 de exibição das respostas às consultas: a exibição completa, após o resultado 
 retornado ou sua apresentação conforme o modelo vai gerando a resposta.
 
-Consluído este pequeno teste, salvamos o modelo e seus adaptadores LoRA em localmente.
+Concluído este pequeno teste, salvamos o modelo e seus adaptadores LoRA em 
+localmente.
 
 A seguir, o log de execução deste código:
 
-'''
+``` 
 (.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\fine_tuning.py  
 🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.  
 🦥 Unsloth Zoo will now patch everything to make training faster!  
 
-\###############################################################################  
-\# Informações do Ambiente de Execução  
-\###############################################################################  
+###############################################################################  
+# Informações do Ambiente de Execução  
+###############################################################################  
   
 Versão do Python      : 3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)]  
 Versão do PyTorch     : 2.6.0+cu126  
@@ -112,9 +132,9 @@ Nome da GPU 0         : NVIDIA GeForce RTX 4060 Laptop GPU
 Memória Máxima        : 7.996 GB  
 Memória reservada     : 0.0 GB  
 
-\###############################################################################  
-\# Criando Configurações do Unsloth  
-\###############################################################################  
+###############################################################################  
+# Criando Configurações do Unsloth  
+###############################################################################  
   
 Configuração realizada:  
 {'attn_implementation': 'flash_attention_2',  
@@ -125,9 +145,9 @@ Configuração realizada:
  'max_seq_length': 8192,  
  'model': 'unsloth/llama-3-8b-bnb-4bit'}  
 
-\###############################################################################  
-\# Carregando o modelo e tokenizador para o modelo...  
-\###############################################################################  
+###############################################################################  
+# Carregando o modelo e tokenizador para o modelo...  
+###############################################################################  
   
 ==((====))==  Unsloth 2025.1.5: Fast Llama patching. Transformers: 4.49.0.  
    \\   /|    GPU: NVIDIA GeForce RTX 4060 Laptop GPU. Max memory: 7.996 GB. Platform: Windows.  
@@ -140,31 +160,31 @@ C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-
   
 Modelo unsloth/llama-3-8b-bnb-4bit e tokenizador carregados e com sucesso!  
   
-\###############################################################################  
-\# Configurando o modelo para fine-tuning com LoRA (Low Rank Adaptation)...  
-\###############################################################################  
+###############################################################################  
+# Configurando o modelo para fine-tuning com LoRA (Low Rank Adaptation)...  
+###############################################################################  
   
 Unsloth 2025.1.5 patched 32 layers with 32 QKV layers, 32 O layers and 32 MLP layers.  
   
 Modelo configurado para fine-tuning com LoRA (Low Rank Adaptation)  
   
-\###############################################################################  
-\# Criando o Conjunto de Dados para Treinamento do Modelo...  
-\###############################################################################  
+###############################################################################  
+# Criando o Conjunto de Dados para Treinamento do Modelo...  
+###############################################################################  
   
 Processando linhas: 100%|███████████████████████████████████████████████| 5002/5002 [00:00<00:00, 277916.39it/s]   
   
-\###############################################################################  
-\# Gerando o Arquivo com o Conjunto de Dados para Treinamento do Modelo...  
-\###############################################################################  
+###############################################################################  
+# Gerando o Arquivo com o Conjunto de Dados para Treinamento do Modelo...  
+###############################################################################  
   
 Salvando registros: 100%|███████████████████████████████████████████████| 5000/5000 [00:00<00:00, 5001554.97it/s]  
   
 Dataset salvo em                             : trn_processed_dataset.json  
   
-\###############################################################################  
-\# Gerando o Dataset para Treinamento do Modelo...  
-\###############################################################################  
+###############################################################################  
+# Gerando o Dataset para Treinamento do Modelo...  
+###############################################################################  
   
 Generating train split: 5000 examples [00:00, 59244.76 examples/s]  
   
@@ -173,9 +193,9 @@ Dataset geardo com sucesso: Dataset({
     num_rows: 5000  
 })  
   
-\###############################################################################  
-\# Convertendo o Dataset para Treinamento do Modelo em Prompts...  
-\###############################################################################  
+###############################################################################  
+# Convertendo o Dataset para Treinamento do Modelo em Prompts...  
+###############################################################################  
   
 Formatando prompts: 100%|███████████████████████████████████████████████| 5000/5000 [00:00<00:00, 70249.52 examples/s]  
   
@@ -184,18 +204,18 @@ Dataset convertido com sucesso: Dataset({
     num_rows: 5000  
 })  
   
-\###############################################################################  
-\# Configurando o Treinador SFT (Supervised Fine-Tuning)...  
-\###############################################################################  
+###############################################################################  
+# Configurando o Treinador SFT (Supervised Fine-Tuning)...  
+###############################################################################  
   
 Map: 100%|████████████████████████████████████████████████████████| 5000/5000 [00:00<00:00, 6432.07 examples/s]  
 No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.       
   
 Treinador SFT configurado com sucesso!  
   
-\###############################################################################  
-\# Treinando o Treinador SFT (Supervised Fine-Tuning)...  
-\###############################################################################  
+###############################################################################  
+# Treinando o Treinador SFT (Supervised Fine-Tuning)...  
+###############################################################################  
   
 ==((====))==  Unsloth - 2x faster free finetuning | Num GPUs = 1  
    \\   /|    Num examples = 5,000 | Num Epochs = 1  
@@ -266,13 +286,13 @@ O^O/ \_/ \    Batch size per device = 2 | Gradient Accumulation steps = 4
 100%|███████████████████████████████████████████████████████████████████| 60/60 [06:04<00:00,  6.07s/it]   
    
 Estatísticas do Treinamento  
-\===========================  
+===========================  
 Tempo total de treinamento       : 364.50 segundos (6.07 min)  
 Velocidade de processamento      : 1.32 samples/s  
 Loss final do treinamento        : 2.2536  
   
 Estatísticas de Memória GPU  
-\============================  
+===========================  
 Pico de memória reservada        : 8.074 GB  
 Pico de memória para treinamento : 0.000 GB  
 Percentual da memória máxima     : 100.975%  
@@ -282,29 +302,29 @@ AVISO: O uso de memória ultrapassou o limite máximo recomendado!
   
 Treinamento concluido com sucesso!  
   
-\###############################################################################  
-\# Preparando o modelo para fazer inferência (previsões)...  
-\###############################################################################  
+###############################################################################  
+# Preparando o modelo para fazer inferência (previsões)...  
+###############################################################################  
   
 Modelo preparado para inferência!  
   
-\###############################################################################  
-\# Preparando 'Mog's Kittens' para ser tokenizado e passar por inferência...  
-\###############################################################################  
+###############################################################################  
+# Preparando 'Mog's Kittens' para ser tokenizado e passar por inferência...  
+###############################################################################  
   
 Tokenização realizada com sucesso!  
   
-\###############################################################################  
-\# Realizando pergunta para o modelo...  
-\###############################################################################  
+###############################################################################  
+# Realizando pergunta para o modelo...  
+###############################################################################  
   
 Resposta obtida com sucesso!  
   
 Resposta do modelo: [The New York Times bestselling author of the beloved Mog series returns with a new tale of a cat and her kittens  Mog is a cat who loves to sleep in the sun and eat tuna fish But when she has kittens of her own she must learn to be a good mother and teach her kittens to be good cats too  This is a sweet and funny story about a cat and her kittens that is sure to delight young readers  Ages 3 to 7]  
   
-\###############################################################################  
-\# Preparando 'Mog's Kittens' para ser tokenizado e passar por inferência...  
-\###############################################################################  
+###############################################################################  
+# Preparando 'Mog's Kittens' para ser tokenizado e passar por inferência...  
+###############################################################################  
   
 Tokenização realizada com sucesso!  
  The New York Times bestselling author of the beloved Mog series returns with a new story about the little cat who has charmed millions of readers worldwideMog is a cat who likes to be in charge of things Mog likes to be in charge of the other cats Mog likes to be
@@ -312,9 +332,9 @@ Tokenização realizada com sucesso!
   
 Resposta obtida com sucesso!  
   
-\###############################################################################  
-\# Salvando o Modelo Treinado em lora_model_llama-3-8b-bnb-4bit...  
-\###############################################################################  
+###############################################################################  
+# Salvando o Modelo Treinado em lora_model_llama-3-8b-bnb-4bit...  
+###############################################################################  
 Unsloth: Merging 4bit and LoRA weights to 16bit...  
 Unsloth: Will use up to 0.0 out of 31.73 RAM for saving.  
 Unsloth: Saving model... This might take 5 minutes ...  
@@ -324,8 +344,8 @@ We will save to Disk and not RAM now.
 Unsloth: Saving tokenizer... Done.  
 Done.  
   
-\>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FIM DO FINE-TUNING <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  
-
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FIM DO FINE-TUNING <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  
+```
 
 ## Testando Modelo Treinado
 
@@ -335,14 +355,14 @@ Nosso código para o treinamento do modelo está disponível no arquivo
 O proceso de fine-tuning é feito a partir do arquivo processado 
 (trn_processed.json) na fase de preparação dos dados para treinamento.
 
-
+```
 (.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\ft_test_trained_model.py  
 🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.  
 🦥 Unsloth Zoo will now patch everything to make training faster!  
   
-\###############################################################################  
-\# Criando Configurações do Unsloth  
-\###############################################################################  
+###############################################################################  
+# Criando Configurações do Unsloth  
+###############################################################################  
   
 Configuração realizada:  
 {'attn_implementation': 'flash_attention_2',  
@@ -353,9 +373,9 @@ Configuração realizada:
  'max_seq_length': 8192,  
  'model': 'unsloth/llama-3-8b-bnb-4bit'}  
   
-\###############################################################################  
-\# Perguntando ao modelo treinado: ./lora_model_llama-3-8b-bnb-4bit  
-\###############################################################################  
+###############################################################################  
+# Perguntando ao modelo treinado: ./lora_model_llama-3-8b-bnb-4bit  
+###############################################################################  
   
 The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be removed in the future versions. Please, pass a `BitsAndBytesConfig` object in `quantization_config` argument instead.  
 `low_cpu_mem_usage` was None, now default to True since model is quantized.  
@@ -382,7 +402,7 @@ Query:  The Book of Revelation
   
 Resposta do modelo:  
  The Book of Revelation is the last book of the New Testament and one of the most enigmatic and controversial works in Western literature It is a book of apocalyptic prophecy that predicts the end of the world and the Last Judgment The book is also known as the Apocalypse of John or simply the Apocalypse<|end_of_text|>  
-  
+``` 
 
 # RAG
 
@@ -397,7 +417,7 @@ dados de trabalho (trn_processed.json).
 ## Indexação dos Dados
 
 Nosso código para a indexação dos dados para realização e RAG está disponível no
-arquivo "rag_indexing.py".
+arquivo `rag_indexing.py`.
 
 O início do processo se dá com o consumo do arquivo "trn_processed.json". Ele é 
 carregado para que seus dados sejam preparados para a indexação na vector store
@@ -410,6 +430,8 @@ embeddings criados.
 
 ## Exemplo de execução:
 
+```
+```
 
 ## Verificação dos Dados Indexados (Passo Intermediário)
 Nosso código para a verificação dos dados que foram indexados anteriormente está
@@ -425,6 +447,7 @@ exemplo de execução abaixo mostra os resultados obtidos para o produto
 
 ## Exemplo de execução:
 
+```
 (.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\rag_search_vs.py  
   
 Criando modelo de embeddings...  
@@ -451,26 +474,29 @@ vector_store criada!
   
 Realizando consultas na vector_store  
   
-\* Product: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 
+* Product: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 
   28 years Perfect for dance practice recitals and performances costumes or just 
   for fun [{'product': 'Girls Ballet Tutu Neon Blue'}]  
 
-\* Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet 
+* Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet 
   tutu 12 inches in length [{'product': 'Girls Ballet Tutu Neon Pink'}]  
 
-\* Product: Delphie and the Birthday Show Magic Ballerina Book 6 - Description: 
+* Product: Delphie and the Birthday Show Magic Ballerina Book 6 - Description: 
   x201CDonx2019t be surprised if your child asks for a magical pair of red ballet 
   shoesx201D Telegraph Magazinex201CDelightfulx201D You Magazine Mail on 
   Sundayx201CA delight for any young reader who sees herself as a budding 
   ballerinax201D MumKnowsBestcouk [{'product': 'Delphie and the Birthday Show 
   Magic Ballerina Book 6'}]  
+```
 
 ## Testando o Modelo com RAG
+
 Nosso código para a realização de consultas ao modelo, utilizando RAG está 
 disponível no arquivo "rag_model_retriever.py".
 
 ## Exemplo de execução:
 
+```
 (.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\rag_model_retriever.py  
 🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.  
 🦥 Unsloth Zoo will now patch everything to make training faster!  
@@ -487,9 +513,9 @@ C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py
   
 vector_store criada!  
   
-\###############################################################################  
-\# Criando Configurações do Unsloth  
-\###############################################################################  
+###############################################################################  
+# Criando Configurações do Unsloth  
+###############################################################################  
   
 Configuração realizada:  
 {'attn_implementation': 'flash_attention_2',  
@@ -500,9 +526,9 @@ Configuração realizada:
  'max_seq_length': 8192,  
  'model': 'unsloth/llama-3-8b-bnb-4bit'}  
   
-\###############################################################################  
-\# Carregando o modelo e tokenizador para o modelo...  
-\###############################################################################  
+###############################################################################  
+# Carregando o modelo e tokenizador para o modelo...  
+###############################################################################  
   
 ==((====))==  Unsloth 2025.1.5: Fast Llama patching. Transformers: 4.49.0.  
    \\   /|    GPU: NVIDIA GeForce RTX 4060 Laptop GPU. Max memory: 7.996 GB. Platform: Windows.  
@@ -513,9 +539,9 @@ Unsloth: Fast downloading is enabled - ignore downloading bars which are red col
   
 Modelo unsloth/llama-3-8b-bnb-4bit e tokenizador carregados e com sucesso!  
   
-\###############################################################################  
-\# Preparando o modelo para fazer inferência (previsões)...  
-\###############################################################################  
+###############################################################################  
+# Preparando o modelo para fazer inferência (previsões)...  
+###############################################################################  
   
 Modelo preparado para inferência!  
 C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_model_retriever.py:35: LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:`~invoke` instead.  
@@ -527,15 +553,15 @@ Below is an instruction that describes a task, paired with an input that
 provides further context. Write a response that appropriately completes   
 the request.  
   
-\### Instruction:  
+### Instruction:  
 GET THE DESCRIPTION OF THIS PRODUCT: Girls Ballet Tutu Neon Blue  
   
-\### Input:  
+### Input:  
 Product: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 28 years Perfect for dance practice recitals and performances costumes or just for fun  
 Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet tutu 12 inches in length  
 Product: Delphie and the Birthday Show Magic Ballerina Book 6 - Description: x201CDonx2019t be surprised if your child asks for a magical pair of red ballet shoesx201D Telegraph Magazinex201CDelightfulx201D You Magazine Mail on Sundayx201CA delight for any young reader who sees herself as a budding ballerinax201D MumKnowsBestcouk  
 
-\### Response:  
+### Response:  
 
 The description of this product is: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 28 years Perfect for dance practice recitals and performances costumes or just for fun  
 
@@ -545,14 +571,15 @@ Below is an instruction that describes a task, paired with an input that
 provides further context. Write a response that appropriately completes   
 the request.  
 
-\### Instruction:  
+### Instruction:  
 GET THE DESCRIPTION OF THIS PRODUCT: Mog's Kittens  
   
-\### Input:  
+### Input:  
 Product: Mogs Kittens - Description: Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers can enjoy meeting this loveable feline These sturdy little board books8212with their bright simple pictures easy text and hand8211friendly formats8212are just the thing to delight the very young Ages 6 months82112 years  
 Product: Mog and the VET Mog the Cat Books - Description: Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s warmth humour and honesty make this an engaging introduction to a difficult topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling book for children on the subject or bereavementx2026a joy to readx2019 The Independent on Sunday   
 Product: Mog on Fox Night - Description: Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s warmth humour and honesty make this an engaging introduction to a difficult topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling book for children on the subject of bereavementx2026a joy to readx2019 The Independent on Sunday  
   
-\### Response:  
+### Response:  
   
 Mog's Kittens - Description: Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers  
+```
