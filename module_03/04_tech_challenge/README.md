@@ -419,9 +419,9 @@ dados de trabalho (trn_processed.json).
 Nosso código para a indexação dos dados para realização e RAG está disponível no
 arquivo `rag_indexing.py`.
 
-O início do processo se dá com o consumo do arquivo "trn_processed.json". Ele é 
+O início do processo se dá com o consumo do arquivo `trn_processed.json`. Ele é 
 carregado para que seus dados sejam preparados para a indexação na vector store
-(ChromaDB). Para otimizar as busca, os dados são quebrados em pedaçoes menores 
+(ChromaDB). Para otimizar as busca, os dados são quebrados em pedaços menores 
 (chunks), antes de serem convertidos em vetores de embeddings. Com os embeddings
 gerados, chegou o momento de converter os dados processados em documentos que 
 serão armazenados na vector store. Tendo os documentos prontamente convertidos, 
@@ -519,7 +519,7 @@ Documentos carregados!
 
 ## Verificação dos Dados Indexados (Passo Intermediário)
 Nosso código para a verificação dos dados que foram indexados anteriormente está
-disponível no arquivo "rag_search_vs.py".
+disponível no arquivo `rag_search_vs.py`.
 
 Para realizar a verificação dos dados indexados, utilizamos o modelo de embeddings
 criado na indexação dos dados. Em seguida, utilizamos a vector store para realizar
