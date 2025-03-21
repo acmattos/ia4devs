@@ -175,13 +175,13 @@ Modelo configurado para fine-tuning com LoRA (Low Rank Adaptation)
 # Criando o Conjunto de Dados para Treinamento do Modelo...  
 ###############################################################################  
   
-Processando linhas: 100%|███████████████████████████████████████████████| 5002/5002 [00:00<00:00, 277916.39it/s]   
+Processando linhas: 100%|██████████████| 5002/5002 [00:00<00:00, 277916.39it/s]   
   
 ###############################################################################  
 # Gerando o Arquivo com o Conjunto de Dados para Treinamento do Modelo...  
 ###############################################################################  
   
-Salvando registros: 100%|███████████████████████████████████████████████| 5000/5000 [00:00<00:00, 5001554.97it/s]  
+Salvando registros: 100%|██████████████| 5000/5000 [00:00<00:00, 5001554.97it/s]  
   
 Dataset salvo em                             : trn_processed_dataset.json  
   
@@ -200,7 +200,7 @@ Dataset geardo com sucesso: Dataset({
 # Convertendo o Dataset para Treinamento do Modelo em Prompts...  
 ###############################################################################  
   
-Formatando prompts: 100%|███████████████████████████████████████████████| 5000/5000 [00:00<00:00, 70249.52 examples/s]  
+Formatando prompts: 100%|████████████████| 5000/5000 [00:00<00:00, 70249.52 examples/s]  
   
 Dataset convertido com sucesso: Dataset({  
     features: ['instruction', 'input', 'output', 'text'],  
@@ -211,8 +211,11 @@ Dataset convertido com sucesso: Dataset({
 # Configurando o Treinador SFT (Supervised Fine-Tuning)...  
 ###############################################################################  
   
-Map: 100%|████████████████████████████████████████████████████████| 5000/5000 [00:00<00:00, 6432.07 examples/s]  
-No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.       
+Map: 100%|██████████████████████████| 5000/5000 [00:00<00:00, 6432.07 examples/s]  
+No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` 
+hides base models input arguments, if label_names is not given, label_names can't 
+be set automatically within `Trainer`. Note that empty label_names list will be 
+used instead.       
   
 Treinador SFT configurado com sucesso!  
   
@@ -286,7 +289,7 @@ O^O/ \_/ \    Batch size per device = 2 | Gradient Accumulation steps = 4
 {'loss': 1.7631, 'grad_norm': 1.0372639894485474, 'learning_rate': 3.636363636363636e-06, 'epoch': 0.09}  
 {'loss': 1.6957, 'grad_norm': 0.7620051503181458, 'learning_rate': 0.0, 'epoch': 0.1}   
 {'train_runtime': 364.4972, 'train_samples_per_second': 1.317, 'train_steps_per_second': 0.165, 'train_loss': 2.253616464138031, 'epoch': 0.1}  
-100%|███████████████████████████████████████████████████████████████████| 60/60 [06:04<00:00,  6.07s/it]   
+100%|████████████████████████████████████████████████████████████| 60/60 [06:04<00:00,  6.07s/it]   
    
 Estatísticas do Treinamento  
 ===========================  
@@ -323,13 +326,19 @@ Tokenização realizada com sucesso!
   
 Resposta obtida com sucesso!  
   
-Resposta do modelo: [The New York Times bestselling author of the beloved Mog series returns with a new tale of a cat and her kittens  Mog is a cat who loves to sleep in the sun and eat tuna fish But when she has kittens of her own she must learn to be a good mother and teach her kittens to be good cats too  This is a sweet and funny story about a cat and her kittens that is sure to delight young readers  Ages 3 to 7]  
+Resposta do modelo: [The New York Times bestselling author of the beloved Mog 
+series returns with a new tale of a cat and her kittens  Mog is a cat who loves 
+to sleep in the sun and eat tuna fish But when she has kittens of her own she must 
+learn to be a good mother and teach her kittens to be good cats too  This is a 
+sweet and funny story about a cat and her kittens that is sure to delight young 
+readers  Ages 3 to 7]  
   
 ###############################################################################  
 # Preparando 'Mog's Kittens' para ser tokenizado e passar por inferência...  
 ###############################################################################  
   
 Tokenização realizada com sucesso!  
+
  The New York Times bestselling author of the beloved Mog series returns with a new story about the little cat who has charmed millions of readers worldwideMog is a cat who likes to be in charge of things Mog likes to be in charge of the other cats Mog likes to be
  in charge of the dog Mog likes to be in charge of the fish Mog likes to be in charge of the bird Mog likes to be in charge of the mouse Mog likes to be in charge of the baby Mog likes to be in charge of the worldBut when the baby is born Mog finds that being in charge is not as easy as she thought it would beM  
   
@@ -343,7 +352,7 @@ Unsloth: Will use up to 0.0 out of 31.73 RAM for saving.
 Unsloth: Saving model... This might take 5 minutes ...  
   0%|                                                    | 0/32 [00:00<?, ?it/s]   
 We will save to Disk and not RAM now.  
-100%|████████████████████████████████████████████████████| 32/32 [01:31<00:00,  2.85s/it]  
+100%|███████████████████████████████████████████| 32/32 [01:31<00:00,  2.85s/it]  
 Unsloth: Saving tokenizer... Done.  
 Done.  
   
@@ -380,31 +389,47 @@ Configuração realizada:
 # Perguntando ao modelo treinado: ./lora_model_llama-3-8b-bnb-4bit  
 ###############################################################################  
   
-The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be removed in the future versions. Please, pass a `BitsAndBytesConfig` object in `quantization_config` argument instead.  
+The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be 
+removed in the future versions. Please, pass a `BitsAndBytesConfig` object in 
+`quantization_config` argument instead.  
 `low_cpu_mem_usage` was None, now default to True since model is quantized.  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-packages\accelerate\utils\modeling.py:330: UserWarning: expandable_segments not supported on this platform (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:28.)
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-packages\accelerate\utils\modeling.py:330: 
+UserWarning: expandable_segments not supported on this platform (Triggered internally at 
+C:\actions-runner\_work\pytorch\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:28.)
   new_value = value.to(device)  
   
 Query:  Girls Ballet Tutu Neon Blue  
   
 Resposta do modelo:  
- The perfect gift for the little ballerina in your life this tutu is made of soft nylon tulle and is fully lined with a satin drawstring waistband<|end_of_text|>  
+ The perfect gift for the little ballerina in your life this tutu is made of soft 
+ nylon tulle and is fully lined with a satin drawstring waistband<|end_of_text|>  
   
 Query:  Mog's Kittens  
   
 Resposta do modelo:  
- Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The Observerx2018Kerrx2019s watercolours are
- full of humour and expressionx2019 Financial Timesx2018A lovely book for all Mogfanciersx2019 The Observerx2018Kerrx2019s watercolours are full of humour and expressionx2019 Financial Times<|end_of_text|>  
+ Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun 
+ out of seeing it again as the new generation of fans just learning to readx2019 
+ Choice Magazinex2018A lovely book for all Mogfanciersx2019 The 
+ Observerx2018Kerrx2019s watercolours are
+ full of humour and expressionx2019 Financial Timesx2018A lovely book for all 
+ Mogfanciersx2019 The Observerx2018Kerrx2019s watercolours are full of humour and 
+ expressionx2019 Financial Times<|end_of_text|>  
   
 Query:  The Prophet  
   
 Resposta do modelo:  
- The Prophet is a book of 26 prose poetry essays written in English by LebaneseAmerican artist Kahlil Gibran 1883ndash1931 The Prophet has been translated into over 20 languages and has sold more than 100 million copies worldwide<|end_of_text|>  
+ The Prophet is a book of 26 prose poetry essays written in English by 
+ LebaneseAmerican artist Kahlil Gibran 1883ndash1931 The Prophet has been 
+ translated into over 20 languages and has sold more than 100 million copies 
+ worldwide<|end_of_text|>  
   
 Query:  The Book of Revelation  
   
 Resposta do modelo:  
- The Book of Revelation is the last book of the New Testament and one of the most enigmatic and controversial works in Western literature It is a book of apocalyptic prophecy that predicts the end of the world and the Last Judgment The book is also known as the Apocalypse of John or simply the Apocalypse<|end_of_text|>  
+ The Book of Revelation is the last book of the New Testament and one of the 
+ most enigmatic and controversial works in Western literature It is a book of 
+ apocalyptic prophecy that predicts the end of the world and the Last Judgment 
+ The book is also known as the Apocalypse of John or simply the Apocalypse<|end_of_text|>  
 ``` 
 
 # RAG
@@ -688,10 +713,26 @@ feline These sturdy little board books8212with their bright simple pictures easy
 text and hand8211friendly formats8212are just the thing to delight the very young 
 Ages 6 months82112 years  
 Product: Mog and the VET Mog the Cat Books - Description: Praise for Mog the 
-Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s warmth humour and honesty make this an engaging introduction to a difficult topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling book for children on the subject or bereavementx2026a joy to readx2019 The Independent on Sunday   
-Product: Mog on Fox Night - Description: Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s warmth humour and honesty make this an engaging introduction to a difficult topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling book for children on the subject of bereavementx2026a joy to readx2019 The Independent on Sunday  
+Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it 
+again as the new generation of fans just learning to readx2019 Choice Magazinex2018A 
+lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s 
+warmth humour and honesty make this an engaging introduction to a difficult topicx2019 
+Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely 
+sensitive storyx2019 The Timesx2018The best most consoling book for children on the 
+subject or bereavementx2026a joy to readx2019 The Independent on Sunday   
+Product: Mog on Fox Night - Description: Praise for Mog the Forgetful 
+Catx2018Grandparents are likely to get as much fun out of seeing it again as the 
+new generation of fans just learning to readx2019 Choice Magazinex2018A lovely 
+book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s 
+warmth humour and honesty make this an engaging introduction to a difficult 
+topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery 
+Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling 
+book for children on the subject of bereavementx2026a joy to readx2019 The 
+Independent on Sunday  
   
 ### Response:  
   
-Mog's Kittens - Description: Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers  
+Mog's Kittens - Description: Judith Kerr8217s best8211selling adventures of that 
+endearing and exasperating cat Mog have entertained children for more than 30 
+years Now even infants and toddlers  
 ```
