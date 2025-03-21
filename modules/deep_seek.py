@@ -1,8 +1,12 @@
 from ollama import chat
 from ollama import ChatResponse
 
-def generate_data_for_fine_tuning(json_data):
-    prompt = f"""
+def generate_data_for_fine_tuning(json_data: dict):
+    """This function generates a JSON object including the context of a chat between a user and an assistant.
+    The JSON object includes the question, reasoning, and answer.
+    The JSON object is used for fine-tuning DeepSeek model.
+    """
+    prompt_for_question = f"""
     You are a helpful assistant that generates data for fine-tuning DeepSeek model.
     You will be given a product title and context (description).
     You need to generate a question, reasoning, and answer based on the product title and context.
@@ -24,7 +28,7 @@ def generate_data_for_fine_tuning(json_data):
     response: ChatResponse = chat(model='deepseek-r1:14b', messages=[
         {
             'role': 'user',
-            'content': prompt,
+            'content': prompt_for_question,
         },
     ])
     return response['message']['content']
