@@ -588,11 +588,20 @@ disponível no arquivo "rag_model_retriever.py".
 Criando modelo de embeddings...  
   
 Criando modelo de embeddings...  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:68: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.  
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:68: 
+LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in 
+LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists 
+in the :class:`~langchain-huggingface package and should be used instead. To use 
+it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:
+`~langchain_huggingface import HuggingFaceEmbeddings``.  
   embeddings_model = HuggingFaceEmbeddings(  
   
 Criando vector_store para o embeddings_model...  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:122: LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-chroma package and should be used instead. To use it run `pip install -U :class:`~langchain-chroma` and import as `from :class:`~langchain_chroma import Chroma``.  
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:122: 
+LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 
+and will be removed in 1.0. An updated version of the class exists in the :class:
+`~langchain-chroma package and should be used instead. To use it run `pip install 
+-U :class:`~langchain-chroma` and import as `from :class:`~langchain_chroma import Chroma``.  
   vector_store = Chroma(  
   
 vector_store criada!  
@@ -628,7 +637,10 @@ Modelo unsloth/llama-3-8b-bnb-4bit e tokenizador carregados e com sucesso!
 ###############################################################################  
   
 Modelo preparado para inferência!  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_model_retriever.py:35: LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:`~invoke` instead.  
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_model_retriever.py:35: 
+LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` 
+was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:
+`~invoke` instead.  
   retrieved_docs = retriever.get_relevant_documents(product)  
   
 Resposta gerada:  
@@ -641,13 +653,20 @@ the request.
 GET THE DESCRIPTION OF THIS PRODUCT: Girls Ballet Tutu Neon Blue  
   
 ### Input:  
-Product: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 28 years Perfect for dance practice recitals and performances costumes or just for fun  
-Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet tutu 12 inches in length  
-Product: Delphie and the Birthday Show Magic Ballerina Book 6 - Description: x201CDonx2019t be surprised if your child asks for a magical pair of red ballet shoesx201D Telegraph Magazinex201CDelightfulx201D You Magazine Mail on Sundayx201CA delight for any young reader who sees herself as a budding ballerinax201D MumKnowsBestcouk  
+Product: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 28 
+years Perfect for dance practice recitals and performances costumes or just for fun  
+Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet 
+tutu 12 inches in length  
+Product: Delphie and the Birthday Show Magic Ballerina Book 6 - Description: 
+x201CDonx2019t be surprised if your child asks for a magical pair of red ballet 
+shoesx201D Telegraph Magazinex201CDelightfulx201D You Magazine Mail on Sundayx201CA 
+delight for any young reader who sees herself as a budding ballerinax201D MumKnowsBestcouk  
 
 ### Response:  
 
-The description of this product is: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 28 years Perfect for dance practice recitals and performances costumes or just for fun  
+The description of this product is: Girls Ballet Tutu Neon Blue - Description: 
+Dance tutu for girls ages 28 years Perfect for dance practice recitals and 
+performances costumes or just for fun  
 
 Resposta gerada:  
   
@@ -659,8 +678,14 @@ the request.
 GET THE DESCRIPTION OF THIS PRODUCT: Mog's Kittens  
   
 ### Input:  
-Product: Mogs Kittens - Description: Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers can enjoy meeting this loveable feline These sturdy little board books8212with their bright simple pictures easy text and hand8211friendly formats8212are just the thing to delight the very young Ages 6 months82112 years  
-Product: Mog and the VET Mog the Cat Books - Description: Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s warmth humour and honesty make this an engaging introduction to a difficult topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling book for children on the subject or bereavementx2026a joy to readx2019 The Independent on Sunday   
+Product: Mogs Kittens - Description: Judith Kerr8217s best8211selling adventures 
+of that endearing and exasperating cat Mog have entertained children for more 
+than 30 years Now even infants and toddlers can enjoy meeting this loveable 
+feline These sturdy little board books8212with their bright simple pictures easy 
+text and hand8211friendly formats8212are just the thing to delight the very young 
+Ages 6 months82112 years  
+Product: Mog and the VET Mog the Cat Books - Description: Praise for Mog the 
+Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s warmth humour and honesty make this an engaging introduction to a difficult topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling book for children on the subject or bereavementx2026a joy to readx2019 The Independent on Sunday   
 Product: Mog on Fox Night - Description: Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019 Choice Magazinex2018A lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s warmth humour and honesty make this an engaging introduction to a difficult topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling book for children on the subject of bereavementx2026a joy to readx2019 The Independent on Sunday  
   
 ### Response:  
