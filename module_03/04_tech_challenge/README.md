@@ -431,6 +431,90 @@ embeddings criados.
 ## Exemplo de execução:
 
 ```
+(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\rag_indexing.py 
+
+Carregando dados do arquivo processado...
+Total de registros gerados:5000
+Exemplo de registro: 
+{'description': 'High quality 3 layer ballet tutu 12 inches in length',
+ 'product': 'Girls Ballet Tutu Neon Pink'}
+
+Quebrando documentos JSON em chunks...
+
+Total de chunks gerados: 5000
+
+Exemplo de chunk:
+Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet tutu 12 inches in length
+
+Criando modelo de embeddings...
+Dividindo documentos JSON: 100%|██████████| 5000/5000 [00:00<00:00, 555316.30it/s]
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:68: 
+LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in 
+LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists 
+in the :class:`~langchain-huggingface package and should be used instead. To use 
+it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:
+`~langchain_huggingface import HuggingFaceEmbeddings``.
+  embeddings_model = HuggingFaceEmbeddings(
+
+Criando modelo de embeddings...
+
+Gerando embeddings para os chunks...
+
+Gerando embeddings...
+
+Total de embeddings gerados: 5000
+
+Exemplo de embedding:
+[0.03302772715687752,
+ -0.021298706531524658,
+ -0.021273870021104813,
+ 0.052845340222120285,
+ -0.019837183877825737,
+ -0.03264341503381729,
+ 0.010283859446644783,
+ 0.014730839990079403,
+ -0.017746785655617714,
+ 0.003939006011933088,
+  6.719978057498912e-35,
+ 0.037213534116744995,
+ -0.10796977579593658,
+ 0.04069541022181511,
+ -0.002336055040359497,
+ 0.006895443890243769,
+ -0.05344033241271973,
+ 0.08863085508346558,
+ -0.03707418590784073,
+ 0.05612768977880478,
+ 0.00930757075548172,
+ -0.023683171719312668]
+
+Convertendo json_data em lc_documents...
+
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:122: 
+LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 
+and will be removed in 1.0. An updated version of the class exists in the :class:
+`~langchain-chroma package and should be used instead. To use it run `pip install -U :class:
+`~langchain-chroma` and import as `from :class:`~langchain_chroma import Chroma``.
+  vector_store = Chroma(
+
+Total de lc_documents  gerados: 5000
+
+Exemplo de lc_document:
+Document(metadata={'product': 'Girls Ballet Tutu Neon Pink'}, 
+page_content='Product: Girls Ballet Tutu Neon Pink - Description: High quality 
+3 layer ballet tutu 12 inches in length')
+
+Criando vector_store para o embeddings_model...
+
+vector_store criada!
+
+Populando vector_store...
+
+Gerando UUIDs para cada documento...
+
+Adicionando os documentos no vector_store...
+
+Documentos carregados!
 ```
 
 ## Verificação dos Dados Indexados (Passo Intermediário)
