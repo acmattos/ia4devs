@@ -79,6 +79,13 @@ Nosso código para o treinamento do modelo está disponível no arquivo
 O proceso de fine-tuning é feito a partir do arquivo processado 
 `trn_processed.json` na fase de preparação dos dados para treinamento.
 
+O uso do Unsloth e do LoRA (Low-Rank Adaptation) foi motivado pela necessidade 
+de realizar o fine-tuning de modelos grandes de forma eficiente e com menor 
+consumo de recursos computacionais. O Unsloth oferece otimizações específicas 
+para acelerar o treinamento, enquanto o LoRA permite ajustar apenas um pequeno 
+número de parâmetros, reduzindo significativamente os requisitos de memória e 
+tempo de execução, sem comprometer a qualidade do modelo treinado.
+
 Inicialmente, a configuração do Unsloth é feita, de forma a preparar o modelo 
 para fine-tuning. Com a configuração pronta, modelo e tokenizador são carregados
 e retornado. Depois, aplicamos os adaptadores LoRA ao mesmo modelo, Deixando-o 
@@ -90,6 +97,11 @@ grupo de entrada (`input`) e as descrições como grupo de saída (`output`). As
 instruções (perguntas que serão feitas ao modelo) ficam no grupo de 
 instruções (`instructions`). Esta preparação é salva em arquivo 
 (`trn_processed_dataset.json`) para ser utilizada mais adiante.
+
+Além disso, o modelo foi ajustado utilizando o Alpaca, que aprimora a capacidade 
+do modelo em lidar com consultas complexas, garantindo respostas mais precisas e 
+relevantes, aumentando a eficiência em recuperação de informações e geração de 
+textos.
 
 Após ser carregado como um dataset, é transformado em um "prompt dataset"
 para ser passado para o treinador do modelo. Então, o treinamento é realizado.
@@ -109,6 +121,11 @@ retornado ou sua apresentação conforme o modelo vai gerando a resposta.
 
 Concluído este pequeno teste, salvamos o modelo e seus adaptadores LoRA 
 localmente.
+
+O dataset foi carregado e processado de forma a ser compatível com o formato 
+esperado pela biblioteca Hugging Face. Isso permite que ele seja utilizado 
+diretamente em pipelines de treinamento e inferência, facilitando a integração 
+com modelos de aprendizado de máquina e otimizando o fluxo de trabalho.
 
 O modelo treinado fica disponível no seguinte link: 
 (ACMattosHE/lora_model_llama-3-8b-bnb-4bit)[https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit/tree/main]
