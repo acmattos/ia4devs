@@ -63,7 +63,7 @@ def ask_questions_to_the_model(base_model, uc):
 
 def ask():
     uc = create_unsloth_configurations()
-    base_trained_model = "./_" + uc["lora_model"]
+    base_trained_model = "./" + uc["lora_model"]
 
     #ask_the_model(base_trained_model, uc, "Passenger to Frankfurt")
     # ask_the_model(base_trained_model, uc, "Mog's Kittens")
