@@ -64,6 +64,90 @@ Total de registros processados (não vazios): 1,216,560
 Arquivo processado salvo em                : trn_processed.json  
 ```
 
+# Foundation Model
+
+
+# Exemplo de execução:
+
+```
+(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\foundation_model.py
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+
+###############################################################################
+# Criando Configurações do Unsloth
+###############################################################################
+
+Configuração realizada:
+{'attn_implementation': 'flash_attention_2',
+ 'device_map': 'auto',
+ 'dtype': torch.bfloat16,
+ 'load_in_4bit': True,
+ 'lora_model': 'lora_model_llama-3-8b-bnb-4bit',
+ 'max_seq_length': 8192,
+ 'model': 'unsloth/llama-3-8b-bnb-4bit'}
+==((====))==  Unsloth 2025.1.5: Fast Llama patching. Transformers: 4.49.0.
+   \\   /|    GPU: NVIDIA GeForce RTX 4060 Laptop GPU. Max memory: 7.996 GB. Platform: Windows.
+O^O/ \_/ \    Torch: 2.6.0+cu126. CUDA: 8.9. CUDA Toolkit: 12.6. Triton: 3.2.0
+\        /    Bfloat16 = TRUE. FA [Xformers = 0.0.29.post3. FA2 = False]
+ "-____-"     Free Apache license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-packages\unsloth\models\llama.py:1185: 
+UserWarning: expandable_segments not supported on this platform (Triggered internally at 
+C:\actions-runner\_work\pytorch\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:28.)
+  self.register_buffer("cos_cached", emb.cos().to(dtype=dtype, device=device, non_blocking=True), persistent=False)
+
+Produto: Girls Ballet Tutu Neon Blue
+Descrição: This is a beautiful tutu. It is made of high quality material and it 
+is very comfortable. It is perfect for any occasion and it is very affordable. 
+It is also very durable and it will last for a long time. It is also very easy 
+to maintain and it is very easy to clean. It is also very easy to wear and it 
+is very easy to take off. It is also very easy to put on and it is very easy to 
+take off. It is also very easy to put on and it is very easy to take off. It is 
+also very easy to put on and it is very easy to take off. It is also very easy 
+to put on and it is very easy to take off. It is also very easy to put on and it 
+is very easy to take off. It is also very easy to put on and it is very easy to 
+take off. It is also very easy to put on and it is very easy to take off. It is 
+also very easy to put on and it is very easy to take off. It is also very easy 
+to put on and it is very easy to take off. It is also very easy to put on and it 
+is very easy to take off. It is also very easy to put on and it is very easy to 
+take off. It is also very easy to put on and it is very easy to take off. It is 
+also very easy to put on and it is very easy to take off. 
+
+Produto: Mog's Kittens
+Descrição: The product is a pair of socks.
+
+Produto: The Prophet
+Descrição: The Prophet is a product that helps you to find the best way to spend 
+your money. It is a product that helps you to find the best way to spend your 
+money. It is a product that helps you to find the best way to spend your money. 
+It is a product that helps you to find the best way to spend your money. It is a 
+product that helps you to find the best way to spend your money. It is a product 
+that helps you to find the best way to spend your money. It is a product that 
+helps you to find the best way to spend your money. It is a product that helps 
+you to find the best way to spend your money. It is a product that helps you to 
+find the best way to spend your money. It is a product that helps you to find 
+the best way to spend your money. It is a product that helps you to find the 
+best way to spend your money. 
+
+Produto: The Book of Revelation
+Descrição: The Book of Revelation is a book of the New Testament of the Bible, 
+and its title originated from the first word of the text in the Koine Greek: 
+apokalypsis, meaning "unveiling" or "revelation". The author describes himself 
+as "John" and does not identify himself as the son of Zebedee, the apostle John. 
+The text is a letter to seven churches in the Roman province of Asia, and is a 
+call to the churches to remain faithful to Jesus Christ, and individual letters 
+to each church, with a promise of a swift punishment for Christian communities 
+that are in a state of apostasy. The Book of Revelation is the final book of the 
+New Testament and occupies a central place in Christian eschatology. By tradition, 
+this prophecy was revealed by its author to the apostle John on the island of 
+Patmos, and from its first readers, this prophecy has been accepted as of divine 
+inspiration. The author of Revelation does not identify himself, but introduces 
+his work as "the revelation of Jesus Christ", which he received "by an angel" from God. 
+
+Process finished with exit code 0
+```
+
 # Fine-Tuning
 
 O processo de fine-tuning do modelo envolve duas etapas: na primeira, 
@@ -130,6 +214,7 @@ com modelos de aprendizado de máquina e otimizando o fluxo de trabalho.
 O modelo treinado fica disponível no seguinte link: 
 (ACMattosHE/lora_model_llama-3-8b-bnb-4bit)[https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit/tree/main]
 
+## Exemplo de execução:
 A seguir, o log de execução deste código:
 
 ``` 
@@ -384,6 +469,8 @@ Nosso código para o treinamento do modelo está disponível no arquivo
 
 O proceso de fine-tuning é feito a partir do arquivo processado 
 (trn_processed.json) na fase de preparação dos dados para treinamento.
+
+## Exemplo de execução:
 
 ```
 (.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\ft_test_trained_model.py  

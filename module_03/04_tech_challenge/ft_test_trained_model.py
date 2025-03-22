@@ -70,10 +70,6 @@ def ask():
     # ask_the_model(base_trained_model, uc, "The Prophet")
     # ask_the_model(base_trained_model, uc, "The Book of Revelation")
 
-    # print("\n###############################################################################")
-    # print(f"# Perguntando ao modelo base: {uc['model']}")
-    # print("###############################################################################\n")
-    # ask_questions_to_the_model(uc["model"], uc)
     print("\n###############################################################################")
     print(f"# Perguntando ao modelo treinado: {base_trained_model}")
     print("###############################################################################\n")
