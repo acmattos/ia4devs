@@ -61,9 +61,29 @@ def ask_questions_to_the_model(base_model, uc):
         outputs = get_outputs(model, inputs, text_streamer)
         decode_responses(tokenizer, outputs)
 
-def ask():
+# Testa o modelo original "unsloth/llama-3-8b-bnb-4bit" sem fine-tuning
+def ask_original_model():
+    print("\n###############################################################################")
+    print("# Testando o modelo original 'unsloth/llama-3-8b-bnb-4bit'...")
+    print("###############################################################################\n")
+    uc = create_unsloth_configurations()
+    base_model = uc["model"]
+    ask_questions_to_the_model(base_model, uc)
+
+def ask_trained_model():
+    print("\n###############################################################################")
+    print("# Testando o modelo treinado...")
+    print("###############################################################################\n")
     uc = create_unsloth_configurations()
     base_trained_model = "./_" + uc["lora_model"]
+    ask_questions_to_the_model(base_trained_model, uc)
+
+def ask():
+    ask_original_model()
+
+    ask_trained_model()
+    # uc = create_unsloth_configurations()
+    # base_trained_model = "./_" + uc["lora_model"]
 
     #ask_the_model(base_trained_model, uc, "Passenger to Frankfurt")
     # ask_the_model(base_trained_model, uc, "Mog's Kittens")
@@ -74,10 +94,12 @@ def ask():
     # print(f"# Perguntando ao modelo base: {uc['model']}")
     # print("###############################################################################\n")
     # ask_questions_to_the_model(uc["model"], uc)
-    print("\n###############################################################################")
-    print(f"# Perguntando ao modelo treinado: {base_trained_model}")
-    print("###############################################################################\n")
-    ask_questions_to_the_model(base_trained_model, uc)
+    # print("\n###############################################################################")
+    # print(f"# Perguntando ao modelo treinado: {base_trained_model}")
+    # print("###############################################################################\n")
+    # ask_questions_to_the_model(base_trained_model, uc)
+
+
 
 # Executando a função main
 if __name__ == "__main__":
