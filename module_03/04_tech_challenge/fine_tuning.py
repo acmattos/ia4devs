@@ -512,7 +512,7 @@ def fine_tuning():
     # Prepara o modelo fine-tunado para inferência (geração de respostas)
     peft_model = prepare_model_for_inference(peft_model)
 
-    # Prepara o prompt para o produto "Girls Ballet Tutu Neon Blue" e tokeniza
+    # Prepara o prompt para o produto "Mod's Kittens" e tokeniza
     inputs = prepare_product_for_tokenization(tokenizer, "Mog's Kittens")
     # Realiza a consulta no modelo usando o prompt tokenizado, gerando uma resposta
     responses = query_model(peft_model, inputs, tokenizer)
