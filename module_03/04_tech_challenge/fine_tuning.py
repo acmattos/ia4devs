@@ -393,13 +393,12 @@ def prepare_product_for_tokenization(tokenizer, product):
     print("\n###############################################################################")
     print(f"# Preparando '{product}' para ser tokenizado e passar por inferência...")
     print("###############################################################################")
-    alpaca_prompt = create_alpaca_prompt()
     # Tokeniza e move para GPU
     inputs = generate_inputs(tokenizer, product)
     print("\nTokenização realizada com sucesso!")
     return inputs
 
-def query_model(peft_model, inputs, tokenizer):
+def query_model(peft_model, inputs, tokenizer, temperature = 0.2):
     """
     Query ``peft_model`` with ``inputs`` for a ``response``.
     """
@@ -410,7 +409,7 @@ def query_model(peft_model, inputs, tokenizer):
     outputs = peft_model.generate(
         **inputs,
         max_new_tokens = 128,  # Máximo de tokens na resposta
-        temperature    = 0.2,  # Controla aleatoriedade (0.0 a 1.0)
+        temperature    = temperature,  # Controla aleatoriedade (0.0 a 1.0)
         do_sample      = True, # Usa amostragem probabilística
         use_cache      = True  # Ativa o cache para melhorar a velocidade de geração
     )

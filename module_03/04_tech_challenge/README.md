@@ -15,12 +15,12 @@ na ordem):
 * [PyTorch](https://pytorch.org/get-started/locally/)
 * [Unsloth](https://docs.unsloth.ai/get-started/installing-+-updating/windows-installation)
 
-**Observação**: O Unsloth teve um problema em sua versão 2025.2.X. Fui obrigado 
-a usar a verão anterior, para que o trabalho fosse executado.       
+**Observação**: O Unsloth teve um problema em sua versão 2025.2.X. Para poder 
+exeecutar o trabalho, a versão 2025.1.5 teve que ser utilizada.     
   
 pip install unsloth==2025.1.5  
 
-Possivelmente a verão de março funcione:  
+Possivelmente a verão de março funcione (não testada):  
   
 pip install --no-deps "unsloth>=2025.3.8" "unsloth_zoo>=2025.3.7" --upgrade --force-reinstall
   
@@ -64,6 +64,110 @@ Total de registros processados (não vazios): 1,216,560
 Arquivo processado salvo em                : trn_processed.json  
 ```
 
+# Foundation Model
+O modelo escolhido para realizar o fine tunning neste trabalho é o 
+`unsloth/llama-3-8b-bnb-4bit`. Trata-se de uma implementação otimizada do modelo 
+LLaMA (Large Language Model Meta AI), ajustada para ser eficiente em termos de 
+memória e desempenho. Ele utiliza quantização em 4 bits, o que reduz 
+significativamente o consumo de memória sem comprometer a precisão do modelo. 
+Além disso, o modelo é compatível com a biblioteca Hugging Face Transformers e 
+foi projetado para ser executado em GPUs com suporte a CUDA, como a NVIDIA 
+RTX 4060, aproveitando tecnologias como Flash Attention e LoRA (Low-Rank 
+Adaptation) para acelerar o treinamento e a inferência. Com um tamanho de 8 
+bilhões de parâmetros, ele é capaz de lidar com tarefas complexas de 
+processamento de linguagem natural, como geração de texto, resumo, tradução e 
+respostas a perguntas. (Fonte: https://huggingface.co/unsloth/llama-3-8b-bnb-4bit)
+
+O objetivo principal do modelo é permitir o fine-tuning eficiente em cenários 
+com recursos computacionais limitados, como laptops ou estações de trabalho com 
+GPUs de médio porte. Ele foi otimizado para tarefas que exigem personalização, 
+como a adaptação a domínios específicos ou a criação de sistemas de recuperação 
+de informações baseados em RAG (Retrieval Augmented Generation). A combinação de 
+quantização em 4 bits e adaptadores LoRA permite que o modelo seja ajustado 
+rapidamente com conjuntos de dados menores, mantendo alta qualidade nas respostas 
+geradas e reduzindo o tempo e os custos associados ao treinamento de modelos grandes.
+
+# Exemplo de execução:
+
+```
+(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\foundation_model.py
+🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
+🦥 Unsloth Zoo will now patch everything to make training faster!
+
+###############################################################################
+# Criando Configurações do Unsloth
+###############################################################################
+
+Configuração realizada:
+{'attn_implementation': 'flash_attention_2',
+ 'device_map': 'auto',
+ 'dtype': torch.bfloat16,
+ 'load_in_4bit': True,
+ 'lora_model': 'lora_model_llama-3-8b-bnb-4bit',
+ 'max_seq_length': 8192,
+ 'model': 'unsloth/llama-3-8b-bnb-4bit'}
+==((====))==  Unsloth 2025.1.5: Fast Llama patching. Transformers: 4.49.0.
+   \\   /|    GPU: NVIDIA GeForce RTX 4060 Laptop GPU. Max memory: 7.996 GB. Platform: Windows.
+O^O/ \_/ \    Torch: 2.6.0+cu126. CUDA: 8.9. CUDA Toolkit: 12.6. Triton: 3.2.0
+\        /    Bfloat16 = TRUE. FA [Xformers = 0.0.29.post3. FA2 = False]
+ "-____-"     Free Apache license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-packages\unsloth\models\llama.py:1185: 
+UserWarning: expandable_segments not supported on this platform (Triggered internally at 
+C:\actions-runner\_work\pytorch\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:28.)
+  self.register_buffer("cos_cached", emb.cos().to(dtype=dtype, device=device, non_blocking=True), persistent=False)
+
+Produto: Girls Ballet Tutu Neon Blue
+Descrição: This is a beautiful tutu. It is made of high quality material and it 
+is very comfortable. It is perfect for any occasion and it is very affordable. 
+It is also very durable and it will last for a long time. It is also very easy 
+to maintain and it is very easy to clean. It is also very easy to wear and it 
+is very easy to take off. It is also very easy to put on and it is very easy to 
+take off. It is also very easy to put on and it is very easy to take off. It is 
+also very easy to put on and it is very easy to take off. It is also very easy 
+to put on and it is very easy to take off. It is also very easy to put on and it 
+is very easy to take off. It is also very easy to put on and it is very easy to 
+take off. It is also very easy to put on and it is very easy to take off. It is 
+also very easy to put on and it is very easy to take off. It is also very easy 
+to put on and it is very easy to take off. It is also very easy to put on and it 
+is very easy to take off. It is also very easy to put on and it is very easy to 
+take off. It is also very easy to put on and it is very easy to take off. It is 
+also very easy to put on and it is very easy to take off. 
+
+Produto: Mog's Kittens
+Descrição: The product is a pair of socks.
+
+Produto: The Prophet
+Descrição: The Prophet is a product that helps you to find the best way to spend 
+your money. It is a product that helps you to find the best way to spend your 
+money. It is a product that helps you to find the best way to spend your money. 
+It is a product that helps you to find the best way to spend your money. It is a 
+product that helps you to find the best way to spend your money. It is a product 
+that helps you to find the best way to spend your money. It is a product that 
+helps you to find the best way to spend your money. It is a product that helps 
+you to find the best way to spend your money. It is a product that helps you to 
+find the best way to spend your money. It is a product that helps you to find 
+the best way to spend your money. It is a product that helps you to find the 
+best way to spend your money. 
+
+Produto: The Book of Revelation
+Descrição: The Book of Revelation is a book of the New Testament of the Bible, 
+and its title originated from the first word of the text in the Koine Greek: 
+apokalypsis, meaning "unveiling" or "revelation". The author describes himself 
+as "John" and does not identify himself as the son of Zebedee, the apostle John. 
+The text is a letter to seven churches in the Roman province of Asia, and is a 
+call to the churches to remain faithful to Jesus Christ, and individual letters 
+to each church, with a promise of a swift punishment for Christian communities 
+that are in a state of apostasy. The Book of Revelation is the final book of the 
+New Testament and occupies a central place in Christian eschatology. By tradition, 
+this prophecy was revealed by its author to the apostle John on the island of 
+Patmos, and from its first readers, this prophecy has been accepted as of divine 
+inspiration. The author of Revelation does not identify himself, but introduces 
+his work as "the revelation of Jesus Christ", which he received "by an angel" from God. 
+
+Process finished with exit code 0
+```
+
 # Fine-Tuning
 
 O processo de fine-tuning do modelo envolve duas etapas: na primeira, 
@@ -79,6 +183,13 @@ Nosso código para o treinamento do modelo está disponível no arquivo
 O proceso de fine-tuning é feito a partir do arquivo processado 
 `trn_processed.json` na fase de preparação dos dados para treinamento.
 
+O uso do Unsloth e do LoRA foi motivado pela necessidade 
+de realizar o fine-tuning de modelos grandes de forma eficiente e com menor 
+consumo de recursos computacionais. O Unsloth oferece otimizações específicas 
+para acelerar o treinamento, enquanto o LoRA permite ajustar apenas um pequeno 
+número de parâmetros, reduzindo significativamente os requisitos de memória e 
+tempo de execução, sem comprometer a qualidade do modelo treinado.
+
 Inicialmente, a configuração do Unsloth é feita, de forma a preparar o modelo 
 para fine-tuning. Com a configuração pronta, modelo e tokenizador são carregados
 e retornado. Depois, aplicamos os adaptadores LoRA ao mesmo modelo, Deixando-o 
@@ -90,6 +201,11 @@ grupo de entrada (`input`) e as descrições como grupo de saída (`output`). As
 instruções (perguntas que serão feitas ao modelo) ficam no grupo de 
 instruções (`instructions`). Esta preparação é salva em arquivo 
 (`trn_processed_dataset.json`) para ser utilizada mais adiante.
+
+Além disso, o modelo foi ajustado utilizando o Alpaca, que aprimora a capacidade 
+do modelo em lidar com consultas complexas, garantindo respostas mais precisas e 
+relevantes, aumentando a eficiência em recuperação de informações e geração de 
+textos.
 
 Após ser carregado como um dataset, é transformado em um "prompt dataset"
 para ser passado para o treinador do modelo. Então, o treinamento é realizado.
@@ -110,9 +226,15 @@ retornado ou sua apresentação conforme o modelo vai gerando a resposta.
 Concluído este pequeno teste, salvamos o modelo e seus adaptadores LoRA 
 localmente.
 
+O dataset foi carregado e processado de forma a ser compatível com o formato 
+esperado pela biblioteca Hugging Face. Isso permite que ele seja utilizado 
+diretamente em pipelines de treinamento e inferência, facilitando a integração 
+com modelos de aprendizado de máquina e otimizando o fluxo de trabalho.
+
 O modelo treinado fica disponível no seguinte link: 
 (ACMattosHE/lora_model_llama-3-8b-bnb-4bit)[https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit/tree/main]
 
+## Exemplo de execução:
 A seguir, o log de execução deste código:
 
 ``` 
@@ -340,8 +462,14 @@ readers  Ages 3 to 7]
   
 Tokenização realizada com sucesso!  
 
- The New York Times bestselling author of the beloved Mog series returns with a new story about the little cat who has charmed millions of readers worldwideMog is a cat who likes to be in charge of things Mog likes to be in charge of the other cats Mog likes to be
- in charge of the dog Mog likes to be in charge of the fish Mog likes to be in charge of the bird Mog likes to be in charge of the mouse Mog likes to be in charge of the baby Mog likes to be in charge of the worldBut when the baby is born Mog finds that being in charge is not as easy as she thought it would beM  
+ The New York Times bestselling author of the beloved Mog series returns with a 
+ new story about the little cat who has charmed millions of readers worldwideMog 
+ is a cat who likes to be in charge of things Mog likes to be in charge of the 
+ other cats Mog likes to be
+ in charge of the dog Mog likes to be in charge of the fish Mog likes to be in
+  charge of the bird Mog likes to be in charge of the mouse Mog likes to be in 
+  charge of the baby Mog likes to be in charge of the worldBut when the baby is
+   born Mog finds that being in charge is not as easy as she thought it would beM  
   
 Resposta obtida com sucesso!  
   
@@ -367,6 +495,8 @@ Nosso código para o treinamento do modelo está disponível no arquivo
 
 O proceso de fine-tuning é feito a partir do arquivo processado 
 (trn_processed.json) na fase de preparação dos dados para treinamento.
+
+## Exemplo de execução:
 
 ```
 (.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\ft_test_trained_model.py  
@@ -737,3 +867,27 @@ Mog's Kittens - Description: Judith Kerr8217s best8211selling adventures of that
 endearing and exasperating cat Mog have entertained children for more than 30 
 years Now even infants and toddlers  
 ```
+
+## Comparação das Respostas dos Modelos
+
+| Produto                     | Modelo Original (Foundation Model)                                                                                       | Modelo com Fine-Tuning                                                                                           | Modelo com RAG                                                                                                   |
+|-----------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| Girls Ballet Tutu Neon Blue | This is a beautiful tutu. It is made of high quality material and it is very comfortable. It is perfect for any occasion and it is very affordable. It is also very durable and it will last for a long time. It is also very easy to maintain and it is very easy to clean. It is also very easy to wear and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off.                              | The perfect gift for the little ballerina in your life this tutu is made of soft  nylon tulle and is fully lined with a satin drawstring waistband                  | Dance tutu for girls ages 28 years. Perfect for dance practice, recitals and performances, costumes or just for fun. |
+| Mog's Kittens               | The product is a pair of socks.                                                                                          | Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019  Choice Magazinex2018A lovely book for all Mogfanciersx2019 The  Observerx2018Kerrx2019s watercolours are full of humour and expressionx2019 Financial Timesx2018A lovely book for all  Mogfanciersx2019 The Observerx2018Kerrx2019s watercolours are full of humour and  expressionx2019 Financial Times                     | Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers    |
+| The Prophet                 | The Prophet is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money.                                      | The Prophet is a book of 26 prose poetry essays written in English by  LebaneseAmerican artist Kahlil Gibran 1883ndash1931 The Prophet has been  translated into over 20 languages and has sold more than 100 million copies  worldwide  | In a distant timeless place a mysterious prophet walks the sands At the moment of his departure he wishes to offer the people gifts but possesses nothing The people gather round each asks a question of the heart and the mans wisdom is his gift It is Gibrans gift to us as well for Gibrans prophet is rivaled in his wisdom only by the founders of the worlds great religions On the most basic topicsmarriage children friendship work pleasurehis words have a power and lucidity that in another era would surely have provoked the description divinely inspired Free of dogma free of power structures and metaphysics consider these poetic moving aphorisms a 20thcentury supplement to all sacred traditionsas millions of other readers already haveBrian BruyaThis text refers to theHardcoveredition|
+| The Book of Revelation      | The Book of Revelation is a book of the New Testament of the Bible, and its title originated from the first word of the text in the Koine Greek: apokalypsis, meaning "unveiling" or "revelation". The author describes himself as "John" and does not identify himself as the son of Zebedee, the apostle John. The text is a letter to seven churches in the Roman province of Asia, and is a call to the churches to remain faithful to Jesus Christ, and individual letters to each church, with a promise of a swift punishment for Christian communities that are in a state of apostasy. The Book of Revelation is the final book of the New Testament and occupies a central place in Christian eschatology. By tradition, this prophecy was revealed by its author to the apostle John on the island of Patmos, and from its first readers, this prophecy has been accepted as of divine inspiration. The author of Revelation does not identify himself, but introduces his work as "the revelation of Jesus Christ", which he received "by an angel" from God.                                                     | The Book of Revelation is the last book of the New Testament and one of the most enigmatic and controversial works in Western literature It is a book of  apocalyptic prophecy that predicts the end of the world and the Last Judgment  The book is also known as the Apocalypse of John or simply the Apocalypse  | American Baptist pastor Bible teacher and writer Clarence Larkin was born October 28 1850 in Chester Delaware County Pennsylvania He was converted to Christ at the age of 19 and then felt called to the Gospel ministry but the doors of opportunity for study and ministry did not open immediately He then got a job in a bank When he was 21 years old he left the bank and went to college graduating as a mechanical engineer He continued as a professional draftsman for a while then he became a teacher of the blind Later failing health compelled him to give up his teaching career After a prolonged rest he became a manufacturer When he was converted he had become a member of the Episcopal Church but in 1882he became a Baptist and was ordained as a Baptist minister two years later He went directly from business into the ministry His first charge was at Kennett Square Pennsylvania his second pastorate was at Fox Chase Pennsylvania where he remained for 20 years He was not a premillennialist at the time of his ordination but his study of the Scriptures with the help of some books that fell into his hands led him to adopt the premillennialist position He began to make large wall charts which he titled Prophetic Truth for use in the pulpit These led to his being invited to teach in connection with his pastoral work in two Bible institutes During this time he published a number of prophetical charts which were widely circulated When World War I broke out in 1914 he was called on for addresses on The War and Prophecy Then God laid it on his heart to prepare a work on Dispensational Truth or Gods Plan and Purpose in the Ages containing a number of charts with descriptive matter He spent three years of his life designing and drawing the charts and preparing the text The favorable reception it has had since it was first published in 1918 seems to indicate that the world was waiting for such a book Because it had a large and wide circulation in this and other lands the first edition was soon exhausted It was followed by a second edition and then realizing that the book was of permanent value Larkin revised it and expanded it printing it in its present form He went to be with the Lord on January 24 1924This text refers to thePaperbackedition|
+
+**Observações:**
+- O modelo com fine-tuning apresenta respostas mais detalhadas e relevantes em 
+  comparação ao modelo original.
+- O modelo com RAG utiliza a base de dados indexada para fornecer respostas mais 
+  precisas e contextualizadas, mas está limitado aos dados previamente indexados.
+- O modelo original (Foundation Model) apresenta respostas genéricas e, em alguns 
+  casos, completamente irrelevantes, como no exemplo de "Mog's Kittens", onde a 
+- resposta foi "The product is a pair of socks".
+- O modelo com fine-tuning demonstra uma melhoria significativa na qualidade das 
+  respostas, mas ainda apresenta redundâncias ou informações desnecessárias em 
+  alguns casos.
+- O modelo com RAG é altamente dependente da qualidade e abrangência dos dados 
+  indexados. Ele é ideal para cenários onde as informações relevantes estão 
+  contidas em uma base de dados específica.
