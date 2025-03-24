@@ -64,7 +64,7 @@ Porém, a abordagem para preparar o dataset foi diferente para cada processo de 
 
 *Figura 1: Script de pré-processamento do dataset para o treino do modelo Llama*
 
-O dataset foi preparado para treino, realizando uma limpeza dos dados, removendo textos que não fossem relevantes para o treinamento. Por exemplo, foram removidos todos os registros que não continham títulos ou descrições e foram removidos caracteres especiais e espaços em branco. Limitando a 500 registros para o treinamento, por motivo de limitações de recursos computacionais.
+O dataset foi preparado para treino, realizando uma limpeza dos dados, removendo textos que não fossem relevantes para o treinamento. Por exemplo, foram removidos todos os registros que não continham títulos ou descrições e foram removidos caracteres especiais e espaços em branco. Limitando a 5000 registros para o treinamento, por motivo de limitações de recursos computacionais.
 
 O formato dos dados processados e prontos para o treinamento do modelo Llama é o seguinte:
 
@@ -215,7 +215,7 @@ Também, é possível observar que em caso de mudança dos dados, o RAG permite 
 
 ## Conclusão
 
-O fine-tuning foi realizado com sucesso, os modelos foram treinados e os resultados foram satisfatórios. O modelo Llama foi treinado com um limite de 60 passos, enquanto o modelo DeepSeek foi treinado com 270 passos.
+O fine-tuning foi realizado com sucesso, os modelos foram treinados e os resultados foram satisfatórios. O modelo Llama foi treinado com um limite de 1250 passos, enquanto o modelo DeepSeek foi treinado com 270 passos.
 De acordo com os testes realizados, ambas abordagens possuem um resultado satisfatório para o cada problema que foi proposto. Podemos afirmar o seguinte:
 
 - Apesar do modelo Llama ter sido treinado com limites, o RAG foi capaz de gerar respostas coerentes e contextuais para o problema proposto.
