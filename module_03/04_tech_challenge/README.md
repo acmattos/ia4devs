@@ -232,7 +232,7 @@ diretamente em pipelines de treinamento e inferência, facilitando a integraçã
 com modelos de aprendizado de máquina e otimizando o fluxo de trabalho.
 
 O modelo treinado fica disponível no seguinte link: 
-(ACMattosHE/lora_model_llama-3-8b-bnb-4bit)[https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit/tree/main]
+[ACMattosHE/lora_model_llama-3-8b-bnb-4bit](https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit/tree/main)
 
 ## Exemplo de execução:
 A seguir, o log de execução deste código:
