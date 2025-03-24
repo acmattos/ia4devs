@@ -100,7 +100,7 @@ GET THE DESCRIPTION OF THIS PRODUCT
 
 ### Preparação do dataset para o treino do modelo DeepSeek
 
-![Figura 2:Script de pré-processamento do dataset para o treino do modelo DeepSeek](./module_03_deep_seek/images/amostragem.png)
+![Figura 2:Script de pré-processamento do dataset para o treino do modelo DeepSeek](module_03/04_tech_challenge/deep_seek/images/amostragem.png)
 
 *Figura 2: Script de pré-processamento do dataset para o treino do modelo DeepSeek*
 
@@ -183,7 +183,7 @@ Por ter acesso a uma GPU mais pontente e diferenças de configurações, o model
 
 ## Execução do fine-tuning
 
-![Figura 3: Execução do fine-tuning do modelo DeepSeek](./module_03_deep_seek/images/training.png)
+![Figura 3: Execução do fine-tuning do modelo DeepSeek](module_03/04_tech_challenge/deep_seek/images/training.png)
 
 *Figura 3: Execução do fine-tuning do modelo DeepSeek*
 

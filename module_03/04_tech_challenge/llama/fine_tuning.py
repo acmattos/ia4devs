@@ -289,9 +289,9 @@ def get_configured_stftrainer(uc, peft_model, prompt_dataset, tokenizer):
         per_device_train_batch_size = 2,                 # Exemplos por batch na GPU
         gradient_accumulation_steps = 4,                 # Acumula gradientes antes de atualizar
         # Etapas de treinamento
-        warmup_steps                = 5,                 # Passos de aquecimento
-        max_steps                   = 60,                # Total de passos de treinamento (teste)
-        #num_train_epochs            = 2,                 # Configuracao de treinamento real
+        #warmup_steps                = 5,                 # Passos de aquecimento
+        #max_steps                   = 60,                # Total de passos de treinamento (teste)
+        num_train_epochs            = 2,                 # Configuracao de treinamento real
         # Taxa de aprendizado e otimização
         learning_rate               = 2e-4,              # Taxa de aprendizado
         weight_decay                = 0.01,              # Regularização L2

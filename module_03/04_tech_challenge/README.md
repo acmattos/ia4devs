@@ -1,863 +1,229 @@
-# Preparação do Ambiente
+# Tech Challenge - Pós-Tech SOAT - FIAP
+# Fase 3 - Fine-tuning de modelo DeepSeek
 
-Este trabalho foi planejado para rodar no Windows. Pata isto precisamos ter 
-atenção na hora de instalar as bibliotecas e dependências para poder rodar os 
-arquivos.
+## Alunos:
 
-Todos os arquivos rodam no Windows 11 com o Python 3.12.6 em uma GPU RTX 4060. 
-Também utilizamos o CUDA 12.6 e cuDNN 9.8. Os passos para instalar os arquivos 
-necessários para o trabalho serem executados, podem ser visto abaixo (executar 
-na ordem):
+- André Mattos - RM358905
+- Aurelio Thomasi Jr - RM358104
+- Leonardo Ramires - RM358190
+- Lucas Arruda - RM358628
+- Pedro Marins - RM356883
 
-* [CUDA Toolkit 12.6](https://developer.nvidia.com/cuda-12-6-3-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local)
-* [cuDNN 9.8.0 Downloads](https://developer.nvidia.com/cudnn-downloads)
-* [triton-windows](https://github.com/woct0rdho/triton-windows)
-* [PyTorch](https://pytorch.org/get-started/locally/)
-* [Unsloth](https://docs.unsloth.ai/get-started/installing-+-updating/windows-installation)
+## Evidências do projeto
 
-**Observação**: O Unsloth teve um problema em sua versão 2025.2.X. Para poder 
-exeecutar o trabalho, a versão 2025.1.5 teve que ser utilizada.     
-  
-pip install unsloth==2025.1.5  
+- Link para o repositório:
+- Link para o vídeo de apresentação:
+- Link para o modelo Llama treinado: [Llama 3.8B BNB 4bit](https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit)
+- Link para o modelo DeepSeek treinado: [Deep Seek R1 Products](https://huggingface.co/rickwalking/DeepSeek-R1-Products)
+- Link para o dataset: [Amazon Titles Reasoning](https://huggingface.co/datasets/rickwalking/amazon-titles-reasoning)
 
-Possivelmente a verão de março funcione (não testada):  
-  
-pip install --no-deps "unsloth>=2025.3.8" "unsloth_zoo>=2025.3.7" --upgrade --force-reinstall
-  
-# Processamento dos Dados
+## Descrição
 
-Os dados utilizados para o trabalho foram obtidos do [The AmazonTitles-1.3MM](https://drive.google.com/file/d/12zH4mL2RX8iSvH0VCNnd3QxO4DzuHWnK/view?usp=sharing).
+Este trabalho tem como objetivo criar um modelo de LLM, utilizando a técnica de fine-tuning, para gerar respostas mais coerentes. O trabalho consiste em um treinamento utilizando o dataset chamado AmazonTitles-1.3MM, que contém 1.3 milhão de títulos e descrições de produtos da Amazon.
 
-Em particular, trabalhamos com o arquivo trn.json, que contém os nossos dados de
-treino. O arquivo tem este formato:
+O projeto foi dividido em duas abordagens diferentes:
 
-```json 
-{"uid": "0001360000", "title": "Mog's Kittens", "content": "Judith Kerr&#8217;s best&#8211;selling adventures of that endearing (and exasperating) cat Mog have entertained children for more than 30 years. Now, even infants and toddlers can enjoy meeting this loveable feline. These sturdy little board books&#8212;with their bright, simple pictures, easy text, and hand&#8211;friendly formats&#8212;are just the thing to delight the very young. Ages 6 months&#8211;2 years.", "target_ind": [146, 147, 148, 149, 495], "target_rel": [1.0, 1.0, 1.0, 1.0, 1.0]}
-{"uid": "0000031895", "title": "Girls Ballet Tutu Neon Blue", "content": "Dance tutu for girls ages 2-8 years. Perfect for dance practice, recitals and performances, costumes or just for fun!", "target_ind": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 27, 31, 33, 42, 46, 54, 58, 111, 113, 125, 126, 159, 163, 202, 203, 204, 205, 206, 207], "target_rel": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}
-```
-O arquivo trn.json contém 2.248.619 registros. Em particular, vamos trabalhar 
-com os campos `title` e `content`. Os demais campos serão descartados.
+1. **Fine tuning local: utilizando o modelo llama-3-8b-bnb-4bit**
+Este fine tuning foi realizado localmente, utilizando o ambiente de desenvolvimento de em um ambiente com as seguintes características:
 
-O arquivos `process_data.py` realiza o processamento dos dados. Vamos descartar 
-os registros com `content` vazio ou com o conteúdo menor do que 100 caracteres.
-Com isto, geramos o arquivo `trn_processed.json`, com 1.216.560 registros aptos 
-a serem usados no treinamento do modelo.
+- Sistema Operacional: Windows 11
+- GPU: NVIDIA GeForce RTX 4060
+- RAM: 16GB
+- CPU: Intel Core i7-13700H
+- Python: 3.12.6
+- CUDA: 12.6 e cuDNN 9.8
 
-O arquivo tem este formato:
+2. **Fine tuning com o Google Colab: Utilizando o modelo DeepSeek-R1-Distill-Llama-8B**
+O fine-tuning deste modelo foi realizado utilizando um notebook do Google Colab, com as seguintes características:
 
-```json 
-[
- {"product": "Mogs Kittens", "description": "Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers can enjoy meeting this loveable feline These sturdy little board books8212with their bright simple pictures easy text and hand8211friendly formats8212are just the thing to delight the very young Ages 6 months82112 years"},
- {"product": "Girls Ballet Tutu Neon Blue", "description": "Dance tutu for girls ages 28 years Perfect for dance practice recitals and performances costumes or just for fun"},
-]
-```
+- GPU: NVIDIA Tesla T4
+- RAM: 16GB
+- Python: 3.11
+- CUDA: 12.4
 
-## Exemplo de execução:
-``` 
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\process_data.py  
-  
-Lendo os registros do arquivo              : 100%|███████████████| 2248619/2248619 [00:35<00:00, 62903.00it/s]  
-Processando registros lidos                : 100%|███████████████| 2248619/2248619 [00:14<00:00, 155615.25it/s]  
-Salvando registros processado em arquivo   : 100%|███████████████| 1216560/1216560 [00:10<00:00, 117362.03it/s]  
-Total de registros no arquivo original     : 2,248,619  
-Total de registros processados (não vazios): 1,216,560  
-Arquivo processado salvo em                : trn_processed.json  
-```
+## Modelos utilizados
 
-# Foundation Model
-O modelo escolhido para realizar o fine tunning neste trabalho é o 
-`unsloth/llama-3-8b-bnb-4bit`. Trata-se de uma implementação otimizada do modelo 
-LLaMA (Large Language Model Meta AI), ajustada para ser eficiente em termos de 
-memória e desempenho. Ele utiliza quantização em 4 bits, o que reduz 
-significativamente o consumo de memória sem comprometer a precisão do modelo. 
-Além disso, o modelo é compatível com a biblioteca Hugging Face Transformers e 
-foi projetado para ser executado em GPUs com suporte a CUDA, como a NVIDIA 
-RTX 4060, aproveitando tecnologias como Flash Attention e LoRA (Low-Rank 
-Adaptation) para acelerar o treinamento e a inferência. Com um tamanho de 8 
-bilhões de parâmetros, ele é capaz de lidar com tarefas complexas de 
-processamento de linguagem natural, como geração de texto, resumo, tradução e 
-respostas a perguntas. (Fonte: https://huggingface.co/unsloth/llama-3-8b-bnb-4bit)
+- [DeepSeek-R1-Distill-Llama-8B](https://huggingface.co/DeepSeek/DeepSeek-R1-Distill-Llama-8B)
+- [llama-3-8b-bnb-4bit](https://huggingface.co/unsloth/llama-3-8b-bnb-4bit)
 
-O objetivo principal do modelo é permitir o fine-tuning eficiente em cenários 
-com recursos computacionais limitados, como laptops ou estações de trabalho com 
-GPUs de médio porte. Ele foi otimizado para tarefas que exigem personalização, 
-como a adaptação a domínios específicos ou a criação de sistemas de recuperação 
-de informações baseados em RAG (Retrieval Augmented Generation). A combinação de 
-quantização em 4 bits e adaptadores LoRA permite que o modelo seja ajustado 
-rapidamente com conjuntos de dados menores, mantendo alta qualidade nas respostas 
-geradas e reduzindo o tempo e os custos associados ao treinamento de modelos grandes.
+O modelo Llama é um modelo recente e simples, foi uma escolha de modelo para ser treinado localmente pois é um modelo eficiente em termos de memória e desempenho. A ideia foi escolher um modelo que fosse compatível com este cenário de recursos limitados e compatível com GPUs de médio porte.
+Este fine-tuning teve como objetivo principal um treinamento que fosse capaz de gerar respostas referentes a descrição de um produto, utilizando o título como contexto.
+Adicionalmente, esta solução também utiliza o RAG (Retrieval-Augmented Generation) para gerar respostas mais coerentes e contextuais.
 
-# Exemplo de execução:
+O modelo DeepSeek é um modelo mais robusto e complexo, esta versão específica do modelo foi treinado de forma unsupervised, o que significa que o modelo foi treinado para gerar respostas mais coerentes e contextuais. Porém, dependendo da tarefa e configuração de temperatura, o modelo pode gerar respostas inconsistentes e repetições sem sentido.
+Neste caso, o fine-tuning foi realizado com o objetivo de criar um modelo de assistente de vendas da Amazon, que seja capaz de responder perguntas sobre produtos, as perguntas em sua maioria, utilizam o título e características do produto como contexto.
 
-```
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\foundation_model.py
-🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.
-🦥 Unsloth Zoo will now patch everything to make training faster!
+## Preparação do dataset e instruções de fine-tuning
 
-###############################################################################
-# Criando Configurações do Unsloth
-###############################################################################
+Ambos os modelos usaram o mesmo dataset, o AmazonTitles-1.3MM, que contém 1.3 milhão de títulos e descrições de produtos da Amazon.
+Porém, a abordagem para preparar o dataset foi diferente para cada processo de fine-tuning.
 
-Configuração realizada:
-{'attn_implementation': 'flash_attention_2',
- 'device_map': 'auto',
- 'dtype': torch.bfloat16,
- 'load_in_4bit': True,
- 'lora_model': 'lora_model_llama-3-8b-bnb-4bit',
- 'max_seq_length': 8192,
- 'model': 'unsloth/llama-3-8b-bnb-4bit'}
-==((====))==  Unsloth 2025.1.5: Fast Llama patching. Transformers: 4.49.0.
-   \\   /|    GPU: NVIDIA GeForce RTX 4060 Laptop GPU. Max memory: 7.996 GB. Platform: Windows.
-O^O/ \_/ \    Torch: 2.6.0+cu126. CUDA: 8.9. CUDA Toolkit: 12.6. Triton: 3.2.0
-\        /    Bfloat16 = TRUE. FA [Xformers = 0.0.29.post3. FA2 = False]
- "-____-"     Free Apache license: http://github.com/unslothai/unsloth
-Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-packages\unsloth\models\llama.py:1185: 
-UserWarning: expandable_segments not supported on this platform (Triggered internally at 
-C:\actions-runner\_work\pytorch\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:28.)
-  self.register_buffer("cos_cached", emb.cos().to(dtype=dtype, device=device, non_blocking=True), persistent=False)
+### Preparação do dataset para o treino do modelo Llama
 
-Produto: Girls Ballet Tutu Neon Blue
-Descrição: This is a beautiful tutu. It is made of high quality material and it 
-is very comfortable. It is perfect for any occasion and it is very affordable. 
-It is also very durable and it will last for a long time. It is also very easy 
-to maintain and it is very easy to clean. It is also very easy to wear and it 
-is very easy to take off. It is also very easy to put on and it is very easy to 
-take off. It is also very easy to put on and it is very easy to take off. It is 
-also very easy to put on and it is very easy to take off. It is also very easy 
-to put on and it is very easy to take off. It is also very easy to put on and it 
-is very easy to take off. It is also very easy to put on and it is very easy to 
-take off. It is also very easy to put on and it is very easy to take off. It is 
-also very easy to put on and it is very easy to take off. It is also very easy 
-to put on and it is very easy to take off. It is also very easy to put on and it 
-is very easy to take off. It is also very easy to put on and it is very easy to 
-take off. It is also very easy to put on and it is very easy to take off. It is 
-also very easy to put on and it is very easy to take off. 
+![Figura 1:Script de pré-processamento do dataset para o treino do modelo Llama](./module_03/04_tech_challenge/images/llama_script.png)
 
-Produto: Mog's Kittens
-Descrição: The product is a pair of socks.
+*Figura 1: Script de pré-processamento do dataset para o treino do modelo Llama*
 
-Produto: The Prophet
-Descrição: The Prophet is a product that helps you to find the best way to spend 
-your money. It is a product that helps you to find the best way to spend your 
-money. It is a product that helps you to find the best way to spend your money. 
-It is a product that helps you to find the best way to spend your money. It is a 
-product that helps you to find the best way to spend your money. It is a product 
-that helps you to find the best way to spend your money. It is a product that 
-helps you to find the best way to spend your money. It is a product that helps 
-you to find the best way to spend your money. It is a product that helps you to 
-find the best way to spend your money. It is a product that helps you to find 
-the best way to spend your money. It is a product that helps you to find the 
-best way to spend your money. 
+O dataset foi preparado para treino, realizando uma limpeza dos dados, removendo textos que não fossem relevantes para o treinamento. Por exemplo, foram removidos todos os registros que não continham títulos ou descrições e foram removidos caracteres especiais e espaços em branco. Limitando a 5000 registros para o treinamento, por motivo de limitações de recursos computacionais.
 
-Produto: The Book of Revelation
-Descrição: The Book of Revelation is a book of the New Testament of the Bible, 
-and its title originated from the first word of the text in the Koine Greek: 
-apokalypsis, meaning "unveiling" or "revelation". The author describes himself 
-as "John" and does not identify himself as the son of Zebedee, the apostle John. 
-The text is a letter to seven churches in the Roman province of Asia, and is a 
-call to the churches to remain faithful to Jesus Christ, and individual letters 
-to each church, with a promise of a swift punishment for Christian communities 
-that are in a state of apostasy. The Book of Revelation is the final book of the 
-New Testament and occupies a central place in Christian eschatology. By tradition, 
-this prophecy was revealed by its author to the apostle John on the island of 
-Patmos, and from its first readers, this prophecy has been accepted as of divine 
-inspiration. The author of Revelation does not identify himself, but introduces 
-his work as "the revelation of Jesus Christ", which he received "by an angel" from God. 
+O formato dos dados processados e prontos para o treinamento do modelo Llama é o seguinte:
 
-Process finished with exit code 0
+```json
+{
+    "product": "título do produto",
+    "description": "descrição do produto"
+}
 ```
 
-# Fine-Tuning
-
-O processo de fine-tuning do modelo envolve duas etapas: na primeira, 
-realizamos o fine-tuning do modelo escolhido ("unsloth/llama-3-8b-bnb-4bit") 
-enquanto na segunda, interrogamos o modelo treinado 
-(./lora_model_llama-3-8b-bnb-4bit).
-
-## Treinamento do Modelo
-
-Nosso código para o treinamento do modelo está disponível no arquivo 
-`fine_tuning.py`.
-
-O proceso de fine-tuning é feito a partir do arquivo processado 
-`trn_processed.json` na fase de preparação dos dados para treinamento.
-
-O uso do Unsloth e do LoRA foi motivado pela necessidade 
-de realizar o fine-tuning de modelos grandes de forma eficiente e com menor 
-consumo de recursos computacionais. O Unsloth oferece otimizações específicas 
-para acelerar o treinamento, enquanto o LoRA permite ajustar apenas um pequeno 
-número de parâmetros, reduzindo significativamente os requisitos de memória e 
-tempo de execução, sem comprometer a qualidade do modelo treinado.
-
-Inicialmente, a configuração do Unsloth é feita, de forma a preparar o modelo 
-para fine-tuning. Com a configuração pronta, modelo e tokenizador são carregados
-e retornado. Depois, aplicamos os adaptadores LoRA ao mesmo modelo, Deixando-o 
-pronto para o treinamento.
-
-Neste momento, iniciamos a preparação dos dados que serão utilizados para o 
-fine-tuning do modelo. Ele é preparado de forma a agrupar os produtos como 
-grupo de entrada (`input`) e as descrições como grupo de saída (`output`). As 
-instruções (perguntas que serão feitas ao modelo) ficam no grupo de 
-instruções (`instructions`). Esta preparação é salva em arquivo 
-(`trn_processed_dataset.json`) para ser utilizada mais adiante.
-
-Além disso, o modelo foi ajustado utilizando o Alpaca, que aprimora a capacidade 
-do modelo em lidar com consultas complexas, garantindo respostas mais precisas e 
-relevantes, aumentando a eficiência em recuperação de informações e geração de 
-textos.
-
-Após ser carregado como um dataset, é transformado em um "prompt dataset"
-para ser passado para o treinador do modelo. Então, o treinamento é realizado.
-Neste momento, uma mudança de foco precisou ser feita: a quantidade de itens 
-a serem treinadas (1.216.560) implicava em um tempo de treinamento que excediam 
-7 dias. Com isto, o "prompt dataset" foi reduzido para 5000 item, o que permitiu
-a aplicação de duas épocas de treinamento (algo em torno de 1250 iterações) 
-tomando um total 2:30 para que a tarefa fosse realizada. É importante ressaltar 
-que a configuração presente no código, a GPU utilizada e o conjunto de dados de 
-treino influenciam diretamente no tempo de execução do treinamento. Algumas 
-estatísticas são mostradas após o treino (tempo gasto, consumo de memória).
-
-Ao finalizarmos esta etapa, preparamos o modelo treinado para a realização de 
-inferências. Duas consultas são realizadas, apenas para mostrar as capacidades 
-de exibição das respostas às consultas: a exibição completa, após o resultado 
-retornado ou sua apresentação conforme o modelo vai gerando a resposta.
-
-Concluído este pequeno teste, salvamos o modelo e seus adaptadores LoRA 
-localmente.
-
-O dataset foi carregado e processado de forma a ser compatível com o formato 
-esperado pela biblioteca Hugging Face. Isso permite que ele seja utilizado 
-diretamente em pipelines de treinamento e inferência, facilitando a integração 
-com modelos de aprendizado de máquina e otimizando o fluxo de trabalho.
-
-O modelo treinado fica disponível no seguinte link: 
-[ACMattosHE/lora_model_llama-3-8b-bnb-4bit](https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit/tree/main)
-
-## Exemplo de execução:
-A seguir, o log de execução deste código:
-
-``` 
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\fine_tuning.py  
-🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.  
-🦥 Unsloth Zoo will now patch everything to make training faster!  
-
-###############################################################################  
-# Informações do Ambiente de Execução  
-###############################################################################  
-  
-Versão do Python      : 3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)]  
-Versão do PyTorch     : 2.6.0+cu126  
-Versão do Triton      : 3.2.0  
-Versão do Transformers: 4.49.0  
-CUDA disponível       : True  
-Versão do CUDA        : 12.6  
-Versão do cuDNN       : 90501  
-Números de GPUs       : 1  
-Nome da GPU 0         : NVIDIA GeForce RTX 4060 Laptop GPU  
-Memória Máxima        : 7.996 GB  
-Memória reservada     : 0.0 GB  
-
-###############################################################################  
-# Criando Configurações do Unsloth  
-###############################################################################  
-  
-Configuração realizada:  
-{'attn_implementation': 'flash_attention_2',  
- 'device_map': 'auto',  
- 'dtype': torch.bfloat16,  
- 'load_in_4bit': True,  
- 'lora_model': 'lora_model_llama-3-8b-bnb-4bit',  
- 'max_seq_length': 8192,  
- 'model': 'unsloth/llama-3-8b-bnb-4bit'}  
-
-###############################################################################  
-# Carregando o modelo e tokenizador para o modelo...  
-###############################################################################  
-  
-==((====))==  Unsloth 2025.1.5: Fast Llama patching. Transformers: 4.49.0.  
-   \\   /|    GPU: NVIDIA GeForce RTX 4060 Laptop GPU. Max memory: 7.996 GB. Platform: Windows.  
-O^O/ \_/ \    Torch: 2.6.0+cu126. CUDA: 8.9. CUDA Toolkit: 12.6. Triton: 3.2.0  
-\        /    Bfloat16 = TRUE. FA [Xformers = 0.0.29.post3. FA2 = False]  
- "-____-"     Free Apache license: http://github.com/unslothai/unsloth  
-Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-packages\unsloth\models\llama.py:1185: UserWarning: expandable_segments not supported on this platform (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:28.)  
-  self.register_buffer("cos_cached", emb.cos().to(dtype=dtype, device=device, non_blocking=True), persistent=False)  
-  
-Modelo unsloth/llama-3-8b-bnb-4bit e tokenizador carregados e com sucesso!  
-  
-###############################################################################  
-# Configurando o modelo para fine-tuning com LoRA (Low Rank Adaptation)...  
-###############################################################################  
-  
-Unsloth 2025.1.5 patched 32 layers with 32 QKV layers, 32 O layers and 32 MLP layers.  
-  
-Modelo configurado para fine-tuning com LoRA (Low Rank Adaptation)  
-  
-###############################################################################  
-# Criando o Conjunto de Dados para Treinamento do Modelo...  
-###############################################################################  
-  
-Processando linhas: 100%|██████████████| 5002/5002 [00:00<00:00, 277916.39it/s]   
-  
-###############################################################################  
-# Gerando o Arquivo com o Conjunto de Dados para Treinamento do Modelo...  
-###############################################################################  
-  
-Salvando registros: 100%|██████████████| 5000/5000 [00:00<00:00, 5001554.97it/s]  
-  
-Dataset salvo em                             : trn_processed_dataset.json  
-  
-###############################################################################  
-# Gerando o Dataset para Treinamento do Modelo...  
-###############################################################################  
-  
-Generating train split: 5000 examples [00:00, 59244.76 examples/s]  
-  
-Dataset geardo com sucesso: Dataset({  
-    features: ['instruction', 'input', 'output'],  
-    num_rows: 5000  
-})  
-  
-###############################################################################  
-# Convertendo o Dataset para Treinamento do Modelo em Prompts...  
-###############################################################################  
-  
-Formatando prompts: 100%|████████████████| 5000/5000 [00:00<00:00, 70249.52 examples/s]  
-  
-Dataset convertido com sucesso: Dataset({  
-    features: ['instruction', 'input', 'output', 'text'],  
-    num_rows: 5000  
-})  
-  
-###############################################################################  
-# Configurando o Treinador SFT (Supervised Fine-Tuning)...  
-###############################################################################  
-  
-Map: 100%|██████████████████████████| 5000/5000 [00:00<00:00, 6432.07 examples/s]  
-No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` 
-hides base models input arguments, if label_names is not given, label_names can't 
-be set automatically within `Trainer`. Note that empty label_names list will be 
-used instead.       
-  
-Treinador SFT configurado com sucesso!  
-  
-###############################################################################  
-# Treinando o Treinador SFT (Supervised Fine-Tuning)...  
-###############################################################################  
-  
-==((====))==  Unsloth - 2x faster free finetuning | Num GPUs = 1  
-   \\   /|    Num examples = 5,000 | Num Epochs = 1  
-O^O/ \_/ \    Batch size per device = 2 | Gradient Accumulation steps = 4  
-\        /    Total batch size = 8 | Total steps = 1,250  
- "-____-"     Number of trainable parameters = 83,886,080  
-{'loss': 3.2363, 'grad_norm': 1.2117664813995361, 'learning_rate': 0.00019984, 'epoch': 0.0}
-{'loss': 3.1007, 'grad_norm': 0.7599466443061829, 'learning_rate': 0.00019968, 'epoch': 0.0}
-{'loss': 2.8482, 'grad_norm': 1.2890647649765015, 'learning_rate': 0.00019952000000000001, 'epoch': 0.0}
-{'loss': 2.6395, 'grad_norm': 0.8345205187797546, 'learning_rate': 0.00019936000000000002, 'epoch': 0.01}
-{'loss': 2.6946, 'grad_norm': 0.9719563722610474, 'learning_rate': 0.00019920000000000002, 'epoch': 0.01}
-{'loss': 2.6354, 'grad_norm': 1.515956997871399, 'learning_rate': 0.00019904, 'epoch': 0.01} 
-{'loss': 2.4815, 'grad_norm': 0.8237305283546448, 'learning_rate': 0.00019888, 'epoch': 0.01}
-{'loss': 2.6736, 'grad_norm': 0.7439571022987366, 'learning_rate': 0.00019872000000000002, 'epoch': 0.01}
-{'loss': 2.415, 'grad_norm': 0.7331687211990356, 'learning_rate': 0.00019856000000000002, 'epoch': 0.01}
-{'loss': 2.3698, 'grad_norm': 0.9583930373191833, 'learning_rate': 0.0001984, 'epoch': 0.02}
-{'loss': 1.9416, 'grad_norm': 1.1305814981460571, 'learning_rate': 0.00019824, 'epoch': 0.02}
-{'loss': 2.1291, 'grad_norm': 1.077892780303955, 'learning_rate': 0.00019808, 'epoch': 0.02} 
-{'loss': 2.4154, 'grad_norm': 3.3878471851348877, 'learning_rate': 0.00019792000000000003, 'epoch': 0.02}
-{'loss': 1.9818, 'grad_norm': 0.8834867477416992, 'learning_rate': 0.00019776, 'epoch': 0.02}
-{'loss': 2.082, 'grad_norm': 1.0258870124816895, 'learning_rate': 0.0001976, 'epoch': 0.02}
-{'loss': 2.0796, 'grad_norm': 0.9682966470718384, 'learning_rate': 0.00019744, 'epoch': 0.03}
-{'loss': 2.1334, 'grad_norm': 0.7916772961616516, 'learning_rate': 0.00019728, 'epoch': 0.03}
-{'loss': 2.1901, 'grad_norm': 0.6517899036407471, 'learning_rate': 0.00019712, 'epoch': 0.03}
-{'loss': 2.0756, 'grad_norm': 0.8336527347564697, 'learning_rate': 0.00019696, 'epoch': 0.03} 
-...........
-{'loss': 1.6027, 'grad_norm': 0.6916661858558655, 'learning_rate': 1.44e-06, 'epoch': 1.99}
-{'loss': 1.164, 'grad_norm': 0.7378243207931519, 'learning_rate': 1.28e-06, 'epoch': 1.99}
-{'loss': 1.5617, 'grad_norm': 0.870815098285675, 'learning_rate': 1.12e-06, 'epoch': 1.99}
-{'loss': 1.8097, 'grad_norm': 0.7309754490852356, 'learning_rate': 9.6e-07, 'epoch': 1.99}
-{'loss': 1.8802, 'grad_norm': 0.7114237546920776, 'learning_rate': 8.000000000000001e-07, 'epoch': 1.99}
-{'loss': 1.945, 'grad_norm': 0.8869221806526184, 'learning_rate': 6.4e-07, 'epoch': 1.99}
-{'loss': 1.7192, 'grad_norm': 0.7447224855422974, 'learning_rate': 4.8e-07, 'epoch': 2.0}
-{'loss': 1.5252, 'grad_norm': 0.905275821685791, 'learning_rate': 3.2e-07, 'epoch': 2.0}
-{'loss': 1.8738, 'grad_norm': 0.8697205185890198, 'learning_rate': 1.6e-07, 'epoch': 2.0}
-{'loss': 1.6066, 'grad_norm': 0.8066918253898621, 'learning_rate': 0.0, 'epoch': 2.0}
-{'train_runtime': 49274.9322, 'train_samples_per_second': 0.203, 'train_steps_per_second': 0.025, 'train_loss': 1.8542551296710967, 'epoch': 2.0}
-100%|███████████████████████████████████████████████████████████████| 1250/1250 [13:41:14<00:00, 39.42s/it] 
-
-Estatísticas do Treinamento
-===========================
-Tempo total de treinamento       : 49274.93 segundos (821.25 min)
-Velocidade de processamento      : 0.20 samples/s
-Loss final do treinamento        : 1.8543
-
-Estatísticas de Memória GPU
-============================
-Pico de memória reservada        : 9.125 GB
-Pico de memória para treinamento : 0.000 GB
-Percentual da memória máxima     : 114.120%
-Percentual usado no treinamento  : 0.000%
-  
-AVISO: O uso de memória ultrapassou o limite máximo recomendado!  
-  
-Treinamento concluido com sucesso!  
-  
-###############################################################################  
-# Preparando o modelo para fazer inferência (previsões)...  
-###############################################################################  
-  
-Modelo preparado para inferência!  
-  
-###############################################################################  
-# Preparando 'Mog's Kittens' para ser tokenizado e passar por inferência...  
-###############################################################################  
-  
-Tokenização realizada com sucesso!  
-  
-###############################################################################  
-# Realizando pergunta para o modelo...  
-###############################################################################  
-  
-Resposta obtida com sucesso!  
-  
-Resposta do modelo: [The New York Times bestselling author of the beloved Mog 
-series returns with a new tale of a cat and her kittens  Mog is a cat who loves 
-to sleep in the sun and eat tuna fish But when she has kittens of her own she must 
-learn to be a good mother and teach her kittens to be good cats too  This is a 
-sweet and funny story about a cat and her kittens that is sure to delight young 
-readers  Ages 3 to 7]  
-  
-###############################################################################  
-# Preparando 'Mog's Kittens' para ser tokenizado e passar por inferência...  
-###############################################################################  
-  
-Tokenização realizada com sucesso!  
-
- The New York Times bestselling author of the beloved Mog series returns with a 
- new story about the little cat who has charmed millions of readers worldwideMog 
- is a cat who likes to be in charge of things Mog likes to be in charge of the 
- other cats Mog likes to be
- in charge of the dog Mog likes to be in charge of the fish Mog likes to be in
-  charge of the bird Mog likes to be in charge of the mouse Mog likes to be in 
-  charge of the baby Mog likes to be in charge of the worldBut when the baby is
-   born Mog finds that being in charge is not as easy as she thought it would beM  
-  
-Resposta obtida com sucesso!  
-  
-###############################################################################  
-# Salvando o Modelo Treinado em lora_model_llama-3-8b-bnb-4bit...  
-###############################################################################  
-Unsloth: Merging 4bit and LoRA weights to 16bit...  
-Unsloth: Will use up to 0.0 out of 31.73 RAM for saving.  
-Unsloth: Saving model... This might take 5 minutes ...  
-  0%|                                                    | 0/32 [00:00<?, ?it/s]   
-We will save to Disk and not RAM now.  
-100%|███████████████████████████████████████████| 32/32 [01:31<00:00,  2.85s/it]  
-Unsloth: Saving tokenizer... Done.  
-Done.  
-  
->>>>>>>>>>>>>>>>>>>>>>>>>>>>> FIM DO FINE-TUNING <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  
-```
-
-## Testando Modelo Treinado
-
-Nosso código para o treinamento do modelo está disponível no arquivo 
-"ft_test_trained_model.py".
-
-O proceso de fine-tuning é feito a partir do arquivo processado 
-(trn_processed.json) na fase de preparação dos dados para treinamento.
-
-## Exemplo de execução:
+O treinamento do fine-tuning consistiu em utilizar um prompt específico para retornar a descrição do produto. Utilizando padrão alpaca de prompt:
 
 ```
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\ft_test_trained_model.py  
-🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.  
-🦥 Unsloth Zoo will now patch everything to make training faster!  
-  
-###############################################################################  
-# Criando Configurações do Unsloth  
-###############################################################################  
-  
-Configuração realizada:  
-{'attn_implementation': 'flash_attention_2',  
- 'device_map': 'auto',  
- 'dtype': torch.bfloat16,  
- 'load_in_4bit': True,  
- 'lora_model': 'lora_model_llama-3-8b-bnb-4bit',  
- 'max_seq_length': 8192,  
- 'model': 'unsloth/llama-3-8b-bnb-4bit'}  
-  
-###############################################################################  
-# Perguntando ao modelo treinado: ./lora_model_llama-3-8b-bnb-4bit  
-###############################################################################  
-  
-The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be 
-removed in the future versions. Please, pass a `BitsAndBytesConfig` object in 
-`quantization_config` argument instead.  
-`low_cpu_mem_usage` was None, now default to True since model is quantized.  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\.venv\Lib\site-packages\accelerate\utils\modeling.py:330: 
-UserWarning: expandable_segments not supported on this platform (Triggered internally at 
-C:\actions-runner\_work\pytorch\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:28.)
-  new_value = value.to(device)  
-  
-Query:  Girls Ballet Tutu Neon Blue  
-  
-Resposta do modelo:  
- The perfect gift for the little ballerina in your life this tutu is made of soft 
- nylon tulle and is fully lined with a satin drawstring waistband<|end_of_text|>  
-  
-Query:  Mog's Kittens  
-  
-Resposta do modelo:  
- Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun 
- out of seeing it again as the new generation of fans just learning to readx2019 
- Choice Magazinex2018A lovely book for all Mogfanciersx2019 The 
- Observerx2018Kerrx2019s watercolours are
- full of humour and expressionx2019 Financial Timesx2018A lovely book for all 
- Mogfanciersx2019 The Observerx2018Kerrx2019s watercolours are full of humour and 
- expressionx2019 Financial Times<|end_of_text|>  
-  
-Query:  The Prophet  
-  
-Resposta do modelo:  
- The Prophet is a book of 26 prose poetry essays written in English by 
- LebaneseAmerican artist Kahlil Gibran 1883ndash1931 The Prophet has been 
- translated into over 20 languages and has sold more than 100 million copies 
- worldwide<|end_of_text|>  
-  
-Query:  The Book of Revelation  
-  
-Resposta do modelo:  
- The Book of Revelation is the last book of the New Testament and one of the 
- most enigmatic and controversial works in Western literature It is a book of 
- apocalyptic prophecy that predicts the end of the world and the Last Judgment 
- The book is also known as the Apocalypse of John or simply the Apocalypse<|end_of_text|>  
-``` 
+Below is an instruction that describes a task, paired with an input that
+provides further context. Write a response that appropriately completes
+the request.
 
-# RAG
+### Instruction:
+{}
 
-O processo de RAG (Retrieval Augmented Generation) do modelo envolve duas 
-etapas: na primeira, realizamos a indexação dos dados que iremos trabalhar
-com o modelo de IA escolhido (`unsloth/llama-3-8b-bnb-4bit`) enquanto na 
-segunda, interrogamos o modelo utilizando a base de dados indexada, utilizando  
-RAG.
-Uma etapa intermediária foi introduzida, apenas para verificar a indexação dos 
-dados de trabalho (trn_processed.json). 
+### Input:
+{}
 
-## Indexação dos Dados
-
-Nosso código para a indexação dos dados para realização e RAG está disponível no
-arquivo `rag_indexing.py`.
-
-O início do processo se dá com o consumo do arquivo `trn_processed.json`. Ele é 
-carregado para que seus dados sejam preparados para a indexação na vector store
-(ChromaDB). Para otimizar as busca, os dados são quebrados em pedaços menores 
-(chunks), antes de serem convertidos em vetores de embeddings. Com os embeddings
-gerados, chegou o momento de converter os dados processados em documentos que 
-serão armazenados na vector store. Tendo os documentos prontamente convertidos, 
-chegou o momento de instanciar a vector store e então armazenar documentos e 
-embeddings criados.  
-
-## Exemplo de execução:
-
-```
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\rag_indexing.py 
-
-Carregando dados do arquivo processado...
-Total de registros gerados:5000
-Exemplo de registro: 
-{'description': 'High quality 3 layer ballet tutu 12 inches in length',
- 'product': 'Girls Ballet Tutu Neon Pink'}
-
-Quebrando documentos JSON em chunks...
-
-Total de chunks gerados: 5000
-
-Exemplo de chunk:
-Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet tutu 12 inches in length
-
-Criando modelo de embeddings...
-Dividindo documentos JSON: 100%|██████████| 5000/5000 [00:00<00:00, 555316.30it/s]
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:68: 
-LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in 
-LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists 
-in the :class:`~langchain-huggingface package and should be used instead. To use 
-it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:
-`~langchain_huggingface import HuggingFaceEmbeddings``.
-  embeddings_model = HuggingFaceEmbeddings(
-
-Criando modelo de embeddings...
-
-Gerando embeddings para os chunks...
-
-Gerando embeddings...
-
-Total de embeddings gerados: 5000
-
-Exemplo de embedding:
-[0.03302772715687752,
- -0.021298706531524658,
- -0.021273870021104813,
- 0.052845340222120285,
- -0.019837183877825737,
- -0.03264341503381729,
- 0.010283859446644783,
- 0.014730839990079403,
- -0.017746785655617714,
- 0.003939006011933088,
-  6.719978057498912e-35,
- 0.037213534116744995,
- -0.10796977579593658,
- 0.04069541022181511,
- -0.002336055040359497,
- 0.006895443890243769,
- -0.05344033241271973,
- 0.08863085508346558,
- -0.03707418590784073,
- 0.05612768977880478,
- 0.00930757075548172,
- -0.023683171719312668]
-
-Convertendo json_data em lc_documents...
-
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:122: 
-LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 
-and will be removed in 1.0. An updated version of the class exists in the :class:
-`~langchain-chroma package and should be used instead. To use it run `pip install -U :class:
-`~langchain-chroma` and import as `from :class:`~langchain_chroma import Chroma``.
-  vector_store = Chroma(
-
-Total de lc_documents  gerados: 5000
-
-Exemplo de lc_document:
-Document(metadata={'product': 'Girls Ballet Tutu Neon Pink'}, 
-page_content='Product: Girls Ballet Tutu Neon Pink - Description: High quality 
-3 layer ballet tutu 12 inches in length')
-
-Criando vector_store para o embeddings_model...
-
-vector_store criada!
-
-Populando vector_store...
-
-Gerando UUIDs para cada documento...
-
-Adicionando os documentos no vector_store...
-
-Documentos carregados!
+### Response:
+{}
+"""
 ```
 
-## Verificação dos Dados Indexados (Passo Intermediário)
-Nosso código para a verificação dos dados que foram indexados anteriormente está
-disponível no arquivo `rag_search_vs.py`.
-
-Para realizar a verificação dos dados indexados, utilizamos o modelo de embeddings
-criado na indexação dos dados. Em seguida, utilizamos a vector store para realizar
-buscas e exibir os resultados.
-
-Os resultados retornados são o 3 mais relevantes ao produto pesquisado. O 
-exemplo de execução abaixo mostra os resultados obtidos para o produto
-"Girls Ballet Tutu Neon Pink".  
-
-## Exemplo de execução:
-
+A instrução foi:
 ```
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\rag_search_vs.py  
-  
-Criando modelo de embeddings...  
-  
-Criando modelo de embeddings...  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:68:   
-LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in   
-LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists   
-in the :class:`~langchain-huggingface package and should be used instead. To use it run `  
-pip install -U :class:`~langchain-huggingface` and import as   
-`from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.  
-  embeddings_model = HuggingFaceEmbeddings(  
-  
-Criando vector_store para o embeddings_model...  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:122:   
-LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9   
-and will be removed in 1.0. An updated version of the class exists in the :class:  
-`~langchain-chroma package and should be used instead. To use it run `  
-pip install -U :class:`~langchain-chroma` and import as   
-`from :class:`~langchain_chroma import Chroma``.  
-  vector_store = Chroma(  
-  
-vector_store criada!  
-  
-Realizando consultas na vector_store  
-  
-* Product: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 
-  28 years Perfect for dance practice recitals and performances costumes or just 
-  for fun [{'product': 'Girls Ballet Tutu Neon Blue'}]  
-
-* Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet 
-  tutu 12 inches in length [{'product': 'Girls Ballet Tutu Neon Pink'}]  
-
-* Product: Delphie and the Birthday Show Magic Ballerina Book 6 - Description: 
-  x201CDonx2019t be surprised if your child asks for a magical pair of red ballet 
-  shoesx201D Telegraph Magazinex201CDelightfulx201D You Magazine Mail on 
-  Sundayx201CA delight for any young reader who sees herself as a budding 
-  ballerinax201D MumKnowsBestcouk [{'product': 'Delphie and the Birthday Show 
-  Magic Ballerina Book 6'}]  
+GET THE DESCRIPTION OF THIS PRODUCT
 ```
 
-## Testando o Modelo com RAG
+### Preparação do dataset para o treino do modelo DeepSeek
 
-Nosso código para a realização de consultas ao modelo, utilizando RAG está 
-disponível no arquivo "rag_model_retriever.py".
+![Figura 2:Script de pré-processamento do dataset para o treino do modelo DeepSeek](module_03/04_tech_challenge/deep_seek/images/amostragem.png)
 
-## Exemplo de execução:
+*Figura 2: Script de pré-processamento do dataset para o treino do modelo DeepSeek*
+
+O dataset sofreu uma limpeza semelhante ao modelo Llama, porém, o pré-processamento foi realizado de forma diferente. Foi gerado um novo datset chamado de dados de amostragem, que contém 2000 referências a produtos e descrições de 2000 registros do dataset original.
+Porém, o formato dos dados sofreu uma grande alteração, pois o modelo DeepSeek utiliza um formato de prompt específico para o treinamento. O formato dos dados de amostragem é o seguinte:
 
 ```
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge> python .\rag_model_retriever.py  
-🦥 Unsloth: Will patch your computer to enable 2x faster free finetuning.  
-🦥 Unsloth Zoo will now patch everything to make training faster!  
-  
-Criando modelo de embeddings...  
-  
-Criando modelo de embeddings...  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:68: 
-LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in 
-LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists 
-in the :class:`~langchain-huggingface package and should be used instead. To use 
-it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:
-`~langchain_huggingface import HuggingFaceEmbeddings``.  
-  embeddings_model = HuggingFaceEmbeddings(  
-  
-Criando vector_store para o embeddings_model...  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_indexing.py:122: 
-LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 
-and will be removed in 1.0. An updated version of the class exists in the :class:
-`~langchain-chroma package and should be used instead. To use it run `pip install 
--U :class:`~langchain-chroma` and import as `from :class:`~langchain_chroma import Chroma``.  
-  vector_store = Chroma(  
-  
-vector_store criada!  
-  
-###############################################################################  
-# Criando Configurações do Unsloth  
-###############################################################################  
-  
-Configuração realizada:  
-{'attn_implementation': 'flash_attention_2',  
- 'device_map': 'auto',  
- 'dtype': torch.bfloat16,  
- 'load_in_4bit': True,  
- 'lora_model': 'lora_model_llama-3-8b-bnb-4bit',  
- 'max_seq_length': 8192,  
- 'model': 'unsloth/llama-3-8b-bnb-4bit'}  
-  
-###############################################################################  
-# Carregando o modelo e tokenizador para o modelo...  
-###############################################################################  
-  
-==((====))==  Unsloth 2025.1.5: Fast Llama patching. Transformers: 4.49.0.  
-   \\   /|    GPU: NVIDIA GeForce RTX 4060 Laptop GPU. Max memory: 7.996 GB. Platform: Windows.  
-O^O/ \_/ \    Torch: 2.6.0+cu126. CUDA: 8.9. CUDA Toolkit: 12.6. Triton: 3.2.0  
-\        /    Bfloat16 = TRUE. FA [Xformers = 0.0.29.post3. FA2 = False]  
- "-____-"     Free Apache license: http://github.com/unslothai/unsloth   
-Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!  
-  
-Modelo unsloth/llama-3-8b-bnb-4bit e tokenizador carregados e com sucesso!  
-  
-###############################################################################  
-# Preparando o modelo para fazer inferência (previsões)...  
-###############################################################################  
-  
-Modelo preparado para inferência!  
-C:\acmattos\dev\tools\Python\ia4devs\module_03\04_tech_challenge\rag_model_retriever.py:35: 
-LangChainDeprecationWarning: The method `BaseRetriever.get_relevant_documents` 
-was deprecated in langchain-core 0.1.46 and will be removed in 1.0. Use :meth:
-`~invoke` instead.  
-  retrieved_docs = retriever.get_relevant_documents(product)  
-  
-Resposta gerada:  
-  
-Below is an instruction that describes a task, paired with an input that   
-provides further context. Write a response that appropriately completes   
-the request.  
-  
-### Instruction:  
-GET THE DESCRIPTION OF THIS PRODUCT: Girls Ballet Tutu Neon Blue  
-  
-### Input:  
-Product: Girls Ballet Tutu Neon Blue - Description: Dance tutu for girls ages 28 
-years Perfect for dance practice recitals and performances costumes or just for fun  
-Product: Girls Ballet Tutu Neon Pink - Description: High quality 3 layer ballet 
-tutu 12 inches in length  
-Product: Delphie and the Birthday Show Magic Ballerina Book 6 - Description: 
-x201CDonx2019t be surprised if your child asks for a magical pair of red ballet 
-shoesx201D Telegraph Magazinex201CDelightfulx201D You Magazine Mail on Sundayx201CA 
-delight for any young reader who sees herself as a budding ballerinax201D MumKnowsBestcouk  
-
-### Response:  
-
-The description of this product is: Girls Ballet Tutu Neon Blue - Description: 
-Dance tutu for girls ages 28 years Perfect for dance practice recitals and 
-performances costumes or just for fun  
-
-Resposta gerada:  
-  
-Below is an instruction that describes a task, paired with an input that   
-provides further context. Write a response that appropriately completes   
-the request.  
-
-### Instruction:  
-GET THE DESCRIPTION OF THIS PRODUCT: Mog's Kittens  
-  
-### Input:  
-Product: Mogs Kittens - Description: Judith Kerr8217s best8211selling adventures 
-of that endearing and exasperating cat Mog have entertained children for more 
-than 30 years Now even infants and toddlers can enjoy meeting this loveable 
-feline These sturdy little board books8212with their bright simple pictures easy 
-text and hand8211friendly formats8212are just the thing to delight the very young 
-Ages 6 months82112 years  
-Product: Mog and the VET Mog the Cat Books - Description: Praise for Mog the 
-Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it 
-again as the new generation of fans just learning to readx2019 Choice Magazinex2018A 
-lovely book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s 
-warmth humour and honesty make this an engaging introduction to a difficult topicx2019 
-Financial Timesx2018Believable amusing and movingx2019 Nursery Worldx2018A supremely 
-sensitive storyx2019 The Timesx2018The best most consoling book for children on the 
-subject or bereavementx2026a joy to readx2019 The Independent on Sunday   
-Product: Mog on Fox Night - Description: Praise for Mog the Forgetful 
-Catx2018Grandparents are likely to get as much fun out of seeing it again as the 
-new generation of fans just learning to readx2019 Choice Magazinex2018A lovely 
-book for all Mogfanciersx2019 The ObserverPraise for Goodbye Mogx2018Kerrx2019s 
-warmth humour and honesty make this an engaging introduction to a difficult 
-topicx2019 Financial Timesx2018Believable amusing and movingx2019 Nursery 
-Worldx2018A supremely sensitive storyx2019 The Timesx2018The best most consoling 
-book for children on the subject of bereavementx2026a joy to readx2019 The 
-Independent on Sunday  
-  
-### Response:  
-  
-Mog's Kittens - Description: Judith Kerr8217s best8211selling adventures of that 
-endearing and exasperating cat Mog have entertained children for more than 30 
-years Now even infants and toddlers  
+{
+    "Question": "Pergunta de um usuário sobre um produto da Amazon",
+    "Complex_CoT": "Cadeia de raciocínio complexa para responder a pergunta do usuário. O modelo deve responder a pergunta do usuário de forma completa, utilizando o título e a descrição do produto como contexto.",
+    "Response": "Resposta final para a pergunta do usuário"
+}
 ```
 
-## Comparação das Respostas dos Modelos
+Pelo contexto de uso do DeepSeek para servir como um assistente de vendas da Amazon, foi necessário gerar um dataset de amostragem com perguntas e respostas de usuários, que fossem contextuais e coerentes para cada produto escolhido.
+O seguinte prompt foi utilizado para gerar o dataset de amostragem:
 
-| Produto                     | Modelo Original (Foundation Model)                                                                                       | Modelo com Fine-Tuning                                                                                           | Modelo com RAG                                                                                                   |
-|-----------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| Girls Ballet Tutu Neon Blue | This is a beautiful tutu. It is made of high quality material and it is very comfortable. It is perfect for any occasion and it is very affordable. It is also very durable and it will last for a long time. It is also very easy to maintain and it is very easy to clean. It is also very easy to wear and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off. It is also very easy to put on and it is very easy to take off.                              | The perfect gift for the little ballerina in your life this tutu is made of soft  nylon tulle and is fully lined with a satin drawstring waistband                  | Dance tutu for girls ages 28 years. Perfect for dance practice, recitals and performances, costumes or just for fun. |
-| Mog's Kittens               | The product is a pair of socks.                                                                                          | Praise for Mog the Forgetful Catx2018Grandparents are likely to get as much fun out of seeing it again as the new generation of fans just learning to readx2019  Choice Magazinex2018A lovely book for all Mogfanciersx2019 The  Observerx2018Kerrx2019s watercolours are full of humour and expressionx2019 Financial Timesx2018A lovely book for all  Mogfanciersx2019 The Observerx2018Kerrx2019s watercolours are full of humour and  expressionx2019 Financial Times                     | Judith Kerr8217s best8211selling adventures of that endearing and exasperating cat Mog have entertained children for more than 30 years Now even infants and toddlers    |
-| The Prophet                 | The Prophet is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money. It is a product that helps you to find the best way to spend your money.                                      | The Prophet is a book of 26 prose poetry essays written in English by  LebaneseAmerican artist Kahlil Gibran 1883ndash1931 The Prophet has been  translated into over 20 languages and has sold more than 100 million copies  worldwide  | In a distant timeless place a mysterious prophet walks the sands At the moment of his departure he wishes to offer the people gifts but possesses nothing The people gather round each asks a question of the heart and the mans wisdom is his gift It is Gibrans gift to us as well for Gibrans prophet is rivaled in his wisdom only by the founders of the worlds great religions On the most basic topicsmarriage children friendship work pleasurehis words have a power and lucidity that in another era would surely have provoked the description divinely inspired Free of dogma free of power structures and metaphysics consider these poetic moving aphorisms a 20thcentury supplement to all sacred traditionsas millions of other readers already haveBrian BruyaThis text refers to theHardcoveredition|
-| The Book of Revelation      | The Book of Revelation is a book of the New Testament of the Bible, and its title originated from the first word of the text in the Koine Greek: apokalypsis, meaning "unveiling" or "revelation". The author describes himself as "John" and does not identify himself as the son of Zebedee, the apostle John. The text is a letter to seven churches in the Roman province of Asia, and is a call to the churches to remain faithful to Jesus Christ, and individual letters to each church, with a promise of a swift punishment for Christian communities that are in a state of apostasy. The Book of Revelation is the final book of the New Testament and occupies a central place in Christian eschatology. By tradition, this prophecy was revealed by its author to the apostle John on the island of Patmos, and from its first readers, this prophecy has been accepted as of divine inspiration. The author of Revelation does not identify himself, but introduces his work as "the revelation of Jesus Christ", which he received "by an angel" from God.                                                     | The Book of Revelation is the last book of the New Testament and one of the most enigmatic and controversial works in Western literature It is a book of  apocalyptic prophecy that predicts the end of the world and the Last Judgment  The book is also known as the Apocalypse of John or simply the Apocalypse  | American Baptist pastor Bible teacher and writer Clarence Larkin was born October 28 1850 in Chester Delaware County Pennsylvania He was converted to Christ at the age of 19 and then felt called to the Gospel ministry but the doors of opportunity for study and ministry did not open immediately He then got a job in a bank When he was 21 years old he left the bank and went to college graduating as a mechanical engineer He continued as a professional draftsman for a while then he became a teacher of the blind Later failing health compelled him to give up his teaching career After a prolonged rest he became a manufacturer When he was converted he had become a member of the Episcopal Church but in 1882he became a Baptist and was ordained as a Baptist minister two years later He went directly from business into the ministry His first charge was at Kennett Square Pennsylvania his second pastorate was at Fox Chase Pennsylvania where he remained for 20 years He was not a premillennialist at the time of his ordination but his study of the Scriptures with the help of some books that fell into his hands led him to adopt the premillennialist position He began to make large wall charts which he titled Prophetic Truth for use in the pulpit These led to his being invited to teach in connection with his pastoral work in two Bible institutes During this time he published a number of prophetical charts which were widely circulated When World War I broke out in 1914 he was called on for addresses on The War and Prophecy Then God laid it on his heart to prepare a work on Dispensational Truth or Gods Plan and Purpose in the Ages containing a number of charts with descriptive matter He spent three years of his life designing and drawing the charts and preparing the text The favorable reception it has had since it was first published in 1918 seems to indicate that the world was waiting for such a book Because it had a large and wide circulation in this and other lands the first edition was soon exhausted It was followed by a second edition and then realizing that the book was of permanent value Larkin revised it and expanded it printing it in its present form He went to be with the Lord on January 24 1924This text refers to thePaperbackedition|
+```
+    You are a helpful assistant that generates data for fine-tuning DeepSeek model.
+    You will be given a product title and context (description).
+    You need to generate a question, reasoning, and answer based on the product title and context.
+    The format should be as follows:
+    Question: <question>
+    Complex_CoT: <reasoning>
+    Response: <answer>
+    Your response should be a JSON object in the format above, assuming that an user is looking for a product on Amazon.
+    Your response to this request should only include the JSON result, no description should be added.
+    The question should be a question that an user would ask to find the product on Amazon.
+    The reasoning should be a detailed reasoning for the question, with all the steps and the final answer.
+    The answer should be the answer to the question.
 
-**Observações:**
-- O modelo com fine-tuning apresenta respostas mais detalhadas e relevantes em 
-  comparação ao modelo original.
-- O modelo com RAG utiliza a base de dados indexada para fornecer respostas mais 
-  precisas e contextualizadas, mas está limitado aos dados previamente indexados.
-- O modelo original (Foundation Model) apresenta respostas genéricas e, em alguns 
-  casos, completamente irrelevantes, como no exemplo de "Mog's Kittens", onde a 
-- resposta foi "The product is a pair of socks".
-- O modelo com fine-tuning demonstra uma melhoria significativa na qualidade das 
-  respostas, mas ainda apresenta redundâncias ou informações desnecessárias em 
-  alguns casos.
-- O modelo com RAG é altamente dependente da qualidade e abrangência dos dados 
-  indexados. Ele é ideal para cenários onde as informações relevantes estão 
-  contidas em uma base de dados específica.
+    Here is the product title and context:
+    Title: {json_data['title']}
+    Context: {json_data['context']}
+```
+
+O dataset de amostragem foi gerado e enviado para um repositório do Hugging Face, que pode ser acessado através do seguinte link: [Amazon Titles Reasoning](https://huggingface.co/datasets/rickwalking/amazon-titles-reasoning).
+
+Após a geração deste dataset de amostragem, a instrução de fine-tuning foi:
+
+```
+Below is an instruction that describes a task, paired with an input that provides further context.
+Write a response that appropriately completes the request.
+Before answering, think carefully about the question and create a step-by-step chain of thoughts to ensure a logical and accurate response.
+
+### Instruction:
+You are a Amazon products expert with advanced knowledge in books, cellphones, eletronics, media, and more.
+Please answer the customer question.
+
+### Question:
+{}
+
+### Response:
+<think>
+{}
+</think>
+{}
+```
+
+### Conclusão sobre as diferenças
+
+As abordagens de instruções são diferentes, o que impacta diretamente no resultado final dos modelos, que também possuem objetivos diferentes, mesmo usando o mesmo dataset. Porém, podemos observar que é possível utilizar um mesmo dataset para treinar modelos diferentes e também com objetivos diferentes, e em ambos os casos, conseguir obter resultados satisfatórios.
+
+## Configurações para fine-tuning
+
+O fine-tuning foi realizado com instruções diferentes para cada modelo, o que pode ter impactado no resultado final dos modelos. Além disso, configurações diferentes foram utilizadas para o fine-tuning, alguns exemplos são:
+
+- **Configuração de temperatura**: O modelo DeepSeek necessita de uma temperatura mais alta por padrão(0.7), o que pode gerar respostas menos coerentes e a possibilidade de mais alucinações. O modelo Llama, por outro lado, foi treinado com uma temperatura (0.2) mais baixa, o que pode gerar respostas mais dentro do padrão do dataset que foi utilizado para o treinamento.
+- **Configuração de max_steps**: Por limitações de tempo e recursos, o modelo Llama foi treinado com um limite de 60 passos, enquanto o modelo DeepSeek foi treinado com 270 passos. Isso pode impactar no Training Loss do fine-tuning.
+- **Configuração de epochs**: Ambos modelos foram treinados com 2 epochs.
+
+Comparação entre o Training Loss:
+- DeepSeek:
+**0.684500 de loss**
+
+- Llama:
+**1.6957 de loss**
+
+Por ter acesso a uma GPU mais pontente e diferenças de configurações, o modelo DeepSeek foi treinado por mais tempo e pode ter um resultado melhor dentro do seu contexto de utilização. Porém, o modelo Llama possui acesso ao retriever do dataset original, o que pode registrar um resultado melhor, pois o modelo possui acesso a mais informações e contexto para gerar respostas mais coerentes.
+
+## Execução do fine-tuning
+
+![Figura 3: Execução do fine-tuning do modelo DeepSeek](module_03/04_tech_challenge/deep_seek/images/training.png)
+
+*Figura 3: Execução do fine-tuning do modelo DeepSeek*
+
+![Figura 4: Execução do fine-tuning do modelo Llama](./module_03/04_tech_challenge/images/llama_training.png)
+
+*Figura 4: Execução do fine-tuning do modelo Llama*
+
+A execução do fine-tuning foi realizada em ambientes diferentes, o modelo DeepSeek foi treinado em um notebook do Google Colab, enquanto o modelo Llama foi treinado localmente. A diferença de ambiente de execução impactou no tempo de execução do fine-tuning, o modelo DeepSeek foi treinado em 34 minutos, enquanto o modelo Llama foi treinado em 2 horas e 30 minutos.
+
+A diferença de tempo de execução consiste em limitações de hardware do treinamento local, enquanto o treinamento do Google Colab foi realizado pela GPU T4.
+
+## RAG no modelo Llama
+
+![Figura 5: Execução do RAG no modelo Llama](./module_03/04_tech_challenge/images/llama_rag.png)
+
+*Figura 5: Execução do RAG no modelo Llama*
+
+O modelo Llama foi treinado com um RAG, o que permite que o modelo possa acessar o dataset original e gerar respostas mais coerentes e contextuais. O RAG foi implementado utilizando a biblioteca LangChain e a o banco de dados vectorial Chroma.
+
+Os passos para o criação do RAG são os seguintes:
+
+1. Criação dos embeddings a partir dos dados do dataset
+2. Criação do vector store (utilizando o Chroma como vector store)
+3. Criação do retriever (utilizando o LangChain para criar o retriever)
+4. Criação do prompt (Um prompt de orientações para o modelo)
+
+Isso é um ponto que o modelo DeepSeek não possui, dando uma vantagem em respostas para o modelo Llama. Pois o RAG é capaz de gerar um contexto direto do dataset original, além de não ter uma necessidade de utilização de recursos para o treinamento do modelo.
+Também, é possível observar que em caso de mudança dos dados, o RAG permite uma alteração sem a necessidade de treinar o modelo novamente, o que é uma vantagem em relação ao modelo DeepSeek.
+
+## Conclusão
+
+O fine-tuning foi realizado com sucesso, os modelos foram treinados e os resultados foram satisfatórios. O modelo Llama foi treinado com um limite de 1250 passos, enquanto o modelo DeepSeek foi treinado com 270 passos.
+De acordo com os testes realizados, ambas abordagens possuem um resultado satisfatório para o cada problema que foi proposto. Podemos afirmar o seguinte:
+
+- Apesar do modelo Llama ter sido treinado com limites, o RAG foi capaz de gerar respostas coerentes e contextuais para o problema proposto.
+- O modelo DeepSeek teve um Training Loss menor, e está próximo de um resultado ideal para ser um assistente de vendas da Amazon.
+
+Ambos os modelos podem melhorar ainda mais, com um treinamento mais longo e um dataset maior, o resultado final pode ser melhor.
+
+Mais detalhes sobre cada tipo de procedimento dos modelos, podem ser encontrados nos arquivos README específicos de cada projeto.
+
+- [README do modelo Llama](https://github.com/acmattos/ia4devs/tree/main/module_03/04_tech_challenge)
+- [README do modelo DeepSeek](https://github.com/acmattos/ia4devs/tree/main/module_03_deep_seek)
