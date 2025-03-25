@@ -1,5 +1,5 @@
-# Tech Challenge - Pós-Tech SOAT - FIAP
-# Fase 3 - Fine-tuning de modelo DeepSeek
+# Tech Challenge - Pós-Tech - IA For Devs - FIAP
+# Fase 3 - Fine-tuning do modelo DeepSeek
 
 ## Alunos:
 
@@ -18,7 +18,7 @@
 
 ## Descrição
 
-Este projeto tem como objetivo criar um fine-tuning utilizando o modelo DeepSeek. Para realização do fine-tuning, foi utilizado um dataset chamado "AmazonTitles-1.3MM" que contém 1.3 milhão de títulos e descrições de produtos da Amazon.
+Este projeto tem como objetivo criar um fine-tuning utilizando do foundation model DeepSeek. Para realização do fine-tuning, foi utilizado um dataset chamado "AmazonTitles-1.3MM" que contém 1.3 milhão de títulos e descrições de produtos da Amazon.
 
 Destes 1.3 milhão de registros, foi selecionado 2000 registros para um processo de amostragem. Este processo foi realizado para adicionar um contexto que fosse compatível com o modelo DeepSeek, para realizar o fine-tuning.
 Um tratamento foi feito para que os dados fossem compatíveis com o modelo DeepSeek e também para adicionar um contexto ao trabalho. 
@@ -103,16 +103,136 @@ O dataset de amostragem está pronto para ser utilizado para o fine-tuning do mo
 
 *Figura 2: Treinamento do modelo DeepSeek*
 
-O treinamento do modelo DeepSeek foi realizado em um notebook do Google Colab, com a utilização da GPU T4 para que o treinamento fosse mais rápido, o resultado foi um treinamento que durou em torno de 33 minutos.
+O treinamento do modelo DeepSeek foi realizado em um notebook do Google Colab, com a utilização da GPU T4 para que o treinamento fosse mais rápido, o resultado foi um treinamento que durou em torno de 34 minutos.
 O treinamento foi realizado com o dataset de amostragem, que foi gerado anteriormente pelo script de criação de dados.
 A ferramenta Unsloth foi utilizada para realizar o treinamento do modelo, com as seguintes configurações:
 
-- Modelo: unsloth/DeepSeek-R1-Distill-Llama-8B
-- Dataset: amazon-titles-reasoning
-- Número máximo de tokens: 2048
-- Épocas de treinamento: 2
-- Log de steps: de 10 em 10
-- Sem limite de steps para o treinamento
+### Detalhes do Foundation Model
+
+-> **Nome: unsloth/DeepSeek-R1-Distill-Llama-8B**: Modelo base.
+
+**Características:**
+
+- Otimizado, 2-5x mais rápido que o modelo original, com um custo de memória (70%) menor.
+- Modelo treinado com reinforcement learning. O que significa que o modelo que tem uma capacidade de autoavaliação e autoaprendizado e reasoning.
+- Treinamento eficiente com LoRA para que o modelo possa ser adaptado para o fine-tuning.
+    
+📌 **Fonte:** [Hugging Face Model Card](https://huggingface.co/unsloth/DeepSeek-R1-Distill-Llama-8B)
+
+### Detalhes de configurações do fine-tuning
+
+#### Tamanho dos Batches e Gradientes
+
+| Argumento | Descrição |
+|-----------|------------|
+| `per_device_train_batch_size = 2` | Define o número de exemplos processados por batch em cada GPU. Um batch pequeno consome menos memória, mas pode afetar a estabilidade do treinamento. |
+| `gradient_accumulation_steps = 4` | Acumula gradientes por 4 passos antes de atualizar os pesos do modelo. Isso simula um batch maior sem exigir mais memória da GPU. |
+
+**Exemplo:** Se `batch_size = 2` e `gradient_accumulation_steps = 4`, o modelo só atualiza os pesos após processar **8 exemplos**.
+
+---
+
+#### Etapas de Treinamento
+
+| Argumento | Descrição |
+|-----------|------------|
+| `warmup_steps = 5` | Número de passos iniciais onde a taxa de aprendizado cresce gradualmente para evitar variações bruscas no gradiente. |
+| `max_steps = 120` | Número total de passos de treinamento. Neste caso, é um teste. Para um treinamento real, pode-se definir `num_train_epochs`. |
+| `num_train_epochs = 2` | Define quantas épocas completas o dataset será percorrido durante o treinamento. |
+
+---
+
+#### Taxa de Aprendizado e Otimização
+
+| Argumento | Descrição |
+|-----------|------------|
+| `learning_rate = 2e-4` | Define a taxa de aprendizado do otimizador. Valores altos aceleram o aprendizado, mas podem ser instáveis. |
+| `weight_decay = 0.01` | Regularização L2 para evitar overfitting, penalizando pesos muito grandes. |
+| `lr_scheduler_type = "linear"` | Define o decaimento da taxa de aprendizado. O tipo `linear` reduz a taxa gradualmente até o final do treinamento. |
+
+---
+
+#### Precisão e Performance
+
+| Argumento | Descrição |
+|-----------|------------|
+| `fp16 = not is_bfloat16_supported()` | Usa **FP16** (16-bit floating point) se `bfloat16` não estiver disponível. FP16 economiza memória, mas pode ser instável. |
+| `bf16 = is_bfloat16_supported()` | Usa **bfloat16** se a GPU suportar. BF16 é mais estável que FP16, consumindo a mesma quantidade de memória. |
+| `optim = "adamw_8bit"` | Usa o otimizador **AdamW** em 8 bits, reduzindo o uso de memória do otimizador sem perder eficiência. |
+
+---
+
+#### Logging e Salvamento
+
+| Argumento | Descrição |
+|-----------|------------|
+| `logging_steps = 10` | Define a frequência com que métricas como **loss** são registradas. Valores menores geram logs mais frequentes. |
+| `output_dir = "outputs"` | Define o diretório onde os logs e checkpoints do modelo serão salvos. |
+
+---
+
+#### Reprodutibilidade
+
+| Argumento | Descrição |
+|-----------|------------|
+| `seed = 3407` | Define uma semente fixa para garantir que os experimentos sejam reproduzíveis. Isso significa que, ao rodar o treinamento novamente, os resultados serão os mesmos. |
+
+---
+
+#### SFTTrainer
+
+O `SFTTrainer` (Supervised Fine-Tuning Trainer) é uma classe especializada para **fine-tuning eficiente** usando LoRA. Ele recebe os argumentos definidos acima (`args = training_arguments`) e adiciona configurações específicas.
+
+#### Configurações Básicas
+
+| Argumento | Descrição |
+|-----------|------------|
+| `model = deep_seek_model` | O modelo que será treinado. Neste caso, um modelo **DeepSeek com LoRA**. |
+| `tokenizer = tokenizer` | O tokenizador usado para processar os textos antes do treinamento. |
+| `train_dataset = amazon_titles_reasoning formatado` | O dataset formatado no padrão necessário para o treinamento. |
+| `dataset_text_field = "text"` | Define qual campo do dataset contém o texto a ser usado no treinamento. |
+
+---
+
+#### Tamanho da Sequência e Processamento
+
+| Argumento | Descrição |
+|-----------|------------|
+| `max_seq_length = 2048` | Define o tamanho máximo de tokens que o modelo pode processar em uma única entrada. |
+| `dataset_num_proc = 2` | Número de processos paralelos para pré-processamento do dataset. Valores maiores podem acelerar, mas exigem mais CPU. |
+
+---
+
+#### Explicação dos Parâmetros de Geração de Texto
+
+A função `.generate()` do modelo ajustado (`deep_seek_model`) é responsável por gerar texto com base em um input processado. Cada argumento influencia diretamente **a forma como o modelo gera texto**, afetando **comprimento, aleatoriedade e eficiência**.
+
+```python
+outputs = deep_seek_model.generate(
+    **inputs,
+    max_new_tokens = 1200,  # Máximo de tokens na resposta
+    temperature    = 0.2,  # Controla aleatoriedade (0.0 a 1.0)
+    use_cache      = True  # Ativa cache para melhorar a velocidade de geração
+)
+```
+
+| Parâmetro | O que faz? | Valores recomendados |
+|-----------|-----------|---------------------|
+| **`max_new_tokens`** | Define **o número máximo de novos tokens** que podem ser gerados **na resposta** | `50-200` (depende do contexto) |
+| **`temperature`** | Controla o nível de **aleatoriedade** da geração de texto | `0.3` (formal) - `0.8` (criativo) |
+| **`use_cache`** | Usa cache para **acelerar geração** | Sempre `True` |
+
+**Exemplo "max_new_tokens":** Se `max_new_tokens = 1200`, o modelo pode **gerar até 1200 tokens** depois do prompt de entrada.
+  - Um valor muito **baixo** pode truncar a resposta antes que ela seja concluída.
+  - Um valor muito **alto** pode gerar respostas longas e desnecessárias, consumindo mais memória e tempo de inferência
+
+**Exemplo "temperature":** A temperatura recomendada pelo repositório do Foundation Model é `0.7`. Foram realizados testes com valores menores (0.2) e o modelo gerou respostas mais diretas e objetivas. Não houve problems como foi mencionado no card do modelo.
+
+**Exemplo "use_cache":** Ativa um **cache interno** para acelerar a geração de tokens.
+  - Durante a geração, o modelo precisa **calcular os tokens anteriores repetidamente**.
+  - Com **`use_cache = True`**, ele **armazena os tokens já processados**, evitando recomputação desnecessária.
+
+#### LoRA
 
 A aplicação do LoRA foi realizada para o treinamento do fine-tuning. Permitindo um ganho de performance e redução de custo e tempo de treinamento. O LoRA realiza uma adaptação dinâmica dos pesos do modelo, adotando uma abordagem de treinamento de camadas específicas.
 Em outras palavras, é como se o LLM fosse uma fábrica complexa, onde o LoRA permite reconstruir partes da fábrica consiga fabricar um novo produto, sem ter que reconstruir toda a fábrica. Esta nova parte da fábrica será responsável por fabricar o novo produto, neste caso, é o contexto adicional que foi adicionado durante o fine-tuning, com o intuito de melhorar a resposta do modelo para o usuário que está com dúvidas sobre algum produto.
@@ -142,7 +262,7 @@ Abaixo estão as respostas geradas pelo modelo antes do fine-tuning e após o fi
 Foi utilizado um promp sobreo contexto de um produto da Amazon. O modelo neste momento não possuí nenhum contexto adicional para responder a pergunta. Então, o modelo deve responder de forma genérica.
 
 ```
-Is 'Worship with Don Moen' available on VHS??
+Is 'Worship with Don Moen' available on VHS?
 ```
 
 E o reasoning foi o seguinte:

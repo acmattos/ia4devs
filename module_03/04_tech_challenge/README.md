@@ -1,5 +1,5 @@
-# Tech Challenge - Pós-Tech SOAT - FIAP
-# Fase 3 - Fine-tuning de modelo DeepSeek
+# Tech Challenge - Pós-Tech - IA For Devs - FIAP
+# Fase 3 - Fine-tuning de modelos LLM
 
 ## Alunos:
 
@@ -15,7 +15,7 @@
 - Link para o vídeo de apresentação:
 - Link para o modelo Llama treinado: [Llama 3.8B BNB 4bit](https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit)
 - Link para o modelo DeepSeek treinado: [Deep Seek R1 Products](https://huggingface.co/rickwalking/DeepSeek-R1-Products)
-- Link para o dataset: [Amazon Titles Reasoning](https://huggingface.co/datasets/rickwalking/amazon-titles-reasoning)
+- Link para o dataset de amostragem (Utilizado para o fine-tuning do modelo DeepSeek): [Amazon Titles Reasoning](https://huggingface.co/datasets/rickwalking/amazon-titles-reasoning)
 
 ## Descrição
 
@@ -60,7 +60,7 @@ Porém, a abordagem para preparar o dataset foi diferente para cada processo de 
 
 ### Preparação do dataset para o treino do modelo Llama
 
-![Figura 1:Script de pré-processamento do dataset para o treino do modelo Llama](./module_03/04_tech_challenge/images/llama_script.png)
+![Figura 1:Script de pré-processamento do dataset para o treino do modelo Llama](./llama/images/llama_script.png)
 
 *Figura 1: Script de pré-processamento do dataset para o treino do modelo Llama*
 
@@ -100,7 +100,7 @@ GET THE DESCRIPTION OF THIS PRODUCT
 
 ### Preparação do dataset para o treino do modelo DeepSeek
 
-![Figura 2:Script de pré-processamento do dataset para o treino do modelo DeepSeek](module_03/04_tech_challenge/deep_seek/images/amostragem.png)
+![Figura 2:Script de pré-processamento do dataset para o treino do modelo DeepSeek](./deep_seek/images/amostragem.png)
 
 *Figura 2: Script de pré-processamento do dataset para o treino do modelo DeepSeek*
 
@@ -183,11 +183,11 @@ Por ter acesso a uma GPU mais pontente e diferenças de configurações, o model
 
 ## Execução do fine-tuning
 
-![Figura 3: Execução do fine-tuning do modelo DeepSeek](module_03/04_tech_challenge/deep_seek/images/training.png)
+![Figura 3: Execução do fine-tuning do modelo DeepSeek](./deep_seek/images/training.png)
 
 *Figura 3: Execução do fine-tuning do modelo DeepSeek*
 
-![Figura 4: Execução do fine-tuning do modelo Llama](./module_03/04_tech_challenge/images/llama_training.png)
+![Figura 4: Execução do fine-tuning do modelo Llama](./llama/images/llama_training.png)
 
 *Figura 4: Execução do fine-tuning do modelo Llama*
 
@@ -197,7 +197,7 @@ A diferença de tempo de execução consiste em limitações de hardware do trei
 
 ## RAG no modelo Llama
 
-![Figura 5: Execução do RAG no modelo Llama](./module_03/04_tech_challenge/images/llama_rag.png)
+![Figura 5: Execução do RAG no modelo Llama](./llama/images/llama_rag.png)
 
 *Figura 5: Execução do RAG no modelo Llama*
 
@@ -225,5 +225,5 @@ Ambos os modelos podem melhorar ainda mais, com um treinamento mais longo e um d
 
 Mais detalhes sobre cada tipo de procedimento dos modelos, podem ser encontrados nos arquivos README específicos de cada projeto.
 
-- [README do modelo Llama](https://github.com/acmattos/ia4devs/tree/main/module_03/04_tech_challenge)
-- [README do modelo DeepSeek](https://github.com/acmattos/ia4devs/tree/main/module_03_deep_seek)
+- [README do modelo Llama](https://github.com/acmattos/ia4devs/tree/main/module_03/04_tech_challenge/llama)
+- [README do modelo DeepSeek](https://github.com/acmattos/ia4devs/tree/main/module_03/04_tech_challenge/deep_seek)
