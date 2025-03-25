@@ -226,7 +226,7 @@ outputs = deep_seek_model.generate(
   - Um valor muito **baixo** pode truncar a resposta antes que ela seja concluída.
   - Um valor muito **alto** pode gerar respostas longas e desnecessárias, consumindo mais memória e tempo de inferência
 
-**Exemplo "temperature":** A temperatura recomendada pelo repositório do Foundation Model é `0.7`. Foram realizados testes com valores menores (0.2) e o modelo gerou respostas mais diretas e objetivas. Não houve problems como foi mencionado no card do modelo.
+**Exemplo "temperature":** A temperatura recomendada pelo repositório do Foundation Model é `0.7`. Foram realizados testes com valores menores (0.2) e o modelo gerou respostas mais diretas e objetivas. Não houve problemas como foi mencionado no card do modelo.
 
 **Exemplo "use_cache":** Ativa um **cache interno** para acelerar a geração de tokens.
   - Durante a geração, o modelo precisa **calcular os tokens anteriores repetidamente**.
@@ -235,7 +235,7 @@ outputs = deep_seek_model.generate(
 #### LoRA
 
 A aplicação do LoRA foi realizada para o treinamento do fine-tuning. Permitindo um ganho de performance e redução de custo e tempo de treinamento. O LoRA realiza uma adaptação dinâmica dos pesos do modelo, adotando uma abordagem de treinamento de camadas específicas.
-Em outras palavras, é como se o LLM fosse uma fábrica complexa, onde o LoRA permite reconstruir partes da fábrica consiga fabricar um novo produto, sem ter que reconstruir toda a fábrica. Esta nova parte da fábrica será responsável por fabricar o novo produto, neste caso, é o contexto adicional que foi adicionado durante o fine-tuning, com o intuito de melhorar a resposta do modelo para o usuário que está com dúvidas sobre algum produto.
+Em outras palavras, é como se o LLM fosse uma fábrica complexa, onde o LoRA permite reconstruir partes da fábrica e consiga fabricar um novo produto, sem ter que reconstruir toda a fábrica. Esta nova parte da fábrica será responsável por fabricar o novo produto, neste caso, é o contexto adicional que foi incluído durante o fine-tuning, com o intuito de melhorar a resposta do modelo para o usuário que está com dúvidas sobre algum produto.
 
 ### Resultado do treinamento do modelo (Training Loss)
 
