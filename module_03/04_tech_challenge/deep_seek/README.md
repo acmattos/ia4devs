@@ -226,7 +226,7 @@ outputs = deep_seek_model.generate(
   - Um valor muito **baixo** pode truncar a resposta antes que ela seja concluída.
   - Um valor muito **alto** pode gerar respostas longas e desnecessárias, consumindo mais memória e tempo de inferência
 
-**Exemplo "temperature":** A temperatura recomendada pelo repositório do Foundation Model é `0.7`. Foram realizados testes com valores menores (0.2) e o modelo gerou respostas mais diretas e objetivas. Não houve problems como foi mencionado no card do modelo.
+**Exemplo "temperature":** A temperatura recomendada pelo repositório do Foundation Model é `0.7`. Foram realizados testes com valores menores (0.2) e o modelo gerou respostas mais diretas e objetivas. Não houve problemas como foi mencionado no card do modelo.
 
 **Exemplo "use_cache":** Ativa um **cache interno** para acelerar a geração de tokens.
   - Durante a geração, o modelo precisa **calcular os tokens anteriores repetidamente**.
