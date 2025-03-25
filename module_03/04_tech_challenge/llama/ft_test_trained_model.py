@@ -62,7 +62,7 @@ def ask_questions_to_the_model(base_model, uc):
         decode_responses(tokenizer, outputs)
     # Recebe entradas do teclado após a lista de produtos
     while True:
-        user_input = input("\Obtenha a descrição do produto (ou 'sair' para encerrar): ")
+        user_input = input("\nObtenha a descrição do produto (ou 'sair' para encerrar): ")
         if user_input.lower() == 'sair':
             print("\nSaindo do programa.")
             break  # Sai do loop
