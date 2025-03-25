@@ -62,12 +62,15 @@ def ask_questions_to_the_model(base_model, uc):
         decode_responses(tokenizer, outputs)
     # Recebe entradas do teclado após a lista de produtos
     while True:
-        user_input = input("\nDigite o nome de um produto para pesquisar ou 'sair' para encerrar: ")
+        user_input = input("\Obtenha a descrição do produto (ou 'sair' para encerrar): ")
         if user_input.lower() == 'sair':
             print("\nSaindo do programa.")
             break  # Sai do loop
         elif user_input.strip():
-            ask_the_model(base_model, uc, user_input)
+            inputs = generate_inputs(tokenizer, user_input)
+            text_streamer = get_text_streamer(tokenizer)
+            outputs = get_outputs(model, inputs, text_streamer)
+            decode_responses(tokenizer, outputs)
         else:
             print("Entrada inválida! Por favor, digite um nome de produto válido.")    
 
