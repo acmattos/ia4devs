@@ -105,7 +105,7 @@ GET THE DESCRIPTION OF THIS PRODUCT
 
 *Figura 2: Script de pré-processamento do dataset para o treino do modelo DeepSeek*
 
-O dataset sofreu uma limpeza semelhante ao modelo Llama, porém, o pré-processamento foi realizado de forma diferente. Foi gerado um novo datset chamado de dados de amostragem, que contém 2000 referências a produtos e descrições de 2000 registros do dataset original.
+O dataset sofreu uma limpeza semelhante ao modelo Llama, porém, o pré-processamento foi realizado de forma diferente. Foi gerado um novo dataset chamado de dados de amostragem, que contém 2000 referências a produtos e descrições de 2000 registros do dataset original.
 Porém, o formato dos dados sofreu uma grande alteração, pois o modelo DeepSeek utiliza um formato de prompt específico para o treinamento. O formato dos dados de amostragem é o seguinte:
 
 ```
@@ -202,7 +202,7 @@ A diferença de tempo de execução consiste em limitações de hardware do trei
 
 *Figura 5: Execução do RAG no modelo Llama*
 
-O modelo Llama foi treinado com um RAG, o que permite que o modelo possa acessar o dataset original e gerar respostas mais coerentes e contextuais. O RAG foi implementado utilizando a biblioteca LangChain e a o banco de dados vectorial Chroma.
+O modelo Llama foi alimentado com um RAG, o que permite que o modelo possa acessar o dataset original e gerar respostas mais coerentes e contextuais. O RAG foi implementado utilizando a biblioteca LangChain e a o banco de dados vectorial Chroma.
 
 Os passos para o criação do RAG são os seguintes:
 

@@ -235,7 +235,7 @@ outputs = deep_seek_model.generate(
 #### LoRA
 
 A aplicação do LoRA foi realizada para o treinamento do fine-tuning. Permitindo um ganho de performance e redução de custo e tempo de treinamento. O LoRA realiza uma adaptação dinâmica dos pesos do modelo, adotando uma abordagem de treinamento de camadas específicas.
-Em outras palavras, é como se o LLM fosse uma fábrica complexa, onde o LoRA permite reconstruir partes da fábrica consiga fabricar um novo produto, sem ter que reconstruir toda a fábrica. Esta nova parte da fábrica será responsável por fabricar o novo produto, neste caso, é o contexto adicional que foi adicionado durante o fine-tuning, com o intuito de melhorar a resposta do modelo para o usuário que está com dúvidas sobre algum produto.
+Em outras palavras, é como se o LLM fosse uma fábrica complexa, onde o LoRA permite reconstruir partes da fábrica e consiga fabricar um novo produto, sem ter que reconstruir toda a fábrica. Esta nova parte da fábrica será responsável por fabricar o novo produto, neste caso, é o contexto adicional que foi incluído durante o fine-tuning, com o intuito de melhorar a resposta do modelo para o usuário que está com dúvidas sobre algum produto.
 
 ### Resultado do treinamento do modelo (Training Loss)
 
