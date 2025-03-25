@@ -15,6 +15,7 @@
 - Link para o vídeo de apresentação:
 - Link para o modelo Llama treinado: [Llama 3.8B BNB 4bit](https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit)
 - Link para o modelo DeepSeek treinado: [Deep Seek R1 Products](https://huggingface.co/rickwalking/DeepSeek-R1-Products)
+- Link do dataset original: [AmazonTitles-1.3MM](https://drive.google.com/file/d/12zH4mL2RX8iSvH0VCNnd3QxO4DzuHWnK/view)
 - Link para o dataset de amostragem (Utilizado para o fine-tuning do modelo DeepSeek): [Amazon Titles Reasoning](https://huggingface.co/datasets/rickwalking/amazon-titles-reasoning)
 
 ## Descrição
