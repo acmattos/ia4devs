@@ -11,8 +11,8 @@
 
 ## Evidências do projeto
 
-- Link para o repositório:
-- Link para o vídeo de apresentação: [Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_03/04_tech_challenge)
+- Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_03/04_tech_challenge)
+- Link para o vídeo de apresentação: [Video Apresentação](https://youtu.be/WWN1Z_Y8E3s)
 - Link para o modelo Llama treinado: [Llama 3.8B BNB 4bit](https://huggingface.co/ACMattosHE/lora_model_llama-3-8b-bnb-4bit)
 - Link para o modelo DeepSeek treinado: [Deep Seek R1 Products](https://huggingface.co/rickwalking/DeepSeek-R1-Products)
 - Link do dataset original: [AmazonTitles-1.3MM](https://drive.google.com/file/d/12zH4mL2RX8iSvH0VCNnd3QxO4DzuHWnK/view)
