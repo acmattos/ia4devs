@@ -119,5 +119,18 @@ def ask_the_model_using_rag():
     print("\n\nResposta gerada:")
     print(answer)
 
+    # Recebe entradas do teclado após a lista de produtos
+    while True:
+        user_input = input("\nObtenha a descrição do produto (ou 'sair' para encerrar): ")
+        if user_input.lower() == 'sair':
+            print("\nSaindo do programa.")
+            break  # Sai do loop
+        elif user_input.strip():
+            answer = ask_the_model(retriever, user_input, peft_model, tokenizer, uc)
+            print("\n\nResposta gerada:")
+            print(answer)
+        else:
+            print("Entrada inválida! Por favor, digite um nome de produto válido.")   
+
 if __name__ == "__main__":
     ask_the_model_using_rag()
