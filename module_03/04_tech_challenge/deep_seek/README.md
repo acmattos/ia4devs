@@ -12,7 +12,7 @@
 ## Evidências do projeto
 
 - Link para o repositório: [Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_03/04_tech_challenge)
-- Link para o vídeo de apresentação:
+- Link para o vídeo de apresentação: [Video Apresentação](https://youtu.be/WWN1Z_Y8E3s)
 - Link para o modelo treinado: [Deep Seek R1 Products](https://huggingface.co/rickwalking/DeepSeek-R1-Products)
 - Link para o dataset: [Amazon Titles Reasoning](https://huggingface.co/datasets/rickwalking/amazon-titles-reasoning)
 
