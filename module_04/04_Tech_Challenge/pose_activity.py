@@ -20,37 +20,36 @@ import numpy as np
 WINDOW_SIZE       = 15
 MIN_CONSEC        = 3
 
-# movimento de braço
+# Arms
 ARM_THRESH        = 0.04
-
-# movimento de mãos
+# Hands
 HAND_DISP_THRESH  = 0.02
 FINGER_THRESH     = 0.005
 AREA_THRESH       = 0.0005
 FLOW_THRESH       = 0.5
-
-# boca
+# Mouth
 OPEN_THRESH       = 0.04
 SMILE_VERT_MIN    = 0.008
 SMILE_VERT_MAX    = 0.02
 SMILE_HOR_THRESH  = 0.06
-
-# índices FaceMesh para boca
 MOUTH_TOP_IDX     = 13
 MOUTH_BOTTOM_IDX  = 14
 MOUTH_LEFT_IDX    = 61
 MOUTH_RIGHT_IDX   = 291
-
-# pares de dedos (para variação de comprimento)
-FINGER_PAIRS = {
+# Fingers
+FINGER_PAIRS      = {
     "thumb":  (4, 2),
     "index":  (8, 6),
     "middle": (12,10),
     "ring":   (16,14),
     "pinky":  (20,18)
 }
+# Aomomaly
+ANOMALY_SPEED_THRESH  = 0.1
+ANOMALY_MOUTH_THRESH  = 0.08
+ANOMALY_HAND_AREA_VAR = 0.02
 
-# 3. Funções utilitárias
+
 def compute_finger_lengths(
     hand_lm: Any
 ) -> dict[str, float]:
@@ -258,11 +257,13 @@ def compute_mouth_state(fl: Any) -> str:
 
 def define_mouth_state_and_face_bbox(
     face_mesh: mp.solutions.face_mesh,
-    smile_cascade,
-    indexed_frame,
-    gray_frame,
-    rgb_frame, width, height
-) -> tuple[str, tuple[int, int, int, int]]:
+    smile_cascade: cv2.CascadeClassifier,
+    indexed_frame: cv2.typing.MatLike,
+    gray_frame: cv2.typing.MatLike,
+    rgb_frame: cv2.typing.MatLike,
+    width: int,
+    height: int
+) -> tuple[str, tuple[int, int, int, int], float]:
     """
     Detect face landmarks, draw face bbox, and classify mouth state (with optional cascade filter).
 
@@ -287,26 +288,30 @@ def define_mouth_state_and_face_bbox(
         One of {"open", "smile", "closed"}.
     face_bbox : (x1,y1,x2,y2) or None
         Pixel coordinates of the face bounding box if detected.
+    mouth_vert : float
+        Normalized vertical distance between top and bottom lip landmarks
+        (in [0,1] relative to face size) :contentReference[oaicite:4]{index=4}.
     """
-    face_lms_all = face_mesh.process(rgb_frame).multi_face_landmarks
     face_bbox = None
     mouth_state = "closed"
+    mouth_vert = 0.0
+
+    face_lms_all = face_mesh.process(rgb_frame).multi_face_landmarks
     if face_lms_all:
         fb = face_lms_all[0]
         x1, y1, x2, y2 = compute_face_bbox(fb, width,height)
         face_bbox = (x1, y1, x2, y2)
-        cv2.rectangle(indexed_frame, (x1,y1),(x2,y2),(255,255,255),2)
-
+        top = fb.landmark[MOUTH_TOP_IDX]
+        bot = fb.landmark[MOUTH_BOTTOM_IDX]
+        mouth_vert = abs(top.y - bot.y)
         mouth_state = compute_mouth_state(fb)
         if mouth_state == "smile":
-            # verificar com Haar Cascade
             mouth_roi = gray_frame[y1:y2, x1:x2]
-            smiles = smile_cascade.detectMultiScale(
-                mouth_roi, scaleFactor=1.7, minNeighbors=20, minSize=(25,25)
-            )
-            if len(smiles) == 0:
+            if len(smile_cascade.detectMultiScale(
+                    mouth_roi, 1.7, 20, minSize=(25, 25))) == 0:
                 mouth_state = "closed"
-    return mouth_state, face_bbox
+        cv2.rectangle(indexed_frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
+    return mouth_state, face_bbox, mouth_vert
 
 
 def define_rl_regions_of_interest_and_face_touch(
@@ -321,7 +326,7 @@ def define_rl_regions_of_interest_and_face_touch(
     face_bbox: tuple[int, int, int, int],
     width: int,
     height: int
-) -> tuple[cv2.typing.MatLike, cv2.typing.MatLike, bool]:
+) -> tuple[cv2.typing.MatLike, cv2.typing.MatLike, bool, list[float]]:
     """
     Detect hand landmarks, draw them, compute hand ROIs, and check for face touches.
 
@@ -348,6 +353,7 @@ def define_rl_regions_of_interest_and_face_touch(
         Grayscale ROIs around each hand for optical flow.
     face_touch : bool
         True if any hand landmark falls inside the face bbox.
+    hands_variations:
     """
     face_touch = False
     res_h = hands.process(rgb_frame)
@@ -366,7 +372,7 @@ def define_rl_regions_of_interest_and_face_touch(
         for hlm, hd in zip(res_h.multi_hand_landmarks, res_h.multi_handedness):
             side = hd.classification[0].label
             mp_drawing.draw_landmarks(frame, hlm,
-                                      mp_hands.HAND_CONNECTIONS)
+                mp_hands.HAND_CONNECTIONS)
             xs = [lm.x for lm in hlm.landmark];
             ys = [lm.y for lm in hlm.landmark]
             xx1, xx2 = int(min(xs) * width), int(max(xs) * width)
@@ -382,7 +388,11 @@ def define_rl_regions_of_interest_and_face_touch(
             else:
                 left_buf.append(hlm)
                 left_roi = roi
-    return right_roi, left_roi, face_touch
+
+    hands_variations = []
+    if len(left_buf)==WINDOW_SIZE:  hands_variations.append(hand_area_variation(left_buf))
+    if len(right_buf)==WINDOW_SIZE: hands_variations.append(hand_area_variation(right_buf))
+    return right_roi, left_roi, face_touch, hands_variations
 
 
 def define_prev_lr_roi_and_flow(
@@ -514,36 +524,158 @@ def cv2_put_text_count(
         Counters for each event type.
     """
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2_put_text(frame, f"Braco Subindo: {arm_count}", (20, 80),
+    cv2_put_text(frame, f"Arms: {arm_count}", (20, 80),
                  font, 1, (0, 255, 255))
-    cv2_put_text(frame, f"Mao Esquerda: {left_count}", (20, 120),
+    cv2_put_text(frame, f"Left Hand: {left_count}", (20, 120),
                  font, 1, (255, 255, 0))
-    cv2_put_text(frame, f"Mao Direita: {right_count}", (20, 160),
+    cv2_put_text(frame, f"Right Hand: {right_count}", (20, 160),
                  font, 1, (255, 0, 255))
-    cv2_put_text(frame, f"Toque no rosto: {face_touch_count}", (20, 200),
+    cv2_put_text(frame, f"Face Touch: {face_touch_count}", (20, 200),
                  font, 1, (255, 255, 255))
-    cv2_put_text(frame, f"Boca Aberta: {open_count}", (20, 240),
+    cv2_put_text(frame, f"Opened Mouth: {open_count}", (20, 240),
                  font, 1, (0, 128, 255))
-    cv2_put_text(frame, f"Boca Fechada: {close_count}", (20, 280),
+    cv2_put_text(frame, f"Closed Mouth: {close_count}", (20, 280),
                  font, 1, (128, 128, 128))
-    cv2_put_text(frame, f"Sorriso: {smile_count}", (20, 320),
+    cv2_put_text(frame, f"Smile: {smile_count}", (20, 320),
                  font, 1, (0, 255, 128))
 
 def fmt(times: list[float]) -> str:
     """
-    Format a list of timestamps into a human-readable preview string.
+    Format a list of frames into a human-readable preview string.
 
     Parameters
     ----------
     times : list[float]
-        List of event timestamps in seconds.
+        List of event frames.
 
     Returns
     -------
     str
-        A comma-separated preview of up to 5 times (e.g., "0.5s, 2.1s, 4.3s…").
+        A comma-separated preview of up to 5 times (e.g., "1f, 2f, 4f…").
     """
-    return ", ".join(f"{t:.1f}s" for t in times[:5]) + ("…" if len(times)>5 else "")
+    return ", ".join(f"{t:.1f}f" for t in times[:5]) + ("…" if len(times)>5 else "")
+
+
+def is_anomalous(
+    arm_speeds: list[float],
+    hand_area_vars: list[float],
+    mouth_vert_dist: float
+) -> bool:
+    """
+    Determine whether motion or facial metrics exceed anomaly thresholds.
+
+    This function evaluates three types of measurements—arm joint speeds,
+    hand area variation, and mouth opening—to decide if any behavior
+    qualifies as anomalous based on predefined thresholds.
+
+    Parameters
+    ----------
+    arm_speeds : list[float]
+        Mean per-frame speeds for each shoulder, elbow, and wrist joint
+        over a rolling window. If non-empty and the maximum speed
+        exceeds `ANOMALY_SPEED_THRESH`, the function flags an anomaly.
+    hand_area_vars : list[float]
+        Standard deviations of the convex-hull area of detected hands
+        over a rolling window. A maximum value above `ANOMALY_HAND_AREA_VAR`
+        also signals an anomaly.
+    mouth_vert_dist : float
+        Normalized vertical distance between top and bottom lip landmarks.
+        A value greater than `ANOMALY_MOUTH_THRESH` indicates an anomalous
+        mouth opening.
+
+    Returns
+    -------
+    bool
+        `True` if **any** of the provided metrics crosses its anomaly
+        threshold; otherwise `False`.
+    """
+    if arm_speeds and max(arm_speeds) > ANOMALY_SPEED_THRESH:
+        return True
+    if hand_area_vars and max(hand_area_vars) > ANOMALY_HAND_AREA_VAR:
+        return True
+    if mouth_vert_dist > ANOMALY_MOUTH_THRESH:
+        return True
+    return False
+
+
+def compute_arm_speeds(
+    buf: list[Any],
+    vis_thresh: float = 0.8
+) -> list[float]:
+    """
+    Calculate the average frame-to-frame speed for each shoulder, elbow, and wrist joint.
+
+    Parameters
+    ----------
+    buf : List[NormalizedLandmarkList]
+        A time-ordered buffer of MediaPipe Pose landmark lists (length ≥ 2).
+    vis_thresh : float, optional
+        Minimum visibility required for a landmark to be included (0–1). Default is 0.8.
+
+    Returns
+    -------
+    list[float]
+        A list of mean speeds (in normalized landmark units per frame) for each joint index
+        in [11, 12, 13, 14, 15, 16] (left/right shoulder, elbow, wrist). Joints with fewer
+        than 2 valid samples are omitted.
+    """
+    joint_idxs = [11, 12, 13, 14, 15, 16]
+    speeds = []
+
+    for idx in joint_idxs:
+        # Gather normalized (x,y) positions for this joint across frames
+        pts = [
+            (lm.landmark[idx].x, lm.landmark[idx].y)
+            for lm in buf
+            if lm.landmark[idx].visibility >= vis_thresh
+        ]
+
+        # Need at least two points to compute a speed
+        if len(pts) < 2:
+            continue
+
+        arr = np.array(pts)
+        # np.diff computes consecutive displacements :contentReference[oaicite:0]{index=0}
+        deltas = np.diff(arr, axis=0)
+        # Euclidean norm of each delta vector :contentReference[oaicite:1]{index=1}
+        dists = np.linalg.norm(deltas, axis=1)
+        speeds.append(float(dists.mean()))
+
+    return speeds
+
+
+def hand_area_variation(buf: list[Any]) -> float:
+    """
+    Calculate the variability in hand shape area over time by computing the standard
+    deviation of convex hull areas from a sequence of hand landmark sets.
+    :contentReference[oaicite:0]{index=0}
+
+    Parameters
+    ----------
+    buf : list[Any]
+        A list of hand landmark objects (e.g., MediaPipe `NormalizedLandmarkList`), each
+        containing normalized (x, y) coordinates for all detected hand landmarks.
+        :contentReference[oaicite:1]{index=1}
+
+    Returns
+    -------
+    float
+        The standard deviation of the convex hull areas (in normalized units) calculated
+        across all frames in `buf`. A higher value indicates greater variation in hand
+        shape (e.g., opening/closing the palm). Returns 0.0 if `buf` has fewer than two entries. :contentReference[oaicite:2]{index=2}
+
+    Notes
+    -----
+    - Uses `cv2.convexHull(...)` to compute the convex hull of each set of landmarks,
+      then measures its area with `cv2.contourArea(...)`. :contentReference[oaicite:3]{index=3}
+    - Applies `numpy.std(...)` to the list of hull areas to quantify dispersion. :contentReference[oaicite:4]{index=4}
+    """
+    areas = []
+    for h in buf:
+        pts = np.array([(lm.x, lm.y) for lm in h.landmark], dtype=np.float32)
+        hull = cv2.convexHull(pts)
+        areas.append(float(cv2.contourArea(hull)))
+    return float(np.std(areas))
 
 
 def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
@@ -592,10 +724,10 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
         Outputs an annotated video file and a summary text file at:
         "./doc/videos/result/tc4_pose_activity_summary.txt".
     """
-    video_capture = cv2_video_capture(video_in_path)
+    video_capture  = cv2_video_capture(video_in_path)
     indexed_frames = break_video_into_indexed_frames(video_capture)
     video_writer   = cv2_video_writer(video_capture, video_out_path)
-    width, height, _, _, _ = retrieve_video_capture_properties(video_capture)
+    width, height, _, total_frames, _ = retrieve_video_capture_properties(video_capture)
 
     mp_pose, pose = configure_pose_solutions()
     mp_hands, hands = configure_hands_solutions()
@@ -621,6 +753,7 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
     open_times = []
     smile_times = []
     close_times = []
+    anomaly_times = []
 
     prev_left_roi = prev_right_roi = None
     fb_params = dict(pyr_scale = 0.5, levels = 3, winsize = 15,
@@ -633,15 +766,17 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
         gray_frame = cv2.cvtColor(indexed_frame, cv2.COLOR_BGR2GRAY)
         rgb_frame  = cv2.cvtColor(indexed_frame, cv2.COLOR_BGR2RGB)
 
-        mouth_state, face_bbox= define_mouth_state_and_face_bbox(face_mesh,
+        mouth_state, face_bbox, mouth_vert = define_mouth_state_and_face_bbox(face_mesh,
             smile_cascade, indexed_frame, gray_frame, rgb_frame, width, height)
 
         plm = pose.process(rgb_frame).pose_landmarks
+        arm_speeds = []
         if plm:
             mp_drawing.draw_landmarks(indexed_frame, plm, mp_pose.POSE_CONNECTIONS)
             pose_buf.append(plm)
+            arm_speeds = compute_arm_speeds(pose_buf)
 
-        right_roi, left_roi, face_touch = (
+        right_roi, left_roi, face_touch, hand_area_vars = (
             define_rl_regions_of_interest_and_face_touch(
                 indexed_frame, rgb_frame, gray_frame, mp_hands, mp_drawing,
                 hands, right_buf, left_buf, face_bbox, width, height))
@@ -654,13 +789,20 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
             detect_arm_and_hands_movements(
                 pose_buf, left_buf, right_buf, left_flow, right_flow))
 
-        arm_consec, arm_count = calculate_and_count_consecutive_movement(arm_consec, arm_move, arm_count)
-        left_consec, left_count = calculate_and_count_consecutive_movement(left_consec, left_move, left_count)
-        right_consec, right_count = calculate_and_count_consecutive_movement(right_consec, right_move, right_count)
-        face_consec, face_touch_count = calculate_and_count_consecutive_movement(face_consec, face_touch, face_touch_count)
-        open_consec, open_count = calculate_and_count_consecutive_movement(open_consec, mouth_state == "open", open_count)
-        smile_consec, smile_count = calculate_and_count_consecutive_movement(smile_consec, mouth_state == "smile", smile_count)
-        close_consec, close_count = calculate_and_count_consecutive_movement(close_consec, mouth_state == "closed", close_count)
+        arm_consec, arm_count = calculate_and_count_consecutive_movement(
+            arm_consec, bool(arm_speeds and np.mean(arm_speeds) > ARM_THRESH), arm_count)
+        left_consec, left_count = calculate_and_count_consecutive_movement(
+            left_consec, left_move, left_count)
+        right_consec, right_count = calculate_and_count_consecutive_movement(
+            right_consec, right_move, right_count)
+        face_consec, face_touch_count = calculate_and_count_consecutive_movement(
+            face_consec, face_touch, face_touch_count)
+        open_consec, open_count = calculate_and_count_consecutive_movement(
+            open_consec, mouth_state == "open", open_count)
+        smile_consec, smile_count = calculate_and_count_consecutive_movement(
+            smile_consec, mouth_state == "smile", smile_count)
+        close_consec, close_count = calculate_and_count_consecutive_movement(
+            close_consec, mouth_state == "closed", close_count)
 
         arm_times.append(idx)
         left_times.append(idx)
@@ -669,6 +811,10 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
         open_times.append(idx)
         smile_times.append(idx)
         close_times.append(idx)
+        if is_anomalous(arm_speeds, hand_area_vars, mouth_vert):
+            anomaly_times.append(idx)
+            cv2_put_text(indexed_frame, "ANOMALY!", (width - 200, 50),
+                cv2.FONT_HERSHEY_TRIPLEX, 1.2, (0, 0, 255), 3)
 
         cv2_put_text_count(indexed_frame, arm_count, left_count, right_count,
                              face_touch_count, open_count, close_count, smile_count)
@@ -684,15 +830,19 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
 
     summary = f"""
     ========================== VIDEO SUMMARY ==========================
-    Arm movements:          {arm_count} times (e.g.: {fmt(arm_times)})
-    Left hand movements:    {left_count} times (e.g.: {fmt(left_times)})
-    Right hand movements:   {right_count} times (e.g.: {fmt(right_times)})
-    Hand touches to face:   {face_touch_count} times (e.g.: {fmt(face_times)})
+    Total frames analyzed:    {total_frames}
+    Total anomalies detected: {len(anomaly_times)}  (ex.: {fmt(anomaly_times)})
+
+    Counts of detected events:
+    - Arm movements:         {arm_count} times (e.g.: {fmt(arm_times)})
+    - Left hand movements:   {left_count} times (e.g.: {fmt(left_times)})
+    - Right hand movements:  {right_count} times (e.g.: {fmt(right_times)})
+    - Hand touches to face:  {face_touch_count} times (e.g.: {fmt(face_times)})
 
     Facial expressions:
-    - Mouth open:           {open_count} times (e.g.: {fmt(open_times)})
-    - Smile:                {smile_count} times (e.g.: {fmt(smile_times)})
-    - Mouth closed:         {close_count} times (e.g.: {fmt(close_times)})
+    - Mouth open:            {open_count} times (e.g.: {fmt(open_times)})
+    - Smile:                 {smile_count} times (e.g.: {fmt(smile_times)})
+    - Mouth closed:          {close_count} times (e.g.: {fmt(close_times)})
     """
 
     print(summary)
