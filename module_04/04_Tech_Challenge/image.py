@@ -10,7 +10,7 @@ import typing
 
 
 def load_image_face_encodings_and_names(
-    image_path: str
+    images_path: str
 ) -> tuple[list[np.array], list[str]]:
     """
     Load face encodings and corresponding person names from a directory of images.
@@ -47,12 +47,12 @@ def load_image_face_encodings_and_names(
     """
     image_face_encodings = []
     image_face_names     = []
-    filenames             = os.listdir(image_path)
+    filenames             = os.listdir(images_path)
     # Percorrer todos os arquivos na pasta fornecida
     for filename in tqdm(filenames, desc = "Loading face encodings and names"):
         # Load image
         image_file = face_recognition.load_image_file(
-            os.path.join(image_path, filename)
+            os.path.join(images_path, filename)
         )
         image_file = cv2.resize(image_file, (0, 0), fx = 0.125, fy = 0.125)
 

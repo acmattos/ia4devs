@@ -1,9 +1,9 @@
+from collections import defaultdict
 from image import (load_image_face_encodings_and_names, bgr_2_rgb_frame,
                    load_face_locations_and_encodings, find_name,
                    draw_identified_box_ltrb)
 from tqdm import tqdm
-
-from text import create_path
+from text import save_results_to_csv, count_appearances, ensure_file_exists
 from video import (cv2_video_capture, cv2_video_writer,
                    break_video_into_indexed_frames)
 
@@ -54,10 +54,12 @@ def face_detection_and_recognition(
     indexed_frames     = break_video_into_indexed_frames(video_capture)
     writer             = cv2_video_writer(video_capture, video_out_path)
 
-    for _, indexed_frame in tqdm(indexed_frames, desc = "Analysing video frames"):
+    results = defaultdict(list)
+    for idx, indexed_frame in tqdm(indexed_frames, desc = "Analysing video frames"):
         face_locations, face_encodings = load_face_locations_and_encodings(
             bgr_2_rgb_frame(indexed_frame)
         )
+        results[idx].append(' ')
 
         for (top, right, bottom, left), face_encoding \
             in tqdm(zip(face_locations, face_encodings), desc = "Analyzing frame faces"):
@@ -67,6 +69,7 @@ def face_detection_and_recognition(
             bottom *= 8
             name = find_name(known_face_encodings, face_encoding, known_face_names)
             draw_identified_box_ltrb(indexed_frame, name, left, top, right, bottom)
+            results[idx][-1] = name
 
         writer.write(indexed_frame)
         cv2.imshow('Video', indexed_frame)
@@ -76,11 +79,40 @@ def face_detection_and_recognition(
     writer.release()
     video_capture.release()
     cv2.destroyAllWindows()
+    save_results_to_csv(results, video_out_path + ".csv")
+    write_summary_analysis()
+
+
+def write_summary_analysis(
+    analysis_output_path: str = "./doc/videos/result/summary_analysis.txt"
+) -> None:
+    """
+    Append a summary of emotion-appearance analysis to a text file.
+
+    Parameters
+    ----------
+    analysis_output_path : str
+        Filesystem path to the summary file. If the file does not already exist,
+        it will be created (including any missing parent directories).
+
+    Returns
+    -------
+    None
+        This function does not return a value; its effect is writing to disk.
+    """
+    ensure_file_exists(analysis_output_path)
+    with open(analysis_output_path, "w", encoding="utf-8") as f:
+        print(
+            "\n      ========================== VIDEO SUMMARY: PERSON ==========================",
+            file=f
+        )
+        counts = count_appearances(video_out_path + ".csv", pause_threshold=50)
+        for person, num in counts.items():
+            print(f"    - {person}: {num} appearances", file=f)
+
 
 if __name__ == "__main__":
-    create_path()
-
     images_path = "./doc/images"
     video_in_path = "./doc/videos/tc4_video.mp4"
-    video_out_path = "./doc/videos/tc4_video_fr.mp4"
+    video_out_path = "./doc/videos/result/tc4_video_fr.mp4"
     face_detection_and_recognition(images_path, video_in_path, video_out_path)

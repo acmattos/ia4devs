@@ -1,5 +1,4 @@
 from collections import deque
-from pathlib import Path
 from typing import Any
 
 from numpy import floating
@@ -8,7 +7,7 @@ from image import (configure_pose_solutions, configure_hands_solutions,
                    configure_face_solutions, cv2_put_text)
 from tqdm import tqdm
 
-from text import create_path
+from text import ensure_file_exists
 from video import (cv2_video_capture, break_video_into_indexed_frames,
                    retrieve_video_capture_properties, cv2_video_writer)
 
@@ -829,7 +828,7 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
     cv2.destroyAllWindows()
 
     summary = f"""
-    ========================== VIDEO SUMMARY ==========================
+    ========================== VIDEO SUMMARY: ACTIVITIES ==========================
     Total frames analyzed:    {total_frames}
     Total anomalies detected: {len(anomaly_times)}  (ex.: {fmt(anomaly_times)})
 
@@ -844,18 +843,37 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
     - Smile:                 {smile_count} times (e.g.: {fmt(smile_times)})
     - Mouth closed:          {close_count} times (e.g.: {fmt(close_times)})
     """
+    write_summary_analysis(summary = summary)
 
-    print(summary)
-    summary_path = Path("./doc/videos/result/tc4_pose_activity_summary.txt")
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    summary_path.write_text(summary, encoding="utf-8")
-    with open("./doc/videos/result/tc4_pose_activity_summary.txt", "w") as f:
-        f.write(summary)
+
+def write_summary_analysis(
+    analysis_output_path: str = "./doc/videos/result/summary_analysis.txt",
+    summary: str = ""
+) -> None:
+    """
+    Append a summary of emotion-appearance analysis to a text file.
+
+    Parameters
+    ----------
+    analysis_output_path : str
+        Filesystem path to the summary file. If the file does not already exist,
+        it will be created (including any missing parent directories).
+
+    summary : str
+        Content to be written to a summary file.
+
+    Returns
+    -------
+    None
+        This function does not return a value; its effect is writing to disk.
+    """
+    ensure_file_exists(analysis_output_path)
+    with open(analysis_output_path, "a", encoding="utf-8") as f:
+        print(summary, file=f)
 
 
 if __name__ == "__main__":
-    create_path()
 
     video_in_path = "./doc/videos/tc4_video.mp4"
-    video_out_path = "./doc/videos/tc4_video_pa.mp4"
+    video_out_path = "./doc/videos/result/tc4_video_pa.mp4"
     detect_pose_and_activities(video_in_path, video_out_path)
