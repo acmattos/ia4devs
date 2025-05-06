@@ -107,7 +107,7 @@ def write_summary_analysis(
     ensure_file_exists(analysis_output_path)
     with open(analysis_output_path, "w", encoding="utf-8") as f:
         print(
-            "\n      ========================== VIDEO SUMMARY: PERSON ==========================",
+            "\n    ========================== VIDEO SUMMARY: PERSON ==========================",
             file=f
         )
         counts = count_appearances(video_out_path + ".csv", pause_threshold=50)

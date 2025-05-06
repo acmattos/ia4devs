@@ -94,7 +94,7 @@ Path where the annotated output video will be saved.
     ensure_file_exists(analysis_output_path)
     with open(analysis_output_path, "a", encoding="utf-8") as f:
         print(
-            "\n      ========================== VIDEO SUMMARY: EMOTIONS ==========================",
+            "\n    ========================== VIDEO SUMMARY: EMOTIONS ==========================",
             file=f)
         counts = count_emotion_appearances(
             video_out_path + ".csv",
