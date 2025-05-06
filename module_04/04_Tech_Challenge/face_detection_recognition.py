@@ -80,10 +80,11 @@ def face_detection_and_recognition(
     video_capture.release()
     cv2.destroyAllWindows()
     save_results_to_csv(results, video_out_path + ".csv")
-    write_summary_analysis()
+    write_summary_analysis(video_out_path)
 
 
 def write_summary_analysis(
+    video_out_path: str,
     analysis_output_path: str = "./doc/videos/result/summary_analysis.txt"
 ) -> None:
     """
@@ -91,6 +92,9 @@ def write_summary_analysis(
 
     Parameters
     ----------
+    video_out_path : str
+        Path where the annotated output video will be saved.
+
     analysis_output_path : str
         Filesystem path to the summary file. If the file does not already exist,
         it will be created (including any missing parent directories).
