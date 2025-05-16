@@ -107,8 +107,9 @@ def bgr_2_rgb_frame(bgr_frame: cv2.typing.MatLike) -> cv2.typing.MatLike:
 
 def load_face_locations(
     rgb_frame: cv2.typing.MatLike,
-    number_of_times_to_upsample: int = 2,
-    model: str = "hog"
+    number_of_times_to_upsample: int = 5,
+    #model: str = "hog"
+    model: str = "cnn"
 ) -> list[tuple[int,int,int,int]]:
     """
     Detect the pixel coordinates of all faces in an RGB image.
