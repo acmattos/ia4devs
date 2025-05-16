@@ -58,7 +58,7 @@ def load_image_face_encodings_and_names(
 
         face_locations = load_face_locations(image_file)
         face_encodings = load_face_encodings(
-            image_file, face_locations, 10,"large")
+            image_file, face_locations, 40,"large")
 
         if face_encodings:
             image_face_encodings.append(face_encodings[0])
