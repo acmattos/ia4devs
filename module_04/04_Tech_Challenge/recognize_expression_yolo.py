@@ -1,22 +1,31 @@
 import os
+from collections import defaultdict
+
 import cv2
 from ultralytics import YOLO
 from tqdm import tqdm
 from deepface import DeepFace
 import concurrent.futures
 
-from image import draw_identified_box_xywh, draw_identified_box_ltrb
-
+from image import draw_identified_box_ltrb
+from text import save_results_to_csv, ensure_file_exists, \
+                 count_emotion_appearances
 
 # Função para analisar emoções com DeepFace
 def analisar_emocao(face_img):
     try:
         face_resized = cv2.resize(face_img, (224, 224))
-        resultado = DeepFace.analyze(face_resized, actions=['emotion'], detector_backend='mtcnn', enforce_detection=False)
+        resultado = DeepFace.analyze(
+            face_resized,
+            actions=['emotion'],
+            detector_backend='mtcnn',
+            enforce_detection=False
+        )
         return resultado[0]['dominant_emotion']
     except Exception as e:
         print(f"Erro ao detectar emoção: {e}")
         return None
+
 
 # Analisar o frame para detectar faces e expressões
 def detectar_pessoas(frame, model, processar_emocao=False, executor=None):
@@ -50,14 +59,11 @@ def detectar_pessoas(frame, model, processar_emocao=False, executor=None):
 
     return boxes_emocoes
 
+
 def processar_video(cap, output_path):
     # Caminho para a pasta de imagens com rostos conhecidos
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    # image_folder = os.path.join(base_dir, 'images')
     models_folder = os.path.join(base_dir, './doc/model')
-
-    # Carregar imagens e codificações
-    # known_face_encodings, known_face_names = load_images_from_folder(image_folder)  # Carregar imagens e codificações
 
     # Obter propriedades do vídeo
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -76,6 +82,7 @@ def processar_video(cap, output_path):
 
     frame_idx = 0
     boxes_emocoes_prev = []
+    results = defaultdict(list)
     with concurrent.futures.ProcessPoolExecutor() as executor:
         # Loop para processar cada frame do vídeo com barra de progresso
         for _ in tqdm(range(total_frames), desc="Processando vídeo"):
@@ -88,20 +95,51 @@ def processar_video(cap, output_path):
 
             if frame_idx % 5 == 0:  # a cada 5 frames
                 boxes_emocoes_prev = detectar_pessoas(frame, model, processar_emocao=True, executor=executor)
-           
+
             # Apenas reutilizar boxes anteriores
+            emocoes = []
             for (x1, y1, x2, y2), emocao in boxes_emocoes_prev:
+                emocoes.append(emocao)
                 label = emocao if emocao else "Face"
                 draw_identified_box_ltrb(frame, label, x1, y1, x2, y2)
+
+            if boxes_emocoes_prev:
+                results[frame_idx].extend(emocoes)
+            else:
+                results[frame_idx].append('')
 
             # Escrever o frame processado no vídeo de saída
             out.write(frame)
             frame_idx += 1
-
+            cv2.imshow('Face Expression', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
     
     out.release()
+    save_results_to_csv(results, output_path + ".csv",
+                        ("frame_id", "emotions_1", "emotions_2", "emotions_3",
+                         "emotions_4"))
+    write_summary_analysis(output_path)
 
-def main_loop():
+def write_summary_analysis(
+    video_out_path: str,
+    analysis_output_path: str = "./doc/videos/result/summary_analysis.txt"
+) -> None:
+    ensure_file_exists(analysis_output_path)
+    with open(analysis_output_path, "a", encoding="utf-8") as f:
+        print(
+            "\n    ====================== VIDEO SUMMARY: EMOTIONS (YOLO) =======================",
+            file=f)
+        counts = count_emotion_appearances(
+            video_out_path + ".csv",
+            pause_threshold=10,
+            min_segment_length=5
+        )
+        for emotion, num in counts.items():
+            print(f"    - {emotion}: {num} appearances", file=f)
+
+
+def facial_expressions_with_yolo():
     # Caminho para o arquivo de vídeo na mesma pasta do script
     base_dir = os.path.dirname(os.path.abspath(__file__))
     video_path = os.path.join(base_dir, './doc/videos/tc4_video.mp4')  # Substitua 'video.mp4' pelo nome do seu vídeo
@@ -123,5 +161,4 @@ def main_loop():
 
 
 if __name__ == '__main__':
-
-    main_loop()
+    facial_expressions_with_yolo()
