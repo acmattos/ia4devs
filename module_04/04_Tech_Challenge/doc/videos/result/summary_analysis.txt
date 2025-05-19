@@ -1,0 +1,40 @@
+
+    ========================== VIDEO SUMMARY: PERSON ==========================
+    - Ivy_I: 6 appearances
+    - Danielle_D: 3 appearances
+    - Ann_A: 2 appearances
+    - Charles_C: 1 appearances
+    - Brunna_B: 1 appearances
+    - Ed_E: 1 appearances
+    - Faith_F: 1 appearances
+    - Garth_G: 1 appearances
+    - Harry_H: 2 appearances
+    - John_J: 2 appearances
+    - Unknown: 1 appearances
+    - Thor_T: 2 appearances
+    - Kay_K: 0 appearances
+    - Lana_L: 1 appearances
+
+    ========================== VIDEO SUMMARY: EMOTIONS ==========================
+    - neutral: 14 appearances
+    - happy: 17 appearances
+    - fear: 19 appearances
+    - surprise: 4 appearances
+    - angry: 9 appearances
+    - sad: 12 appearances
+
+    ========================== VIDEO SUMMARY: ACTIVITIES ==========================
+    Total frames analyzed:    3326
+    Total anomalies detected: 183  (ex.: 196.0f, 197.0f, 227.0f, 228.0f, 229.0f…)
+
+    Counts of detected events:
+    - Arm movements:         17 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+    - Left hand movements:   27 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+    - Right hand movements:  26 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+    - Hand touches to face:  3 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+
+    Facial expressions:
+    - Mouth open:            13 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+    - Smile:                 12 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+    - Mouth closed:          35 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+    
