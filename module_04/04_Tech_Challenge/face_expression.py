@@ -57,7 +57,7 @@ def face_expression(video_in_path: str, video_out_path: str) -> None:
             draw_identified_box_xywh(indexed_frame, emotion, x, y, w, h)
 
         writer.write(indexed_frame)
-        cv2.imshow('Face Detection', indexed_frame)
+        cv2.imshow('Face Expression', indexed_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
@@ -65,7 +65,7 @@ def face_expression(video_in_path: str, video_out_path: str) -> None:
     video_capture.release()
     cv2.destroyAllWindows()
     save_results_to_csv(results, video_out_path + ".csv",
-        ("frame_id", "emotiona_1", "emotiona_2", "emotiona_3", "emotiona_4"))
+        ("frame_id", "emotions_1", "emotions_2", "emotions_3", "emotions_4"))
     write_summary_analysis(video_out_path)
 
 
