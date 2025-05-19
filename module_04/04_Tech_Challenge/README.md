@@ -1,7 +1,7 @@
-# Tech Challenge - Pós-Tech - IA For Devs - FIAP
-# Fase 4 - Análise de vídeo com IA
+# 🎓 Tech Challenge - Pós-Tech - IA For Devs - FIAP
+# 📹 Fase 4 - Análise de vídeo com IA
 
-## 1. Alunos:
+## 👥 1. Alunos:
 
 - André Mattos - RM358905
 - Aurelio Thomasi Jr - RM358104
@@ -9,13 +9,13 @@
 - Lucas Arruda - RM358628
 - Pedro Marins - RM356883
 
-## 2. Evidências do projeto
+## 📋 2. Evidências do projeto
 
 - Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_04/04_Tech_Challenge)
 - Link para o vídeo de apresentação: [Video Apresentação]
 - Vosk Model: [Vosk Model](https://alphacephei.com/vosk/models)
 
-## 3. Bibliotecas utilizadas
+## 📚 3. Bibliotecas utilizadas
 
 - Principais bibliotecas:
   - **OpenCV (cv2)**: Biblioteca utilizada para processamento de vídeo, detecção de rostos e manipulação de imagens
@@ -30,14 +30,14 @@
   - **NumPy**: Biblioteca utilizada para operações matemáticas e manipulação de arrays
   - **tqdm**: Biblioteca utilizada para exibir barras de progresso durante o processamento do vídeo que está sendo analisado.
 
-## 4. Instalar Dlib e Tensorflow (Windows)
+## 💻 4. Instalar Dlib e Tensorflow (Windows)
 
 Durante o desenvolvimento do projeto, foi necessário instalar o Dlib e o Tensorflow para a utilização de CUDA, para processar os vídeos com GPU e consequentemente melhorar o desempenho do processamento.
 No final desta documentação, será apresentado o passo a passo para instalar o Dlib e o Tensorflow para o ambiente Windows (ambiente de desenvolvimento utilizado).
 
 **CUDA**: É uma biblioteca de software utilizada em hardware de computação gráfica da empresa NVIDIA, que permite a utilização de GPUs para acelerar o processamento de cálculos matemáticos (Por exemplo, matrizes, cálculos de IA, etc.)
 
-## 6. Descrição
+## 📝 6. Descrição
 
 Este Tech Challenge tem como objetivo de criar uma aplicação que utilize análise de vídeo com IA, para detectar os seguintes eventos:
 - Reconhecimento facial: Identificar e marcar pessoas no vídeo
@@ -50,7 +50,7 @@ O relatório deve incluir:
 - Total de frames analisados
 - Número de anomalias detectadas
 
-## 7. Detecção de rostos - reconhecimento facial
+## 👤 7. Detecção de rostos - reconhecimento facial
 
 Esta parte do projeto foi desenvolvida utilizando a bibliotca **OpenCV** para realizar o processamento.
 Os seguintes passos são realizados neste processo:
@@ -147,7 +147,7 @@ A função `face_detection_and_recognition` é responsável por realizar o recon
    - Estatísticas de detecção por pessoa
    - Tempo total de processamento
 
-## 8. Detecção de emoções - expressões faciais
+## 😊 8. Detecção de emoções - expressões faciais
 
 Esta parte do projeto foi desenvolvida utilizando a biblioteca **DeepFace** para realizar a análise de emoções. O processo consiste em:
 
@@ -211,7 +211,7 @@ O sistema é capaz de detectar as seguintes emoções:
    - Estatísticas de cada emoção detectada
    - Tempo total de processamento
 
-## 9. Transcrição do vídeo
+## 🎙️ 9. Transcrição do vídeo
 
 Esta parte do projeto foi desenvolvida utilizando as bibliotecas **MoviePy** e **Vosk** para realizar a transcrição do áudio do vídeo. Isso não é um requisito para o projeto, mas foi uma opção considerada para o desenvolvimento porque é uma análise útil e faz parte da fase atual da Pos-Tech. O processo consiste em:
 
@@ -276,7 +276,7 @@ Esta parte do projeto foi desenvolvida utilizando as bibliotecas **MoviePy** e *
    - Mensagens de status no console
    - Transcrição exibida no terminal
 
-## 10. Relatório
+## 📊 10. Relatório
 
 O projeto gera três tipos principais de relatórios através de diferentes módulos:
 - Reconhecimento Facial (`face_detection_recognition.py`)
@@ -285,7 +285,7 @@ O projeto gera três tipos principais de relatórios através de diferentes mód
 
 Cada módulo gera relatórios específicos que são consolidados em um arquivo de resumo (`summary_analysis.txt`), que foi utilizado para gerar esta documentação.
 
-### 10.1 Relatório de Reconhecimento Facial
+### 📸 10.1 Relatório de Reconhecimento Facial
 **Arquivo:** `tc4_video_fr.mp4.csv`
 **Módulo:** `face_detection_recognition.py`
 
@@ -303,7 +303,7 @@ Cada módulo gera relatórios específicos que são consolidados em um arquivo d
 - Registra o número de aparições de cada pessoa identificada
 - Pessoas não reconhecidas são marcadas como "Unknown"
 
-### 10.2 Relatório de Análise de Emoções
+### 😀 10.2 Relatório de Análise de Emoções
 **Arquivo:** `tc4_video_fe.mp4.csv`
 **Módulo:** `face_expression.py`
 
@@ -328,7 +328,7 @@ Cada módulo gera relatórios específicos que são consolidados em um arquivo d
   - **raiva**
   - **surpresa**
 
-### 10.3 Relatório de Movimentos Corporais
+### 💪 10.3 Relatório de Movimentos Corporais
 **Arquivo:** `tc4_video_pa.mp4.csv`
 **Módulo:** `pose_activity.py`
 
@@ -351,19 +351,19 @@ Cada módulo gera relatórios específicos que são consolidados em um arquivo d
   - Toques no rosto
   - Expressões faciais (boca aberta/fechada, sorriso)
 
-### 10.4 Transcrição do Vídeo
+### 🎧 10.4 Transcrição do Vídeo
 **Arquivo:** `tc4_video_transcription.txt`
 **Módulo:** `video_transcription.py`
 
 Este arquivo contém a transcrição do áudio do vídeo, permitindo análise do conteúdo verbal em conjunto com as análises visuais.
 
-### 10.5 Arquivos de Relatório Detalhado
+### 📑 10.5 Arquivos de Relatório Detalhado
 Para análises mais detalhadas, os seguintes arquivos CSV estão disponíveis:
 - `tc4_video_fr.mp4.csv`: Dados brutos de reconhecimento facial
 - `tc4_video_fe.mp4.csv`: Dados brutos de análise de emoções
 - `tc4_video_pa.mp4.csv`: Dados brutos de movimentos corporais
 
-### 10.6 Resumo Consolidado
+### 📈 10.6 Resumo Consolidado
 **Arquivo:** `summary_analysis.txt`
 
 Este arquivo apresenta um resumo consolidado de todas as análises, incluindo:
@@ -372,22 +372,22 @@ Este arquivo apresenta um resumo consolidado de todas as análises, incluindo:
 - Estatísticas de atividades e movimentos
 - Detecção de anomalias
 
-### 10.7 Observações Técnicas
+### ⚙️ 10.7 Observações Técnicas
 - Todos os relatórios são gerados automaticamente durante o processamento do vídeo
 - Os dados são salvos em formato CSV para fácil análise posterior
 - O sistema utiliza múltiplos modelos de deep learning para diferentes análises
 - Os relatórios podem ser usados em conjunto para uma análise mais completa do comportamento
 
-### 10.8 Links para Arquivos
+### 🔗 10.8 Links para Arquivos
 - [Resumo da Análise](./doc/videos/result/summary_analysis.txt)
 - [Relatório de Reconhecimento Facial](./doc/videos/result/tc4_video_fr.mp4.csv)
 - [Relatório de Emoções](./doc/videos/result/tc4_video_fe.mp4.csv)
 - [Relatório de Atividades](./doc/videos/result/tc4_video_pa.mp4.csv)
 - [Transcrição do Vídeo](./doc/videos/result/tc4_video_transcription.txt)
 
-## (Extra) Instalação de dependências para rodar o projeto
+## 🛠️ (Extra) Instalação de dependências para rodar o projeto
 
-### 11.1 Instalação do Dlib e Tensorflow
+### 🔧 11.1 Instalação do Dlib e Tensorflow
 
 1. Instalar o [CUDA Toolkit 12.8](https://developer.nvidia.com/cuda-downloads)
 2. Instalar o [cuDNN 9.10](https://developer.nvidia.com/cudnn-downloads)
@@ -428,7 +428,7 @@ Este arquivo apresenta um resumo consolidado de todas as análises, incluindo:
     pip install tensorflow
     ```
 
-### 11.2 Instalação do Modelo Vosk
+### 🎯 11.2 Instalação do Modelo Vosk
 
 Vosk Model - https://alphacephei.com/vosk/
 1. Acessar [o documento de instalaçao do Vosk] (https://alphacephei.com/vosk/install)
