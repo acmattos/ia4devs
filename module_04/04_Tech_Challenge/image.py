@@ -332,7 +332,7 @@ def cv2_put_text(
     frame: cv2.typing.MatLike,
     text: str,
     org: cv2.typing.Point,
-    font_face: int = cv2.FONT_HERSHEY_DUPLEX,
+    font_face: int = cv2.FONT_HERSHEY_SIMPLEX,
     font_scale: float = 0.9,
     color: cv2.typing.Scalar = (0, 255, 0), # (B,G,R)
     thickness: int = 2
@@ -410,10 +410,10 @@ def draw_identified_box_ltrb(
        from the left edge.
     """
     cv2_rectangle(frame, (left, top), (right, bottom))
-    cv2.rectangle(frame, (left, bottom - 35), (right, bottom),
-                  (255, 0, 0), cv2.FILLED)
-    cv2_put_text(frame, text, (left + 6, bottom - 6),
-                 cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255),
+    cv2.rectangle(frame, (left - 2, bottom), (right + 2, bottom + 35),
+                   (255, 0, 0), cv2.FILLED)
+    cv2_put_text(frame, text, (left + 4, bottom + 26),
+                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255),
                  2)
 
 
