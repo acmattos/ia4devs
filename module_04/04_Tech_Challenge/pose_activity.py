@@ -854,7 +854,7 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
     cv2.destroyAllWindows()
 
     summary = f"""
-    ========================== VIDEO SUMMARY: ACTIVITIES ==========================
+    ========================= VIDEO SUMMARY: ACTIVITIES =========================
     Total frames analyzed:    {total_frames}
     Total anomalies detected: {len(anomaly_times)}  (ex.: {fmt(anomaly_times)})
 
