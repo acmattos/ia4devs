@@ -27,11 +27,11 @@ FINGER_THRESH     = 0.005
 AREA_THRESH       = 0.0005
 FLOW_THRESH       = 0.5
 # Mouth
-OPEN_THRESH       = 0.04
-SMILE_VERT_MIN    = 0.008
+OPEN_THRESH       = 0.02
+SMILE_VERT_MIN    = 0.007
 SMILE_VERT_MAX    = 0.02
 SMILE_HOR_THRESH  = 0.06
-MOUTH_TOP_IDX     = 13
+MOUTH_TOP_IDX     = 13 
 MOUTH_BOTTOM_IDX  = 14
 MOUTH_LEFT_IDX    = 61
 MOUTH_RIGHT_IDX   = 291
@@ -796,12 +796,30 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
             right_consec, right_move, right_count)
         face_consec, face_touch_count = calculate_and_count_consecutive_movement(
             face_consec, face_touch, face_touch_count)
-        open_consec, open_count = calculate_and_count_consecutive_movement(
-            open_consec, mouth_state == "open", open_count)
-        smile_consec, smile_count = calculate_and_count_consecutive_movement(
-            smile_consec, mouth_state == "smile", smile_count)
-        close_consec, close_count = calculate_and_count_consecutive_movement(
-            close_consec, mouth_state == "closed", close_count)
+        if mouth_state == "smile" and open_consec > 0:
+            smile_consec, smile_count = calculate_and_count_consecutive_movement(
+                smile_consec, True, smile_count)
+            open_consec, open_count = calculate_and_count_consecutive_movement(
+                open_consec, True, open_count)
+        elif mouth_state == "smile" and close_consec > 0:
+            smile_consec, smile_count = calculate_and_count_consecutive_movement(
+                smile_consec, True, smile_count)
+            close_consec, close_count = calculate_and_count_consecutive_movement(
+                close_consec, True, close_count)
+        if mouth_state == "open":
+            open_consec, open_count = calculate_and_count_consecutive_movement(
+                open_consec, mouth_state == "open", open_count)
+            smile_consec, smile_count = calculate_and_count_consecutive_movement(
+                smile_consec, False, smile_count)
+            close_consec, close_count = calculate_and_count_consecutive_movement(
+                close_consec, False, close_count)
+        if mouth_state == "closed":
+            close_consec, close_count = calculate_and_count_consecutive_movement(
+                close_consec, mouth_state == "closed", close_count)
+            smile_consec, smile_count = calculate_and_count_consecutive_movement(
+                smile_consec, False, smile_count)
+            open_consec, open_count = calculate_and_count_consecutive_movement(
+                open_consec, False, open_count)
 
         arm_times.append(idx)
         left_times.append(idx)
@@ -815,6 +833,14 @@ def detect_pose_and_activities(video_in_path: str, video_out_path: str) -> None:
             cv2_put_text(indexed_frame, "ANOMALY!", (width - 200, 50),
                 cv2.FONT_HERSHEY_TRIPLEX, 1.2, (0, 0, 255), 3)
 
+        if face_bbox is not None:
+            x1, y1, x2, y2 = face_bbox
+            text = f"Mouth: {mouth_state}"
+            text_x = x1 + 10
+            text_y = y2 - 10
+            cv2_put_text(indexed_frame, text, (text_x, text_y),
+             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            
         cv2_put_text_count(indexed_frame, arm_count, left_count, right_count,
                              face_touch_count, open_count, close_count, smile_count)
         video_writer.write(indexed_frame)
