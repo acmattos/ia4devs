@@ -23,7 +23,15 @@
     - angry: 9 appearances
     - sad: 12 appearances
 
-    ========================== VIDEO SUMMARY: ACTIVITIES ==========================
+    ====================== VIDEO SUMMARY: EMOTIONS (YOLO) =======================
+    - angry: 25 appearances
+    - fear: 35 appearances
+    - neutral: 23 appearances
+    - sad: 35 appearances
+    - happy: 24 appearances
+    - surprise: 12 appearances
+
+    ========================= VIDEO SUMMARY: ACTIVITIES =========================
     Total frames analyzed:    3326
     Total anomalies detected: 183  (ex.: 196.0f, 197.0f, 227.0f, 228.0f, 229.0f…)
 
@@ -34,7 +42,7 @@
     - Hand touches to face:  3 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
 
     Facial expressions:
-    - Mouth open:            13 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+    - Mouth open:            11 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
     - Smile:                 12 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
-    - Mouth closed:          35 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
-    
+    - Mouth closed:          14 times (e.g.: 0.0f, 1.0f, 2.0f, 3.0f, 4.0f…)
+
