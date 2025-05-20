@@ -297,21 +297,21 @@ análise útil e faz parte da fase atual da Pos-Tech. O processo consiste em:
 Esta seção tem como objetivo apresentar uma solução alternativa para a detecção
 de faces e classificação de emoções, utilizando o modelo YOLO.
 
-O modelo YOLO (You Only Look Once) é um modelo de detecção de objetos que é capaz de detectar
-objetos em tempo real. Ele é capaz de detectar faces e classificar emoções com uma precisão
-muito alta. Este modelo foi utilizado para comparar com a solução atual utilizada no projeto,
+O modelo YOLO (You Only Look Once) é um modelo que é capaz de detectar
+objetos em tempo real. Ele é capaz de detectar faces e classificar emoções com uma precisão muito alta.
+Este modelo foi utilizado para comparar com a solução atual utilizada no projeto,
 com intuito de validar soluções alternativas que podem ser mais eficientes para o problema proposto.
 
 ### 👤 10.1 Detecção de faces
 
-A detecção de faces foi realizada utilizando o modelo YOLOv8, que traz melhorias de desempenho,
+A detecção de faces foi realizada utilizando o modelo YOLO11, que traz melhorias de desempenho,
 precisão, flexibilidade e eficiência em Visão Computacional.
 O processo de detecção de faces foi realizado no arquivo `recognize_expression_yolo.py`.
 
 #### 🔄 Passos da Implementação:
 
 1. **Carregamento e Configuração do Modelo**:
-   - Utiliza o modelo YOLOv8 especificamente treinado para detecção de faces (`yolov11l-face.pt`)
+   - Utiliza o modelo YOLOv11 especificamente treinado para detecção de faces (`yolov11l-face.pt`)
    - O modelo é carregado do diretório `./doc/model`
 
 2. **Processo de Detecção Facial** (função `detectar_pessoas`):
@@ -322,17 +322,17 @@ O processo de detecção de faces foi realizado no arquivo `recognize_expression
 
 3. **Análise de Emoções** (função `analisar_emocao`):
    - Utiliza DeepFace em conjunto com YOLO
-   - Redimensiona as faces detectadas para 224x224 pixels
-   - Analisa emoções usando MTCNN como backend de detecção (está hardcoded no código)
+   - Redimensiona as faces detectadas para `224x224 pixels`
+   - Analisa emoções usando `MTCNN` como backend de detecção (está hardcoded no código)
    - Retorna a emoção dominante para cada face
 
 4. **Processamento de Vídeo** (função `processar_video`):
    - Processa o vídeo frame a frame com o seguinte fluxo:
      - Lê as propriedades do vídeo (largura, altura, fps, total de frames)
-     - Cria um escritor de vídeo de saída com codec MP4
-     - Processa a cada 5 frames para detecção facial e análise de emoções
+     - Cria um escritor de vídeo de saída com codec `MP4`
+     - Processa a cada `5 frames` para detecção facial e análise de emoções
      - Utiliza processamento paralelo para análise de emoções
-     - Desenha caixas delimitadoras e rótulos de emoção nos frames
+     - Desenha retângulos ao redor das faces detectadas e adiciona texto com a emoção detectada nos frames
      - Salva os frames processados no vídeo de saída
 
 5. **Processamento de Resultados**:
@@ -340,14 +340,14 @@ O processo de detecção de faces foi realizado no arquivo `recognize_expression
      - frame_id
      - emotions_1 até emotions_4 (até 4 emoções por frame)
    - Gera análise resumida em `summary_analysis.txt`
-   - Restaura áudio do vídeo original para o vídeo de saída
+   - **Restaura áudio do vídeo original para o vídeo de saída**
 
 #### 📊 Resultados Esperados:
 
 1. **Saída Visual**:
    - Um arquivo de vídeo processado (`tc4_video_fe_yolo.mp4`) contendo:
-     - Caixas delimitadoras ao redor das faces detectadas
-     - Rótulos de emoção para cada face
+     - Retângulos ao redor das faces detectadas
+     - Texto com a emoção detectada para cada face
      - Áudio original preservado do vídeo de entrada
 
 2. **Saída de Dados**:
@@ -365,14 +365,14 @@ O processo de detecção de faces foi realizado no arquivo `recognize_expression
 #### ⚡ Características Principais:
 
 1. **Otimizações de Desempenho**:
-   - Processa a cada 5 frames para reduzir carga computacional
+   - Processa a cada `5 frames` para reduzir carga computacional
    - Utiliza processamento paralelo para análise de emoções
    - Reutiliza resultados de detecção facial entre frames
 
 2. **Detecção de Emoções**:
    - Combina a eficiente detecção facial do YOLO com a análise de emoções do DeepFace
    - Pode detectar múltiplas emoções por frame
-   - Lida graciosamente com casos onde a detecção de emoção falha
+   - Lida de maneira inteligente com casos onde a detecção de emoção falha
 
 Esta implementação fornece uma solução robusta para detecção facial e de emoções,
 aproveitando as capacidades eficientes de detecção facial do YOLO enquanto utiliza
@@ -386,7 +386,7 @@ Abaixo está uma tabela comparativa entre a solução atual e a solução utiliz
 
 | Característica | Solução Atual | Solução YOLO |
 |----------------|---------------|--------------|
-| **Detecção de Faces** | Usa OpenCV com DNN | Usa YOLOv8 especializado |
+| **Detecção de Faces** | Usa OpenCV com DNN | Usa YOLOv11 especializado |
 | **Precisão de Detecção** | Média | Alta (modelo especializado em faces) |
 | **Velocidade de Processamento** | Processa todos os frames | Processa a cada 5 frames (mais eficiente) |
 | **Detecção de Emoções** | DeepFace direto | YOLO + DeepFace em paralelo |
@@ -397,7 +397,7 @@ Abaixo está uma tabela comparativa entre a solução atual e a solução utiliz
 | **Flexibilidade** | Modelo fixo | Diferentes tamanhos de modelo disponíveis (n, s, m, l, x) |
 
 **Observações:**
-- A solução YOLO detectou mais de 2x emoções em comparação com a solução atual
+- A solução YOLO detectou mais de **2x** emoções em comparação com a solução atual
 - O processamento paralelo na solução YOLO permite análise mais rápida
 - A solução YOLO é mais eficiente em termos de recursos computacionais
 - A precisão da detecção facial é superior na solução YOLO devido ao modelo especializado
