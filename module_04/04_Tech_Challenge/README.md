@@ -216,7 +216,7 @@ O sistema é capaz de detectar as seguintes emoções:
 
 2. **Arquivo CSV**:
    - Frame ID.
-   - Emoções detectadas (até 4 emoções por frame).
+   - Emoções detectadas (até 5 emoções por frame, limitado ao número de faces identificadas).
    - Timestamp do frame.
 
 3. **Resumo da Análise**:
@@ -226,10 +226,11 @@ O sistema é capaz de detectar as seguintes emoções:
 
 ## 🎙️ 9. Transcrição do vídeo
 
-Esta parte do projeto foi desenvolvida utilizando as bibliotecas **MoviePy** e 
-**Vosk** para realizar a transcrição do áudio do vídeo. Isso não é um requisito p
-ara o projeto, mas foi uma opção considerada para o desenvolvimento porque é uma 
-análise útil e faz parte da fase atual da Pos-Tech. O processo consiste em:
+Esta parte do projeto foi desenvolvida utilizando a biblioteca **MoviePy** e o 
+modelo **Vosk** para realizar a transcrição do áudio do vídeo. Isso não é um  
+requisito para o projeto, mas foi uma opção considerada para o desenvolvimento  
+porque é uma análise útil e faz parte da fase atual da Pos-Tech. O processo 
+consiste em:
 
 1. **Extração do Áudio**:
    - Carrega o arquivo de vídeo usando MoviePy.
