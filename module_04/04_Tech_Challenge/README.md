@@ -43,6 +43,25 @@ Dlib e o Tensorflow para o ambiente Windows (ambiente de desenvolvimento utiliza
 gráfica da empresa NVIDIA, que permite a utilização de GPUs para acelerar o 
 processamento de cálculos matemáticos (Por exemplo, matrizes, cálculos de IA, etc).
 
+## 5. Como executar
+
+Para executar o projeto, basta:
+````commandline
+py tech_chalenge.py
+````
+Isto permite executar, em sequencia, as análises realizadas nos arquivos a seguir:
+
+- face_detection_recognition.py: Deteção de Faces e Reconhecimento destas.
+- face_expression.py: Detecção de Emoções de Faces reconhecidas pelo código. 
+- pose_activity.py: Detecção de Poses e Gestos.
+- video_transcription.py: Transcrição do Áudio do vídeo.
+
+Para verificar as detecções de emoções realizadas com o auxílio do modelo Yolo11,
+execute:
+````commandline
+py recognize_expression_yolo.py
+````
+
 ## 📝 6. Descrição
 
 Este Tech Challenge tem como objetivo de criar uma aplicação que utilize análise 
@@ -387,17 +406,17 @@ em sua análise de expressões faciais em conteúdo de vídeo.
 
 Abaixo está uma tabela comparativa entre a solução atual e a solução utilizando o modelo YOLO.
 
-| Característica | Solução Atual | Solução YOLO |
-|----------------|---------------|--------------|
-| **Detecção de Faces** | Usa OpenCV com DNN | Usa YOLOv11 especializado |
-| **Precisão de Detecção** | Média | Alta (modelo especializado em faces) |
-| **Velocidade de Processamento** | Processa todos os frames | Processa a cada 5 frames (mais eficiente) |
-| **Detecção de Emoções** | DeepFace direto | YOLO + DeepFace em paralelo |
-| **Quantidade de Emoções Detectadas** | 75 detecções totais | 154 detecções totais |
-| **Processamento Paralelo** | Não implementado | Implementado para análise de emoções |
-| **Uso de GPU** | Limitado | Otimizado para GPU |
-| **Consumo de Memória** | Alto | Moderado (devido ao processamento em lotes) |
-| **Flexibilidade** | Modelo fixo | Diferentes tamanhos de modelo disponíveis (n, s, m, l, x) |
+| Característica                       | Solução Atual            | Solução YOLO                                              |
+|--------------------------------------|--------------------------|-----------------------------------------------------------|
+| **Detecção de Faces**                | Usa OpenCV com DNN       | Usa YOLOv11 especializado                                 |
+| **Precisão de Detecção**             | Média                    | Alta (modelo especializado em faces)                      |
+| **Velocidade de Processamento**      | Processa todos os frames | Processa a cada 5 frames (mais eficiente)                 |
+| **Detecção de Emoções**              | DeepFace sequencial      | DeepFace em paralelo                                      |
+| **Quantidade de Emoções Detectadas** | 75 detecções totais      | 154 detecções totais                                      |
+| **Processamento Paralelo**           | Não implementado         | Implementado para análise de emoções                      |
+| **Uso de GPU**                       | Configuração complexa    | Configuração mais simples                                 |
+| **Consumo de Memória**               | Alto                     | Moderado (devido ao processamento em lotes)               |
+| **Flexibilidade**                    | Modelo fixo              | Diferentes tamanhos de modelo disponíveis (n, s, m, l, x) |
 
 **Observações:**
 - A solução YOLO detectou mais de **2x** emoções em comparação com a solução atual
