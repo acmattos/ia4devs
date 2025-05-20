@@ -425,3 +425,54 @@ Abaixo está uma tabela comparativa entre a solução atual e a solução utiliz
 - A precisão da detecção facial é superior na solução YOLO devido ao modelo especializado
 - O YOLO consegue detectar mais faces, em condições de baixa luminosidade e 
   também quando o rosto está parcialmente bloqueado ou com rosto inclinado.
+
+## 🛠️ (Extra) Instalação de dependências para rodar o projeto
+
+### 🔧 11.1 Instalação do Dlib e Tensorflow
+
+1. Instalar o [CUDA Toolkit 12.8](https://developer.nvidia.com/cuda-downloads).
+2. Instalar o [cuDNN 9.10](https://developer.nvidia.com/cudnn-downloads).
+   - Dúvidas no processo? [Veja mais](https://docs.nvidia.com/deeplearning/cudnn/installation/latest/windows.html).
+3. Copie todos os arquivos `.dll` do diretório `/bin` do `CUDNN` 
+   (C:\Program Files\NVIDIA\CUDNN\v9.10\bin\12.8) para dentro do `/bin` do `CUDA` 
+   (C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\bin).
+4. Copie todos os arquivos do diretório `/include` do `CUDNN` 
+   (C:\Program Files\NVIDIA\CUDNN\v9.10\include\12.8) para dentro do `/include` 
+   do `CUDA` (C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\include).
+5. Copie todos os arquivos do diretório `/lib/x64` do `CUDNN`
+   (C:\Program Files\NVIDIA\CUDNN\v9.10\lib\12.8\x64) para dentro do `/lib/x64` do 
+   `CUDA` (C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\lib\x64).
+6. Clonar o repositório do [Dlib](https://github.com/davisking/dlib):
+
+   ```bash
+   git clone https://github.com/davisking/dlib.git
+   ```
+
+7. Entrar no diretório usando a janela de comandos:
+
+   ```bash
+   cd dlib
+   ```
+
+8. Instalar o Visual Studio Desktop Development com as ferramentas de C++.
+9. Instalar o [CMake](https://cmake.org/download).
+10. Compilar o [DLib](https://learnopencv.com/install-dlib-on-windows/).
+11. Instalar Dlib:
+
+    ```bash
+    python setup.py install
+    ```
+
+12. Instalar o Tensorflow:
+
+    ```bash
+    pip install tensorflow
+    ```
+
+### 🎯 11.2 Instalação do Modelo Vosk
+
+Vosk Model - https://alphacephei.com/vosk/
+1. Acessar [o documento de instalaçao do Vosk] (https://alphacephei.com/vosk/install)
+2. Seguir os passos definidos.
+3. Acessar [a página de modelos] (https://alphacephei.com/vosk/models).
+4. Baixar vosk-model-en-us-0.22 ou similar.
