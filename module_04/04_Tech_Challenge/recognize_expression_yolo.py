@@ -10,6 +10,7 @@ import concurrent.futures
 from image import draw_identified_box_ltrb
 from text import save_results_to_csv, ensure_file_exists, \
                  count_emotion_appearances
+from include_audio import restore_audio_from_video
 
 # Função para analisar emoções com DeepFace
 def analisar_emocao(face_img):
@@ -60,7 +61,7 @@ def detectar_pessoas(frame, model, processar_emocao=False, executor=None):
     return boxes_emocoes
 
 
-def processar_video(cap, output_path):
+def processar_video(cap, source_path, output_path):
     # Caminho para a pasta de imagens com rostos conhecidos
     base_dir = os.path.dirname(os.path.abspath(__file__))
     models_folder = os.path.join(base_dir, './doc/model')
@@ -116,6 +117,7 @@ def processar_video(cap, output_path):
                 break
     
     out.release()
+    restore_audio_from_video(source_path, output_path)
     save_results_to_csv(results, output_path + ".csv",
                         ("frame_id", "emotions_1", "emotions_2", "emotions_3",
                          "emotions_4"))
@@ -153,7 +155,7 @@ def facial_expressions_with_yolo():
         print("Erro ao abrir o vídeo.")
         return
     
-    processar_video(cap, output_path)
+    processar_video(cap, video_path, output_path)
 
     # Liberar o vídeo e fecha todas as janelas
     cap.release()
