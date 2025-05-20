@@ -21,6 +21,7 @@
   - **OpenCV (cv2)**: Biblioteca utilizada para processamento de vídeo, detecção de rostos e manipulação de imagens.
   - **DeepFace**: Biblioteca utilizada para análise de emoções faciais (feliz, triste, etc).
   - **MediaPipe**: Biblioteca utilizada para detecção de movimentos(pose corporal, movimentos das mãos, etc).
+  - **YOLO**: Biblioteca alternativa que foi utilizada para detectar faces e classificar emoções.
 
 - Bibliotecas de suporte:
   - **Dlib**: Biblioteca base para o face_recognition, utilizada para detecção e codificação de rostos.
@@ -170,9 +171,9 @@ realizar a análise de emoções. O processo consiste em:
 
 2. **Processamento Frame a Frame**:
    - Para cada frame do vídeo:
-     - Detecta rostos usando OpenCV (DNN ou cascatas Haar).
-     - Analisa as emoções de cada rosto detectado usando DeepFace.
-     - Desenha retângulos e emoções ao redor dos rostos identificados.
+     - Detecta rostos usando OpenCV (DNN ou Haar Cascade).
+     - Analisa as emoções de cada rosto detectado usando DeepFace e escreve o nome da emoção que foi detectada.
+     - Desenha retângulos ao redor dos rostos identificados.
      - Salva os resultados para análise posterior.
 
 3. **Geração de Relatório**:
@@ -291,166 +292,113 @@ análise útil e faz parte da fase atual da Pos-Tech. O processo consiste em:
    - Mensagens de status no console
    - Transcrição exibida no terminal
 
-## 📊 10. Relatório
+## 📊 10. Modelo YOLO
 
-O projeto gera três tipos principais de relatórios através de diferentes módulos:
-- Reconhecimento Facial (`face_detection_recognition.py`).
-- Análise de Emoções (`face_expression.py`).
-- Análise de Movimentos Corporais (`pose_activity.py`).
+Esta seção tem como objetivo apresentar uma solução alternativa para a detecção
+de faces e classificação de emoções, utilizando o modelo YOLO.
 
-Cada módulo gera relatórios específicos que são consolidados em um arquivo de 
-resumo (`summary_analysis.txt`), que foi utilizado para gerar esta documentação.
+O modelo YOLO (You Only Look Once) é um modelo de detecção de objetos que é capaz de detectar
+objetos em tempo real. Ele é capaz de detectar faces e classificar emoções com uma precisão
+muito alta. Este modelo foi utilizado para comparar com a solução atual utilizada no projeto,
+com intuito de validar soluções alternativas que podem ser mais eficientes para o problema proposto.
 
-### 📸 10.1 Relatório de Reconhecimento Facial
-**Arquivo:** `tc4_video_fr.mp4.csv`
-**Módulo:** `face_detection_recognition.py`
+### 👤 10.1 Detecção de faces
 
-#### Top 5 Resultados:
-| Pessoa | Aparições |
-|--------|-----------|
-| Ivy_I | 6 |
-| Danielle_D | 3 |
-| Ann_A | 2 |
-| Harry_H | 2 |
-| John_J | 2 |
+A detecção de faces foi realizada utilizando o modelo YOLOv8, que traz melhorias de desempenho,
+precisão, flexibilidade e eficiência em Visão Computacional.
+O processo de detecção de faces foi realizado no arquivo `recognize_expression_yolo.py`.
 
-**Detalhes:**
-- O relatório identifica pessoas conhecidas no vídeo
-- Registra o número de aparições de cada pessoa identificada
-- Pessoas não reconhecidas são marcadas como "Unknown"
+#### 🔄 Passos da Implementação:
 
-### 😀 10.2 Relatório de Análise de Emoções
-**Arquivo:** `tc4_video_fe.mp4.csv`
-**Módulo:** `face_expression.py`
+1. **Carregamento e Configuração do Modelo**:
+   - Utiliza o modelo YOLOv8 especificamente treinado para detecção de faces (`yolov11l-face.pt`)
+   - O modelo é carregado do diretório `./doc/model`
 
-#### Top 5 Resultados:
-| Emoção | Aparições |
-|--------|-----------|
-| fear | 19 |
-| happy | 17 |
-| neutral | 14 |
-| sad | 12 |
-| angry | 9 |
+2. **Processo de Detecção Facial** (função `detectar_pessoas`):
+   - Recebe um frame e o processa usando o modelo YOLO
+   - Para cada face detectada:
+     - Extrai as coordenadas da face (x1, y1, x2, y2)
+     - Desenha retângulos ao redor dos rostos detectados
 
-**Detalhes:**
-- Analisa as emoções dominantes em cada face detectada.
-- Utiliza o modelo DeepFace para classificação de emoções.
-- Registra a frequência de cada emoção detectada.
-- Emoções analisadas: 
-  - **medo**
-  - **felicidade**
-  - **neutralidade**
-  - **tristeza**
-  - **raiva**
-  - **surpresa**
+3. **Análise de Emoções** (função `analisar_emocao`):
+   - Utiliza DeepFace em conjunto com YOLO
+   - Redimensiona as faces detectadas para 224x224 pixels
+   - Analisa emoções usando MTCNN como backend de detecção (está hardcoded no código)
+   - Retorna a emoção dominante para cada face
 
-### 💪 10.3 Relatório de Movimentos Corporais
-**Arquivo:** `tc4_video_pa.mp4.csv`
-**Módulo:** `pose_activity.py`
+4. **Processamento de Vídeo** (função `processar_video`):
+   - Processa o vídeo frame a frame com o seguinte fluxo:
+     - Lê as propriedades do vídeo (largura, altura, fps, total de frames)
+     - Cria um escritor de vídeo de saída com codec MP4
+     - Processa a cada 5 frames para detecção facial e análise de emoções
+     - Utiliza processamento paralelo para análise de emoções
+     - Desenha caixas delimitadoras e rótulos de emoção nos frames
+     - Salva os frames processados no vídeo de saída
 
-#### Top 5 Resultados:
-| Atividade | Ocorrências |
-|-----------|-------------|
-| Movimentos da mão esquerda | 27 |
-| Movimentos da mão direita | 26 |
-| Movimentos dos braços | 17 |
-| Boca fechada | 35 |
-| Boca aberta | 13 |
+5. **Processamento de Resultados**:
+   - Salva resultados em arquivo CSV com colunas:
+     - frame_id
+     - emotions_1 até emotions_4 (até 4 emoções por frame)
+   - Gera análise resumida em `summary_analysis.txt`
+   - Restaura áudio do vídeo original para o vídeo de saída
 
-**Detalhes:**
-- Analisa movimentos corporais e expressões faciais.
-- Total de frames analisados: 3.326
-- Anomalias detectadas: 183
-- Monitora:
-  - Movimentos dos braços
-  - Movimentos das mãos
-  - Toques no rosto
-  - Expressões faciais (boca aberta/fechada, sorriso)
+#### 📊 Resultados Esperados:
 
-### 🎧 10.4 Transcrição do Vídeo
-**Arquivo:** `tc4_video_transcription.txt`
-**Módulo:** `video_transcription.py`
+1. **Saída Visual**:
+   - Um arquivo de vídeo processado (`tc4_video_fe_yolo.mp4`) contendo:
+     - Caixas delimitadoras ao redor das faces detectadas
+     - Rótulos de emoção para cada face
+     - Áudio original preservado do vídeo de entrada
 
-Este arquivo contém a transcrição do áudio do vídeo, permitindo análise do 
-conteúdo verbal em conjunto com as análises visuais.
+2. **Saída de Dados**:
+   - Arquivo CSV (`tc4_video_fe_yolo.mp4.csv`) contendo:
+     - Resultados de detecção de emoções frame a frame
+     - Até 4 emoções por frame
+     - Timestamps para cada detecção
 
-### 📑 10.5 Arquivos de Relatório Detalhado
-Para análises mais detalhadas, os seguintes arquivos CSV estão disponíveis:
-- `tc4_video_fr.mp4.csv`: Dados brutos de reconhecimento facial
-- `tc4_video_fe.mp4.csv`: Dados brutos de análise de emoções
-- `tc4_video_pa.mp4.csv`: Dados brutos de movimentos corporais
+3. **Resumo da Análise**:
+   - Arquivo de resumo (`summary_analysis.txt`) com:
+     - Total de aparições de cada emoção
+     - Análise de segmentos de emoção (mínimo 5 frames)
+     - Limiar de pausa de 10 frames entre emoções
 
-### 📈 10.6 Resumo Consolidado
-**Arquivo:** `summary_analysis.txt`
+#### ⚡ Características Principais:
 
-Este arquivo apresenta um resumo consolidado de todas as análises, incluindo:
-- Contagem de aparições de pessoas
-- Distribuição de emoções
-- Estatísticas de atividades e movimentos
-- Detecção de anomalias
+1. **Otimizações de Desempenho**:
+   - Processa a cada 5 frames para reduzir carga computacional
+   - Utiliza processamento paralelo para análise de emoções
+   - Reutiliza resultados de detecção facial entre frames
 
-### ⚙️ 10.7 Observações Técnicas
-- Todos os relatórios são gerados automaticamente durante o processamento do vídeo
-- Os dados são salvos em formato CSV para fácil análise posterior
-- O sistema utiliza múltiplos modelos de deep learning para diferentes análises
-- Os relatórios podem ser usados em conjunto para uma análise mais completa do comportamento
+2. **Detecção de Emoções**:
+   - Combina a eficiente detecção facial do YOLO com a análise de emoções do DeepFace
+   - Pode detectar múltiplas emoções por frame
+   - Lida graciosamente com casos onde a detecção de emoção falha
 
-### 🔗 10.8 Links para Arquivos
-- [Resumo da Análise](./doc/videos/result/summary_analysis.txt)
-- [Relatório de Reconhecimento Facial](./doc/videos/result/tc4_video_fr.mp4.csv)
-- [Relatório de Emoções](./doc/videos/result/tc4_video_fe.mp4.csv)
-- [Relatório de Atividades](./doc/videos/result/tc4_video_pa.mp4.csv)
-- [Transcrição do Vídeo](./doc/videos/result/tc4_video_transcription.txt)
+Esta implementação fornece uma solução robusta para detecção facial e de emoções,
+aproveitando as capacidades eficientes de detecção facial do YOLO enquanto utiliza
+o DeepFace para análise detalhada de emoções. O sistema foi projetado para ser 
+tanto eficiente (através de pulo de frames e processamento paralelo) quanto abrangente 
+em sua análise de expressões faciais em conteúdo de vídeo.
 
-## 🛠️ (Extra) Instalação de dependências para rodar o projeto
+### ⚖️ 10.2 Comparação entre YOLO e a solução atual
 
-### 🔧 11.1 Instalação do Dlib e Tensorflow
+Abaixo está uma tabela comparativa entre a solução atual e a solução utilizando o modelo YOLO.
 
-1. Instalar o [CUDA Toolkit 12.8](https://developer.nvidia.com/cuda-downloads).
-2. Instalar o [cuDNN 9.10](https://developer.nvidia.com/cudnn-downloads).
-   - Dúvidas no processo? [Veja mais](https://docs.nvidia.com/deeplearning/cudnn/installation/latest/windows.html).
-3. Copie todos os arquivos `.dll` do diretório `/bin` do `CUDNN` 
-   (C:\Program Files\NVIDIA\CUDNN\v9.1\bin\12.4) para dentro do `/bin` do `CUDA` 
-   (C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\bin).
-4. Copie todos os arquivos do diretório `/include` do `CUDNN` 
-   (C:\Program Files\NVIDIA\CUDNN\v9.1\include\12.4) para dentro do `/include` 
-   do `CUDA` (C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\include).
-5. Copie todos os arquivos do diretório `/lib/x64` do `CUDNN`
-   (C:\Program Files\NVIDIA\CUDNN\v9.1\lib\12.4\x64) para dentro do `/lib/x64` do 
-   `CUDA` (C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\lib\x64).
-6. Clonar o repositório do [Dlib](https://github.com/davisking/dlib):
+| Característica | Solução Atual | Solução YOLO |
+|----------------|---------------|--------------|
+| **Detecção de Faces** | Usa OpenCV com DNN | Usa YOLOv8 especializado |
+| **Precisão de Detecção** | Média | Alta (modelo especializado em faces) |
+| **Velocidade de Processamento** | Processa todos os frames | Processa a cada 5 frames (mais eficiente) |
+| **Detecção de Emoções** | DeepFace direto | YOLO + DeepFace em paralelo |
+| **Quantidade de Emoções Detectadas** | 75 detecções totais | 154 detecções totais |
+| **Processamento Paralelo** | Não implementado | Implementado para análise de emoções |
+| **Uso de GPU** | Limitado | Otimizado para GPU |
+| **Consumo de Memória** | Alto | Moderado (devido ao processamento em lotes) |
+| **Flexibilidade** | Modelo fixo | Diferentes tamanhos de modelo disponíveis (n, s, m, l, x) |
 
-   ```bash
-   git clone https://github.com/davisking/dlib.git
-   ```
-
-7. Entrar no diretório usando a janela de comandos:
-
-   ```bash
-   cd dlib
-   ```
-
-8. Instalar o Visual Studio Desktop Development com as ferramentas de C++.
-9. Instalar o [CMake](https://cmake.org/download).
-10. Compilar o [DLib](https://learnopencv.com/install-dlib-on-windows/).
-11. Instalar Dlib:
-
-    ```bash
-    python setup.py install
-    ```
-
-12. Instalar o Tensorflow:
-
-    ```bash
-    pip install tensorflow
-    ```
-
-### 🎯 11.2 Instalação do Modelo Vosk
-
-Vosk Model - https://alphacephei.com/vosk/
-1. Acessar [o documento de instalaçao do Vosk] (https://alphacephei.com/vosk/install)
-2. Seguir os passos definidos.
-3. Acessar [a página de modelos] (https://alphacephei.com/vosk/models).
-4. Baixar vosk-model-en-us-0.22 ou similar.
-
-##########################COMPARATIVO YOLO COM O QUE TEMOS####################
+**Observações:**
+- A solução YOLO detectou mais de 2x emoções em comparação com a solução atual
+- O processamento paralelo na solução YOLO permite análise mais rápida
+- A solução YOLO é mais eficiente em termos de recursos computacionais
+- A precisão da detecção facial é superior na solução YOLO devido ao modelo especializado
+- O YOLO consegue detectar mais faces, em condições de baixa luminosidade e também quando o rosto está parcialmente bloqueado ou com rosto inclinado.

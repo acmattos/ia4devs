@@ -79,7 +79,7 @@ def processar_video(cap, source_path, output_path):
     model_name = os.path.join(models_folder, "yolov11l-face.pt") # n, s, m, l, x versões disponiveis
 
     # Load de modelo pre treinado
-    model = YOLO(model_name)  
+    model = YOLO(model_name)
 
     frame_idx = 0
     boxes_emocoes_prev = []
