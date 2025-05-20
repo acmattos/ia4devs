@@ -120,7 +120,7 @@ def processar_video(cap, source_path, output_path):
     restore_audio_from_video(source_path, output_path)
     save_results_to_csv(results, output_path + ".csv",
                         ("frame_id", "emotions_1", "emotions_2", "emotions_3",
-                         "emotions_4"))
+                         "emotions_4", "emotions_5"))
     write_summary_analysis(output_path)
 
 def write_summary_analysis(

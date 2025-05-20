@@ -299,14 +299,16 @@ Esta seção tem como objetivo apresentar uma solução alternativa para a detec
 de faces e classificação de emoções, utilizando o modelo YOLO.
 
 O modelo YOLO (You Only Look Once) é um modelo que é capaz de detectar
-objetos em tempo real. Ele é capaz de detectar faces e classificar emoções com uma precisão muito alta.
+objetos em tempo real. Ele é capaz de detectar faces e classificar emoções com 
+uma precisão muito alta.
 Este modelo foi utilizado para comparar com a solução atual utilizada no projeto,
-com intuito de validar soluções alternativas que podem ser mais eficientes para o problema proposto.
+com intuito de validar soluções alternativas que podem ser mais eficientes para 
+o problema proposto.
 
 ### 👤 10.1 Detecção de faces
 
-A detecção de faces foi realizada utilizando o modelo YOLO11, que traz melhorias de desempenho,
-precisão, flexibilidade e eficiência em Visão Computacional.
+A detecção de faces foi realizada utilizando o modelo YOLO11, que traz melhorias 
+de desempenho, precisão, flexibilidade e eficiência em Visão Computacional.
 O processo de detecção de faces foi realizado no arquivo `recognize_expression_yolo.py`.
 
 #### 🔄 Passos da Implementação:
@@ -339,7 +341,7 @@ O processo de detecção de faces foi realizado no arquivo `recognize_expression
 5. **Processamento de Resultados**:
    - Salva resultados em arquivo CSV com colunas:
      - frame_id
-     - emotions_1 até emotions_4 (até 4 emoções por frame)
+     - emotions_1 até emotions_5 (até 5 emoções por frame)
    - Gera análise resumida em `summary_analysis.txt`
    - **Restaura áudio do vídeo original para o vídeo de saída**
 
@@ -402,4 +404,5 @@ Abaixo está uma tabela comparativa entre a solução atual e a solução utiliz
 - O processamento paralelo na solução YOLO permite análise mais rápida
 - A solução YOLO é mais eficiente em termos de recursos computacionais
 - A precisão da detecção facial é superior na solução YOLO devido ao modelo especializado
-- O YOLO consegue detectar mais faces, em condições de baixa luminosidade e também quando o rosto está parcialmente bloqueado ou com rosto inclinado.
+- O YOLO consegue detectar mais faces, em condições de baixa luminosidade e 
+  também quando o rosto está parcialmente bloqueado ou com rosto inclinado.
