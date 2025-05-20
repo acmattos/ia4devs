@@ -13,7 +13,6 @@
 
 - Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_04/04_Tech_Challenge)
 - Link para o vídeo de apresentação: [Video Apresentação]
-- Vosk Model: [Vosk Model](https://alphacephei.com/vosk/models)
 
 ## 📚 3. Bibliotecas utilizadas
 
@@ -21,15 +20,16 @@
   - **OpenCV (cv2)**: Biblioteca utilizada para processamento de vídeo, detecção de rostos e manipulação de imagens.
   - **DeepFace**: Biblioteca utilizada para análise de emoções faciais (feliz, triste, etc).
   - **MediaPipe**: Biblioteca utilizada para detecção de movimentos(pose corporal, movimentos das mãos, etc).
-  - **YOLO**: Biblioteca alternativa que foi utilizada para detectar faces e classificar emoções.
-
+  - **ultralytics**: Biblioteca alternativa que foi utilizada para detectar faces e classificar emoções, utilizando o modelo Yolo11.
+  
 - Bibliotecas de suporte:
   - **Dlib**: Biblioteca base para o face_recognition, utilizada para detecção e codificação de rostos.
   - **Tensorflow**: Dependência do DeepFace para análise de emoções.
-  - **Vosk**: Modelo utilizada para transcrição de áudio do vídeo para texto.
   - **Pandas**: Biblioteca utilizada para geração de relatórios e análise dos dados coletados.
   - **NumPy**: Biblioteca utilizada para operações matemáticas e manipulação de arrays.
   - **tqdm**: Biblioteca utilizada para exibir barras de progresso durante o processamento do vídeo que está sendo analisado.
+  - **Vosk**: Modelo utilizada para transcrição de áudio do vídeo para texto [Vosk Model](https://alphacephei.com/vosk/models).
+  - **Yolo**: Modelo utilizado pelo ultralytics na deteção de emoções: [yolov11l-face.pt](https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11l-face.pt).
 
 ## 💻 4. Instalar Dlib e Tensorflow (Windows)
 
