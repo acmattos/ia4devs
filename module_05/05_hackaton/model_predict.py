@@ -74,7 +74,12 @@ def _generate_results_json(
             # For summary, only add each class once per image
             if name not in seen:
                 seen.add(name)
-                entry_summary["boxes"].append({"name": name})
+                entry_summary["boxes"].append({
+                    "class"      : cls_id,
+                    "name"       : name,
+                    "confidence" : float(box.conf),
+                    "coordinates": [float(x) for x in box.xyxy[0].tolist()]
+                })
 
         full_detections.append(entry_full)
         summary_detections.append(entry_summary)
@@ -100,7 +105,7 @@ def _generate_results_json(
 if __name__ == '__main__':
     trained_dir_name: str = 'yolo11n_custom_200'
     trained_model_best_path = f"../runs/detect/{trained_dir_name}/weights/best.pt"
-    source_file_path: str = "Predict.jpg"
+    source_file_path: str = "./data/sample/aws_01.jpg"
     conf = 0.7
 
     results = predict(
