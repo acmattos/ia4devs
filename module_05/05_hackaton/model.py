@@ -1,14 +1,16 @@
+import os
 from pprint import pprint
 
 from model_predict import predict
 from model_train import train
+
 
 if __name__ == '__main__':
     from multiprocessing import freeze_support
     freeze_support()
 
     yolo: str             = 'yolo11n'
-    epochs: int           = 3
+    epochs: int           = 200
     yolo_pt_path: str     = f'./data/model/{yolo}.pt'
     data_yaml_path: str   = './data/dataset/aws/data.yaml'
     trained_dir_name: str = f'{yolo}_custom_{epochs}'

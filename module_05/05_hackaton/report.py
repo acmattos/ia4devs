@@ -2,12 +2,12 @@ from report_generator import generate_report
 from model_predict import predict
 
 if __name__ == '__main__':
-    trained_dir_name: str = "yolo11s_custom_100"
+    trained_dir_name: str = "yolo11n_custom_200"
     trained_model_best_path = f"../runs/detect/{trained_dir_name}/weights/best.pt"
-    source_file_path: str = "Predict.jpg"
+    source_file_path: str = "./data/sample/aws_01.jpg"
 
     reports_path: str = f"data/reports/{trained_dir_name}"
-    reports_json_path: str = f"{reports_path}/results.json"
+    reports_json_path: str = f"{reports_path}/report.json"
     stride_yaml  = "data/stride/stride_map.yaml"
     controls_yaml= "data/stride/controls_by_threat.yaml"
     conf = 0.7
