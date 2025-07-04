@@ -16,9 +16,8 @@ Configuration:
 - min_valid: minimum number of valid examples required.
 
 Usage:
-    python report_low_counts.py
+    python dataset_report_low_counts.py
 """
-
 def count_labels(folder: Path) -> Counter:
     """
     Count occurrences of each class ID across all .txt label files in folder.
@@ -41,9 +40,9 @@ def count_labels(folder: Path) -> Counter:
     return cnt
 
 
-def get_class_names(data_yaml_path: Path) -> list[str]:
+def get_data_yaml(data_yaml_path: Path) -> list[str]:
     """
-    Load ordered list of class names from a YOLO data.yaml file.
+    Load data.yaml file.
 
     Args:
         data_yaml_path (Path): Path to the YAML file containing 'names'.
@@ -53,7 +52,7 @@ def get_class_names(data_yaml_path: Path) -> list[str]:
     """
     with open(data_yaml_path) as file:
         data = yaml.safe_load(file)
-    return data['names']
+    return data
 
 
 def get_low_classes(
@@ -78,7 +77,7 @@ def get_low_classes(
     Returns:
         List of tuples (class_id, class_name, train_count, test_count, valid_count).
     """
-    class_names = get_class_names(data_yaml_path)
+    class_names = get_data_yaml(data_yaml_path)['names']
     train_counts = count_labels(train_label_path)
     test_counts = count_labels(test_label_path)
     valid_counts = count_labels(valid_label_path)
