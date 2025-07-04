@@ -1,10 +1,9 @@
-# app.py
+import cv2
 import streamlit as st
 from PIL import Image
 import io
 
 from model_predict import predict
-
 
 # importe aqui sua função de predição YOLO
 # por exemplo, se ela estiver em predict.py:
@@ -15,10 +14,7 @@ def predict_image(img: Image.Image) -> Image.Image:
     com as caixas desenhadas.
     Você deve substituir essa função pelo seu script real.
     """
-    # from ultralytics import YOLO
-    # model = YOLO('best.pt')
-    # results = model.predict(img)
-    # return results[0].plot()  # retorna PIL.Image com caixas
+
     trained_dir_name: str = 'yolo11n_custom_100'
     trained_model_best_path = f"../runs/detect/{trained_dir_name}/weights/best.pt"
     results = predict(
@@ -28,10 +24,7 @@ def predict_image(img: Image.Image) -> Image.Image:
         conf = 0.5
     )
 
-
-    # 4) Converte de volta para PIL.Image
-    return Image.fromarray(results[0].plot())
-    #return img  # apenas devolve a própria imagem, para ilustrar
+    return Image.fromarray(cv2.cvtColor(results[0].plot(), cv2.COLOR_BGR2RGB))
 
 st.set_page_config(page_title="YOLO Detection", layout="wide")
 st.title("🖼️ Analisador de Ameaças STRIDE em Diagramas AWS - Demo")
