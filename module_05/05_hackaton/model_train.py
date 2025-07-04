@@ -27,7 +27,7 @@ def train(
         epochs          = epochs,
         imgsz           = 640,            # Input image size for training
         multi_scale     = True,           # Random scale between 0.5x and 1.0x
-        patience        = 40,             # Early stopping if no improvement for 40 epochs
+        patience        = 10,             # Early stopping if no improvement for 40 epochs
         batch           = 8,
         workers         = 8,
         device          = 0,              # GPU device index
@@ -38,7 +38,7 @@ def train(
         scale           = 0.5,            # Random scale factor
         perspective     = 0.0,            # Perspective augmentation
         optimizer       = 'AdamW',        # Optimizer choice
-        lr0             = 0.01,           # Initial learning rate
+        lr0             = 0.001,           # Initial learning rate
         lrf             = 0.05,           # Final learning rate factor (5% of lr0)
         warmup_epochs   = 3,              # Number of warmup epochs
         warmup_momentum = 0.8,            # Warmup momentum

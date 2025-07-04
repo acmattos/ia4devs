@@ -1,4 +1,3 @@
-import os
 from pprint import pprint
 
 from model_predict import predict
@@ -10,7 +9,7 @@ if __name__ == '__main__':
     freeze_support()
 
     yolo: str             = 'yolo11n'
-    epochs: int           = 200
+    epochs: int           = 10
     yolo_pt_path: str     = f'./data/model/{yolo}.pt'
     data_yaml_path: str   = './data/dataset/aws/data.yaml'
     trained_dir_name: str = f'{yolo}_custom_{epochs}'
@@ -21,8 +20,9 @@ if __name__ == '__main__':
         trained_dir_name,
         epochs
     )
-    source_file_path: str = "./data/sample/aws_01.jpg"
-    conf                  = 0.7
+    # source_file_path: str = "./data/sample/aws_01.jpg"
+    source_file_path: str = "./data/sample/aws_02.png"
+    conf                  = 0.5
 
     results = predict(
         trained_dir_name,
