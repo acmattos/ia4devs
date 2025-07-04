@@ -103,10 +103,11 @@ def _generate_results_json(
 
 
 if __name__ == '__main__':
-    trained_dir_name: str = 'yolo11n_custom_200'
+    trained_dir_name: str = 'yolo11n_custon_100'
     trained_model_best_path = f"../runs/detect/{trained_dir_name}/weights/best.pt"
-    source_file_path: str = "./data/sample/aws_01.jpg"
-    conf = 0.7
+    #source_file_path: str = "./data/sample/aws_01.jpg"
+    source_file_path: str = "./data/sample/aws_02.png"
+    conf = 0.5
 
     results = predict(
         trained_dir_name,
