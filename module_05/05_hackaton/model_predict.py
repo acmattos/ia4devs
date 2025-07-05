@@ -3,7 +3,7 @@ import os
 
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
-from typing import List, Union
+from typing import List, Union, Any
 from PIL import Image
 
 
@@ -12,7 +12,7 @@ def predict(
     trained_model_file_path: str,
     source_file_path: Union[str, Image.Image] = None,
     conf: float = 0.5
-) -> tuple[List[Results], str]:
+) -> tuple[List[Results], List[Any]]:
     """
     Run inference using a trained YOLO model on a single image,
     save bounding-box images and text output, and generate JSON result files.
@@ -25,9 +25,10 @@ def predict(
 
     Returns:
         List[Results]: List of Ultralytics `Results` objects containing detection outputs.
+        List[Any]: Report JSON Metadata.
     """
     # Perform prediction (inference) on the image
-    results: list[Results] = YOLO(trained_model_file_path).predict(
+    results: List[Results] = YOLO(trained_model_file_path).predict(
         source     = source_file_path, # Input image file
         conf       = conf,             # Confidence threshold filter
         iou        = 0.45,             # Intersection-over-union threshold for NMS
@@ -36,14 +37,14 @@ def predict(
         line_width = 1,                # Bounding-box line thickness
     )
     # After prediction, generate JSON summaries
-    json = _generate_results_json(trained_dir_name, results)
-    return tuple[results, json]
+    json: List[Any] = _generate_results_json(trained_dir_name, results)
+    return results, json
 
 
 def _generate_results_json(
     trained_dir_name: str,
     results: List[Results],
-) -> dict[str, str]:
+) -> list[Any]:
     """
     Convert the Ultralytics `Results` list into two JSON files:
     1. `results.json` with complete detection info (class id, name, confidence, coordinates).
@@ -52,7 +53,9 @@ def _generate_results_json(
     Args:
         trained_dir_name (str): Name of directory under `data/reports/` to save JSON files.
         results (List[Results]): List of detection results from `predict()`.
-    R
+
+    Returns:
+        List[Any]: Report JSON Metadata.
     """
     # Prepare containers for full detections and summary (unique classes)
     full_detections = []
