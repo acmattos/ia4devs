@@ -9,7 +9,7 @@ if __name__ == '__main__':
     freeze_support()
 
     yolo: str             = 'yolo11n'
-    epochs: int           = 10
+    epochs: int           = 100
     yolo_pt_path: str     = f'./data/model/{yolo}.pt'
     data_yaml_path: str   = './data/dataset/aws/data.yaml'
     trained_dir_name: str = f'{yolo}_custom_{epochs}'
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     )
     # source_file_path: str = "./data/sample/aws_01.jpg"
     source_file_path: str = "./data/sample/aws_02.png"
-    conf                  = 0.5
+    conf                  = 0.7
 
     results = predict(
         trained_dir_name,

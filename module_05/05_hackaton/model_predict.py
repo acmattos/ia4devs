@@ -3,15 +3,16 @@ import os
 
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
-from typing import List
+from typing import List, Union
+from PIL import Image
 
 
 def predict(
     trained_dir_name: str,
     trained_model_file_path: str,
-    source_file_path: str,
+    source_file_path: Union[str, Image.Image] = None,
     conf: float = 0.5
-) ->  List[Results]:
+) -> tuple[List[Results], str]:
     """
     Run inference using a trained YOLO model on a single image,
     save bounding-box images and text output, and generate JSON result files.
@@ -26,7 +27,7 @@ def predict(
         List[Results]: List of Ultralytics `Results` objects containing detection outputs.
     """
     # Perform prediction (inference) on the image
-    results = YOLO(trained_model_file_path).predict(
+    results: list[Results] = YOLO(trained_model_file_path).predict(
         source     = source_file_path, # Input image file
         conf       = conf,             # Confidence threshold filter
         iou        = 0.45,             # Intersection-over-union threshold for NMS
@@ -35,14 +36,14 @@ def predict(
         line_width = 1,                # Bounding-box line thickness
     )
     # After prediction, generate JSON summaries
-    _generate_results_json(trained_dir_name, results)
-    return results
+    json = _generate_results_json(trained_dir_name, results)
+    return tuple[results, json]
 
 
 def _generate_results_json(
     trained_dir_name: str,
     results: List[Results],
-) -> None:
+) -> dict[str, str]:
     """
     Convert the Ultralytics `Results` list into two JSON files:
     1. `results.json` with complete detection info (class id, name, confidence, coordinates).
@@ -51,6 +52,7 @@ def _generate_results_json(
     Args:
         trained_dir_name (str): Name of directory under `data/reports/` to save JSON files.
         results (List[Results]): List of detection results from `predict()`.
+    R
     """
     # Prepare containers for full detections and summary (unique classes)
     full_detections = []
@@ -100,13 +102,15 @@ def _generate_results_json(
     with open(summary_json_path, "w", encoding="utf-8") as file:
         json.dump(summary_detections, file, indent = 2)
     print(f"✅ Summary JSON saved to {summary_json_path}")
+    return full_detections
 
 
 if __name__ == '__main__':
     trained_dir_name: str = 'yolo11n_custom_100'
     trained_model_best_path = f"../runs/detect/{trained_dir_name}/weights/best.pt"
     #source_file_path: str = "./data/sample/aws_01.jpg"
-    source_file_path: str = "./data/sample/aws_02.png"
+    #source_file_path: str = "./data/sample/aws_02.png"
+    source_file_path: str = "./data/sample/aws_58.png"
     conf = 0.5
 
     results = predict(

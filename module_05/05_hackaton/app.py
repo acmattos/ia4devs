@@ -17,7 +17,8 @@ def predict_image(img: Image.Image) -> Image.Image:
 
     trained_dir_name: str = 'yolo11n_custom_100'
     trained_model_best_path = f"../runs/detect/{trained_dir_name}/weights/best.pt"
-    results = predict(
+
+    results, json = predict(
         trained_dir_name,
         trained_model_best_path,
         img,
@@ -31,7 +32,6 @@ st.title("🖼️ Analisador de Ameaças STRIDE em Diagramas AWS - Demo")
 
 uploaded_file = st.file_uploader("📤 Escolha uma imagem", type=["jpg", "jpeg", "png"])
 if uploaded_file is not None:
-    # lê bytes e converte em PIL.Image
     img_bytes = uploaded_file.read()
     img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
     st.image(img, caption="Imagem enviada", use_column_width=True)

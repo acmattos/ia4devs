@@ -5,7 +5,7 @@ from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 import markdown
 
 def generate_report(
-    reports_json_path: str,
+    reports_json_path:str,
     stride_yaml: str,
     controls_yaml: str,
     conf_threshold: float = 0.2,
