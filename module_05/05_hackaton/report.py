@@ -3,7 +3,7 @@ from model_predict import predict
 
 if __name__ == '__main__':
     trained_dir_name: str = "yolo11n_custom_100"
-    trained_model_best_path = f"../runs/detect/{trained_dir_name}/weights/best.pt"
+    trained_model_best_path = f"./data/model/trained/{trained_dir_name}/weights/best.pt"
     source_file_path: str = "./data/sample/aws_01.jpg"
 
     reports_path: str = f"data/reports/{trained_dir_name}"

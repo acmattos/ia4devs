@@ -14,7 +14,7 @@ def predict_image(img: Image.Image) -> Image.Image:
     com as caixas desenhadas.
     """
     trained_dir_name     = 'yolo11n_custom_100'
-    trained_model_best   = f"../runs/detect/{trained_dir_name}/weights/best.pt"
+    trained_model_best   = f"./data/model/trained/{trained_dir_name}/weights/best.pt"
     # predict agora devolve (results, detailed_json_in_memory)
     results, detailed_json = predict(
         trained_dir_name,
