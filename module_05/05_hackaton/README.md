@@ -1,3 +1,322 @@
+Dataset original:
+https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset/4
+
+O dataset original possui alguns problemas. O principal é não possuir nenhum 
+exemplo para validação. Outro grande problema é a disparidade entre os exemplos.
+Algumas classes possuem poucos exemplos como `ACM`, com 3 para treinar e 1 para 
+teste, contrastando com `Lambda`, com 316 para treino e 10 para teste ou `EC2`, 
+com 213 para treino e 40 para teste. Temos muitos casos, como 
+`Analytics Services`, que possui apenas 1 exemplo para treino e mais nenhum para 
+teste. 
+Você pode verificar como o dataset original se distribui pelos diretórios de 
+treino e teste, executando o seguinte script:
+
+```bash
+py dataset_report_samples_per_split.py 
+```
+
+A execução do script, no 
+[dataset **original**](https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset/),
+mostra os seguintes valores por classe: 
+
+```bash
+Classe                     |    id | Train | Valid | Test
+ACM                        |     0 |     3 |     0 |    1
+ALB                        |     1 |    32 |     0 |    5
+AMI                        |     2 |     4 |     0 |    0
+API-Gateway                |     3 |   163 |     0 |    0
+Active Directory Service   |     4 |     1 |     0 |    1
+Airflow_                   |     5 |     2 |     0 |    0
+Amplify                    |     6 |     8 |     0 |    0
+Analytics Services         |     7 |     1 |     0 |    0
+AppFlow                    |     8 |     1 |     0 |    0
+Appsync                    |     9 |     5 |     0 |    0
+Athena                     |    10 |    10 |     0 |    1
+Aurora                     |    11 |    14 |     0 |    7
+Auto Scaling               |    12 |    34 |     0 |    8
+Auto Scaling Group         |    13 |     8 |     0 |    0
+Automated Tests            |    14 |     6 |     0 |    0
+Availability Zone          |    15 |     4 |     0 |    0
+Backup                     |    16 |     2 |     0 |    0
+Build Environment          |    17 |     3 |     0 |    0
+CDN                        |    18 |     2 |     0 |    1
+CUR                        |    19 |     3 |     0 |    0
+Call Metrics               |    20 |     1 |     0 |    0
+Call Recordings            |    21 |     1 |     0 |    0
+Certificate Manager        |    22 |     7 |     0 |    1
+Client                     |    23 |     7 |     0 |    0
+Cloud Connector            |    24 |     2 |     0 |    0
+Cloud Map                  |    25 |     1 |     0 |    0
+Cloud Search               |    26 |     3 |     0 |    1
+Cloud Trail                |    27 |    16 |     0 |    3
+Cloud Watch                |    28 |    70 |     0 |    7
+CloudFormation Stack       |    29 |    15 |     0 |    1
+CloudHSM                   |    30 |     1 |     0 |    1
+CloudWatch Alarm           |    31 |    11 |     0 |    0
+Cloudfront                 |    32 |    52 |     0 |    9
+CodeBuild                  |    33 |    21 |     0 |    1
+CodeCommit                 |    34 |     8 |     0 |    1
+CodeDeploy                 |    35 |     1 |     0 |    1
+CodePipeline               |    36 |    20 |     0 |    0
+Cognito                    |    37 |    51 |     0 |    1
+Comprehend                 |    38 |     5 |     0 |    0
+Config                     |    39 |     6 |     0 |    6
+Connect                    |    40 |     1 |     0 |    0
+Connect Contact Lens       |    41 |     1 |     0 |    0
+Container                  |    42 |    68 |     0 |    1
+Control Tower              |    43 |     1 |     0 |    0
+Customer Gateway           |    44 |     7 |     0 |    0
+DSI                        |    45 |     4 |     0 |    0
+Data Pipeline              |    46 |     2 |     0 |    0
+DataSync                   |    47 |     2 |     0 |    0
+Deploy Stage               |    48 |     2 |     0 |    0
+Direct Connect             |    50 |    14 |     0 |   11
+Docker Image               |    52 |    13 |     0 |    2
+Dynamo DB                  |    53 |   144 |     0 |   19
+EBS                        |    54 |     8 |     0 |    4
+EC2                        |    55 |   213 |     0 |   40
+EFS                        |    56 |     9 |     0 |    5
+EFS Mount Target           |    57 |     8 |     0 |    9
+EKS                        |    58 |    15 |     0 |    0
+ELB                        |    59 |    77 |     0 |   13
+Edge Location              |    61 |     4 |     0 |    3
+ElastiCache                |    62 |    21 |     0 |    5
+Elastic Container Registry |    63 |    25 |     0 |    0
+Elastic Container Service  |    64 |    38 |     0 |    2
+Elastic Search             |    65 |    12 |     0 |    1
+Elemental MediaConvert     |    66 |     3 |     0 |    1
+Email                      |    68 |     3 |     0 |    1
+Endpoint                   |    69 |     2 |     0 |    0
+Event Bus                  |    70 |     1 |     0 |    0
+EventBridge                |    71 |     3 |     0 |    5
+Experiment Duration        |    72 |     1 |     0 |    0
+Experiments                |    73 |     1 |     0 |    0
+Fargate                    |    74 |    41 |     0 |    0
+Fault Injection Simulator  |    75 |     3 |     0 |    0
+Flask                      |    77 |     3 |     0 |    0
+GameLift                   |    79 |     2 |     0 |    0
+Git                        |    80 |     1 |     0 |    0
+Github                     |    81 |    11 |     0 |    0
+Glue                       |    83 |    10 |     0 |    2
+Glue DataBrew              |    84 |     2 |     0 |    0
+Grafana                    |    85 |     1 |     0 |    0
+GuardDuty                  |    86 |     4 |     0 |    5
+IAM                        |    87 |    27 |     0 |    9
+IAM Role                   |    88 |    16 |     0 |    7
+IOT Core                   |    89 |     7 |     0 |    1
+Image                      |    90 |     6 |     0 |    0
+Image Builder              |    91 |     1 |     0 |    0
+Ingress                    |    92 |     1 |     0 |    0
+Instances                  |    94 |     2 |     0 |    0
+Internet                   |    95 |    41 |     0 |    8
+Internet Gateway           |    96 |    19 |     0 |    4
+Jenkins                    |    97 |     2 |     0 |    0
+Key Management Service     |    98 |    13 |     0 |    3
+Kibana                     |    99 |     1 |     0 |    0
+Kinesis Data Streams       |   100 |    21 |     0 |    4
+Kubernetes                 |   101 |     1 |     0 |    0
+Lambda                     |   102 |   316 |     0 |   10
+Lex                        |   103 |     1 |     0 |    0
+MQ                         |   104 |     9 |     0 |    0
+Machine Learning           |   105 |     4 |     0 |    0
+Macie                      |   106 |     5 |     0 |    4
+Marketplace                |   107 |     2 |     0 |    0
+Memcached                  |   108 |     2 |     0 |    2
+Mobile Client              |   109 |    28 |     0 |    4
+Mongo DB                   |   110 |     6 |     0 |    0
+MySQL                      |   111 |     1 |     0 |    0
+NAT Gateway                |   112 |    36 |     0 |    8
+Neptune                    |   113 |     3 |     0 |    0
+Network Adapter            |   114 |     1 |     0 |    0
+Notebook                   |   116 |     1 |     0 |    0
+Order Controller           |   117 |     1 |     0 |    0
+Organization Trail         |   118 |     1 |     0 |    4
+Parameter Store            |   119 |     2 |     0 |    0
+Pinpoint                   |   120 |     1 |     0 |    0
+PostgreSQL                 |   121 |     1 |     0 |    0
+Private Link               |   122 |     7 |     0 |    0
+Private Subnet             |   123 |   101 |     0 |   10
+Prometheus                 |   124 |     1 |     0 |    0
+Public Subnet              |   125 |    82 |     0 |   18
+Quarkus                    |   126 |     1 |     0 |    0
+Quicksight                 |   127 |     4 |     0 |    0
+RDS                        |   128 |    70 |     0 |   14
+React                      |   129 |     1 |     0 |    0
+Redis                      |   130 |    11 |     0 |    1
+Redshift                   |   131 |     6 |     0 |    1
+Region                     |   132 |    28 |     0 |    2
+Rekognition                |   133 |     2 |     0 |    0
+Results                    |   134 |     1 |     0 |    0
+Route 53                   |   135 |     2 |     0 |    1
+Route53                    |   136 |    65 |     0 |    9
+S3                         |   137 |   225 |     0 |   24
+SAR                        |   138 |     1 |     0 |    0
+SDK                        |   139 |    31 |     0 |    1
+SES                        |   140 |    12 |     0 |    2
+SNS                        |   141 |    30 |     0 |    3
+SQS                        |   142 |    21 |     0 |    2
+Sagemaker                  |   144 |    27 |     0 |    0
+Secret Manager             |   145 |     4 |     0 |    1
+Security Group             |   146 |     1 |     0 |    1
+Security Hub               |   147 |     1 |     0 |    5
+Server                     |   148 |    19 |     0 |   12
+Service Catalog            |   149 |     6 |     0 |    0
+Shield                     |   150 |     3 |     0 |    1
+Slack                      |   152 |     2 |     0 |    0
+Stack                      |   154 |     2 |     0 |    0
+Step Function              |   155 |     3 |     0 |    3
+SwaggerHub                 |   157 |     1 |     0 |    0
+Systems Manager            |   158 |     3 |     0 |    2
+TV                         |   159 |     1 |     0 |    0
+Table                      |   160 |    19 |     0 |    0
+Task Runner                |   161 |     1 |     0 |    0
+Terraform                  |   162 |     3 |     0 |    0
+Text File                  |   163 |     9 |     0 |    0
+Textract                   |   164 |     1 |     0 |    0
+Transcribe                 |   165 |     1 |     0 |    0
+Transfer Family            |   166 |     6 |     0 |    0
+Transit Gateway            |   167 |     2 |     0 |    0
+Translate                  |   168 |     3 |     0 |    0
+Trusted Advisor            |   169 |     2 |     0 |    0
+Twilio                     |   170 |     1 |     0 |    0
+Users                      |   171 |    95 |     0 |   13
+VDA                        |   172 |     1 |     0 |    0
+VP Gateway                 |   173 |     4 |     0 |    1
+VPC Router                 |   174 |    11 |     0 |    6
+VPN Connection             |   175 |     5 |     0 |    1
+WAF                        |   176 |    14 |     0 |    1
+Web Clients                |   177 |    36 |     0 |    7
+Websites                   |   178 |     4 |     0 |    0
+X-Ray                      |   179 |    12 |     0 |    0
+aws                        |   180 |   136 |     0 |   13
+cache Worker               |   181 |     2 |     0 |    0
+```
+
+Mas será que estes são os únicos problemas do dataset? O script abaixo faz 
+algumas análises úteis:
+
+```bash
+py dataset_validation.py
+```
+
+Verificamos que o `nc` corresponde ao total de classes declaradas. No momento, 
+temos 210 imagens e 210 labels.
+Não há nomes de classes duplicados, ne, imagens sem labels ou memso labels sem 
+imagens. O resultado do script pode ser visto abaixo:
+
+```bash
+── Passo 1: contagens ───────────────────────────────────────────────────────
+nc declarado:       182
+len(names):         182
+total imagens:      210
+total labels:       210
+✅ nc == len(names)
+✅ #imagens == #labels
+
+── Passo 2: duplicatas em names ─────────────────────────────────────────────
+✅ Nenhuma duplicata em names
+
+── Passo 3: consistência labels x names x imagens ──────────────────────────
+✅ Todos os class_id em labels têm names associados
+
+✅ Todas as imagens têm .txt correspondente
+✅ Todos os labels têm imagem correspondente
+
+✅ Todas as classes em names têm pelo menos 1 exemplo
+```
+
+Se decidirmos treinar o modelo com o dataset incompleto (isto é, com 
+`valid/images` e `valid/labels` vazios), notaremos duas coisas:
+
+
+```bash
+[1]
+WARNING Box and segment counts should be equal, but got len(segments) = 502, 
+len(boxes) = 3108. To resolve this only boxes will be used and all segments will 
+be removed. To avoid this please supply either a detect or segment dataset, not 
+a detect-segment mixed dataset.
+albumentations: Blur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, 
+blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', 
+num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
+[2]
+Traceback (most recent call last):
+  File "D:\ia4devs\module_05\05_hackaton\.venv\Lib\site-packages\ultralytics\data\base.py", 
+  line 178, in get_img_files
+    assert im_files, f"{self.prefix}No images found in {img_path}. {FORMATS_HELP_MSG}"
+           ^^^^^^^^
+AssertionError: val: No images found in D:\ia4devs\module_05\05_hackaton\data\dataset\aws\valid\images. 
+Supported formats are:
+images: {'heic', 'jpg', 'pfm', 'dng', 'mpo', 'bmp', 'jpeg', 'png', 'tiff', 'webp', 'tif'}
+videos: {'mov', 'mkv', 'gif', 'asf', 'ts', 'm4v', 'mpeg', 'webm', 'wmv', 'mpg', 'mp4', 'avi'}
+```
+
+[1] - Temos um aviso de que alguns rótulos nos arquivos de `label` estão 
+inadequados. O formato de segmentação foi encontrado e o yolo vai descartar 
+estas marcações.
+
+[2] - O diretório `valid` deve conter imagens e labels.
+
+Para corrigir [1], precisamos rodar o script:
+
+```bash 
+py dataset_fix_labels.py
+```
+
+Para que ele detecte e corrija os rótulos inadequados. O resultado final será 
+visto a seguir:
+
+```bash
+Fixed segments in: index101_jpg.rf.86ebe1a7bcfdd3fa92ef93ba5bfd2d19.txt
+Fixed segments in: index108_png.rf.c04ccc21c4ad1c3f1ca51903606f7f0c.txt
+Fixed segments in: index121_png.rf.71f9a36ddec18e197b04cc9cfc9e33c0.txt
+Fixed segments in: index126_png.rf.a27b004ecd3aaae4b1d3a4747b69d613.txt
+Fixed segments in: index136_png.rf.fd69f2a7634f5d83d4b09ace2ed4e8cd.txt
+Fixed segments in: index137_jpg.rf.4a31794a0730be847e886f42f0fb7c94.txt
+Fixed segments in: index154_jpg.rf.77cf8cc45b8a14d6fe9ea46e7f476f96.txt
+Fixed segments in: index156_png.rf.b5d9270f67fd558d8e9036f3dfd575c0.txt
+Fixed segments in: index161_png.rf.6c17459407b2e312e7adcc5649873ef9.txt
+Fixed segments in: index177_png.rf.0cbfadbf1c1f8a322c3fcc7dd55e46a2.txt
+Fixed segments in: index190_png.rf.ff2f24ed464240039309195bf0a73958.txt
+Fixed segments in: index200_png.rf.3e34f6ab90231de27051ce831507656f.txt
+Fixed segments in: index60_png.rf.1e092d82c19763160ffbb6b2fdbf68fe.txt
+Fixed segments in: index62_png.rf.a1dc5d4beaf0dce66f55b97b7218aa5a.txt
+Fixed segments in: index67_png.rf.6101eff034895460da133f0a0c7bb7e9.txt
+Fixed segments in: index69_png.rf.f31ae1094002aac0abf4942427ce17c3.txt
+Fixed segments in: index72_png.rf.946082aea49f9d39dbfc714ab9a7becf.txt
+Fixed segments in: index76_jpg.rf.acd014a7447bfd032a059df9a3c42ed2.txt
+Fixed segments in: index78_jpg.rf.41ff895dc95a8301b653232b1f6076f7.txt
+Fixed segments in: index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af.txt
+Fixed segments in: index80_jpg.rf.ff8325243baab715ecc57e8b2816b32c.txt
+Fixed segments in: index82_png.rf.59d98bc77a90b37701036d534176c12b.txt
+Fixed segments in: index86_png.rf.1f930ebaa16216d58c45b42eed1980ff.txt
+Fixed segments in: index87_png.rf.340a2720a19109394b7209a44a0a0560.txt
+Fixed segments in: index93_png.rf.1b8824bdce863db0c370aa9e08dc6025.txt
+Fixed segments in: index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601.txt
+Fixed segments in: index97_png.rf.c7f0f49920f42b2c1ff635062a6db557.txt
+Total files fixed: 27/189
+Fixed segments in: index32_png.rf.1f5e0fbbf9b24e978afe47ad026cd451.txt
+Fixed segments in: index40_png.rf.c25d82eaf131a966b05189d26ad5bcba.txt
+Fixed segments in: index42_png.rf.fe55375b35dcd8d5acb87b455aefe16a.txt
+Fixed segments in: index43_jpg.rf.57e2088b019cbe2301f88be96faa8caf.txt
+Fixed segments in: index45_png.rf.b8216c6948f9c7338bbc2d54c154b512.txt
+Fixed segments in: index46_png.rf.a43f82f889300675176613a33f4e8168.txt
+Fixed segments in: index5_png.rf.88b49ae013835d02145d6c80bce061fd.txt
+Fixed segments in: index6_jpg.rf.f5a1f31d53e0577b2a9745e1f9b4f77b.txt
+Total files fixed: 8/21
+Total files fixed: 0/0
+```
+
+Para corrigir [2], precisamos rodar o script:
+
+```bash 
+py 
+```
+
+
+
+
+
+
 yolo11n
 ```bash
 C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\.venv\Scripts\python.exe C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\model.py 
