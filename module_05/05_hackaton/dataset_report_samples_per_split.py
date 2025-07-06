@@ -5,8 +5,6 @@ from collections import Counter
 from dataset_report_low_counts import get_data_yaml
 
 """
-report_class_counts.py
-
 This script loads class names from a YOLO data.yaml file and counts
 how many label occurrences each class has in the train, valid, and test splits.
 It outputs a formatted table listing each class name, its ID, and the counts per split.
@@ -19,7 +17,7 @@ Workflow:
    displaying counts from all splits (0 if missing).
 
 Usage:
-    python dataset_report_smaples_per_split.py
+    python dataset_report_samples_per_split.py
 
 Requirements:
 - A YOLO-format `data.yaml` with a `names` entry adjacent to the split folders.
