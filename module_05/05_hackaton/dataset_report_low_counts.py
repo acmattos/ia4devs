@@ -111,8 +111,8 @@ if __name__ == '__main__':
         min_train,
         min_valid
     )
-    header = f"{'idx':>3}  {'class':20} {'train':>5} {'test':>5} {'valid':>5}"
+    header = f"{'class':26} | {'idx':>3} | {'train':>5} | {'test':>5} | {'valid':>5}"
     print(header)
     print('-' * len(header))
     for idx, name, t, e, v in low_classes:
-        print(f"{idx:3d}  {name:20} {t:5d} {e:5d} {v:5d}")
+        print(f"{name:26} | {idx:3d} | {t:5d} | {e:5d} | {v:5d}")
