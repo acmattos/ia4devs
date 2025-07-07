@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 import sys
 import os
 
-# Add the current directory to the path so we can import modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.temp_file_handler import TempFileHandler
@@ -10,6 +9,35 @@ from utils.architecture_detection_service import ArchitectureDetectionService
 
 app = Flask(__name__)
 
+"""
+    MCP server for architecture detection.
+    This server is used to detect architecture components in an image.
+    It uses the ArchitectureDetectionService to detect the components and generate a report.
+    It also uses the TempFileHandler to save the uploaded image to a temporary file.
+    It then cleans up the temporary file after the detection is complete.
+
+    Args:
+        image: The image to detect the architecture components in.
+
+    Returns:
+        A JSON object with the following fields:
+        - success: A success message.
+        - detections: The number of architecture components detected.
+        - report_generated: A boolean indicating if the report was generated.
+        - markdown_report: The complete markdown report content for the Telegram agent.
+        - error: An error message if the detection fails.
+
+    Example:
+        curl -X POST -F "image=@path/to/image.jpg" http://localhost:8000/mcp/architecture-detect
+
+    Example response:
+        {
+            "success": "Architecture detection completed successfully!",
+            "detections": 10,
+            "report_generated": true,
+            "markdown_report": "# Threat Model Report\n\nGerado automaticamente\n\n## Component A (image.jpg)\n- **Confiança:** 0.85\n..."
+        }
+"""
 @app.route('/mcp/architecture-detect', methods=['POST'])
 def architecture_detect():
     if 'image' not in request.files:
@@ -26,12 +54,13 @@ def architecture_detect():
         architecture_detection_service = ArchitectureDetectionService()
         
         # Process the image (detect architecture components and generate report)
-        results, report_json = architecture_detection_service.process_image(temp_image_path)
+        results, markdown_report = architecture_detection_service.process_image(temp_image_path)
         
         return jsonify({
             'success': 'Architecture detection completed successfully!',
             'detections': len(results),
-            'report_generated': True
+            'report_generated': True,
+            'markdown_report': markdown_report
         }), 201
         
     except Exception as detection_error:

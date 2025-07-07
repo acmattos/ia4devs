@@ -48,14 +48,18 @@ class ArchitectureDetectionService:
         )
         return results, report_json
     
-    def generate_detection_report(self, report_json: List[Any], conf_threshold: float = DEFAULT_REPORT_CONF_THRESHOLD) -> None:
+    def generate_detection_report(self, report_json: List[Any], conf_threshold: float = DEFAULT_REPORT_CONF_THRESHOLD) -> str:
         """
         Generate a report from detection results.
         
         Args:
             report_json (List[Any]): Detection results in JSON format
             conf_threshold (float): Confidence threshold for report generation
+            
+        Returns:
+            str: The markdown content of the generated report
         """
+        # Generate the report (this creates both .md and .html files)
         generate_report(
             reports_json_path=report_json,
             stride_yaml_path=self.stride_yaml_path,
@@ -63,8 +67,16 @@ class ArchitectureDetectionService:
             conf_threshold=conf_threshold,
             reports_path=self.reports_path
         )
+        
+        # Read and return the markdown content
+        md_path = os.path.join(self.reports_path, "report.md")
+        if os.path.exists(md_path):
+            with open(md_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        else:
+            return "Report generation completed but markdown file not found."
     
-    def process_image(self, image_path: str) -> Tuple[List[Any], List[Any]]:
+    def process_image(self, image_path: str) -> Tuple[List[Any], List[Any], str]:
         """
         Complete image processing pipeline: detect architecture components and generate report.
         
@@ -72,12 +84,12 @@ class ArchitectureDetectionService:
             image_path (str): Path to the image file
             
         Returns:
-            Tuple[List[Any], List[Any]]: Detection results and report JSON
+            Tuple[List[Any], List[Any], str]: Detection results, report JSON, and markdown report
         """
         # Detect architecture components
         results, report_json = self.detect_architecture_components(image_path)
         
-        # Generate report
-        self.generate_detection_report(report_json)
+        # Generate report and get markdown content
+        markdown_report = self.generate_detection_report(report_json)
         
-        return results, report_json
+        return results, report_json, markdown_report

@@ -15,9 +15,10 @@ def example_1_basic_usage():
     service = ArchitectureDetectionService()
     
     # Process an image
-    results, report_json = service.process_image(DEFAULT_SOURCE_FILE_PATH)
+    results, markdown_report = service.process_image(DEFAULT_SOURCE_FILE_PATH)
     
     print(f"Detected {len(results)} architecture components")
+    print(f"Report content length: {len(markdown_report)} characters")
     print("✅ Basic usage completed\n")
 
 def example_2_custom_parameters():
@@ -31,9 +32,10 @@ def example_2_custom_parameters():
     )
     
     # Process an image
-    results, report_json = service.process_image(DEFAULT_SOURCE_FILE_PATH)
+    results, markdown_report = service.process_image(DEFAULT_SOURCE_FILE_PATH)
     
     print(f"Detected {len(results)} architecture components with custom confidence threshold")
+    print(f"Report content length: {len(markdown_report)} characters")
     print("✅ Custom parameters usage completed\n")
 
 def example_3_step_by_step():
@@ -47,8 +49,8 @@ def example_3_step_by_step():
     print(f"Step 1: Detected {len(results)} architecture components")
     
     # Step 2: Generate report separately
-    service.generate_detection_report(report_json)
-    print("Step 2: Report generated")
+    markdown_report = service.generate_detection_report(report_json)
+    print(f"Step 2: Report generated with {len(markdown_report)} characters")
     
     print("✅ Step-by-step processing completed\n")
 
@@ -62,13 +64,14 @@ def example_4_temp_file_handling():
     
     # Process the temp file
     service = ArchitectureDetectionService()
-    results, report_json = service.process_image(temp_path)
+    results, markdown_report = service.process_image(temp_path)
     
     # Clean up
     TempFileHandler.cleanup_temp_file(temp_path)
     print("Cleaned up temporary file")
     
-    print(f"✅ Processed {len(results)} detections from temp file\n")
+    print(f"✅ Processed {len(results)} detections from temp file")
+    print(f"📄 Report content length: {len(markdown_report)} characters\n")
 
 if __name__ == '__main__':
     # Run all examples
