@@ -310,6 +310,7 @@ Para corrigir [2], precisamos rodar o script:
 ```bash 
 py dataset_rebalance_oversample.py
 ```
+
 O script faz basicamente três coisas — geração de exemplos via oversampling, 
 realocação para garantir ao menos um número mínimo de amostras em valid e em 
 test, sempre mantendo sincronizados os arquivos de imagem e os de label.
@@ -484,6 +485,203 @@ Oversampled → TRAIN : 10484
 Moved to VALID     : 2730
 Moved to TEST      : 2345
 ```
+
+Ao final, podemos executar o script abaixo novamente:
+
+```bash
+py dataset_report_samples_per_split.py 
+```
+
+E já temos um dataset adequado ao treinamento do nosso modelo. O resultado pode 
+ser comparado com o que foi obtido anteriormente, sem fazer todas as mudanças 
+que foram aplicadas até o momento. 
+
+```bash
+Classe                     |    id | Train | Valid | Test
+ACM                        |     0 |   120 |    62 |   42
+ALB                        |     1 |   746 |   332 |  292
+AMI                        |     2 |   109 |    44 |   39
+API-Gateway                |     3 |  2798 |  1178 | 1063
+Active Directory Service   |     4 |    81 |    31 |   29
+Airflow                    |     5 |    78 |    30 |   30
+Amplify                    |     6 |   198 |    84 |   76
+Analytics Services         |     7 |    40 |    15 |   15
+AppFlow                    |     8 |    40 |    15 |   15
+Appsync                    |     9 |   120 |    61 |   50
+Athena                     |    10 |   328 |   148 |  141
+Aurora                     |    11 |   331 |   126 |  112
+Auto Scaling               |    12 |   668 |   307 |  211
+Auto Scaling Group         |    13 |   146 |    88 |   58
+Automated Tests            |    14 |   198 |    98 |   89
+Availability Zone          |    15 |   118 |    48 |   46
+Backup                     |    16 |    76 |    30 |   32
+Build Environment          |    17 |    88 |    44 |   34
+CDN                        |    18 |    53 |    20 |   21
+CUR                        |    19 |    92 |    42 |   35
+Call Metrics               |    20 |    40 |    15 |   15
+Call Recordings            |    21 |    40 |    15 |   15
+Certificate Manager        |    22 |   227 |    98 |  103
+Client                     |    23 |   124 |    61 |   61
+Cloud Connector            |    24 |    80 |    32 |   28
+Cloud Map                  |    25 |    40 |    15 |   15
+Cloud Search               |    26 |   127 |    56 |   48
+Cloud Trail                |    27 |   434 |   192 |  142
+Cloud Watch                |    28 |  1474 |   644 |  566
+CloudFormation Stack       |    29 |   392 |   168 |  138
+CloudHSM                   |    30 |    74 |    34 |   33
+CloudWatch Alarm           |    31 |   260 |   121 |  106
+Cloudfront                 |    32 |   943 |   427 |  366
+CodeBuild                  |    33 |   610 |   245 |  208
+CodeCommit                 |    34 |   192 |    80 |   66
+CodeDeploy                 |    35 |    41 |    17 |   13
+CodePipeline               |    36 |   504 |   220 |  190
+Cognito                    |    37 |   876 |   391 |  354
+Comprehend                 |    38 |   153 |    72 |   73
+Config                     |    39 |   447 |   178 |  147
+Connect                    |    40 |    40 |    15 |   15
+Connect Contact Lens       |    41 |    40 |    15 |   15
+Container                  |    42 |   812 |   346 |  403
+Control Tower              |    43 |    39 |    17 |   14
+Customer Gateway           |    44 |   148 |    74 |   62
+DSI                        |    45 |   126 |    68 |   62
+Data Pipeline              |    46 |    61 |    23 |   22
+DataSync                   |    47 |    67 |    32 |   30
+Deploy Stage               |    48 |    72 |    30 |   27
+Detective                  |    49 |    41 |    15 |   15
+Direct Connect             |    50 |   329 |   126 |  112
+Distribution               |    51 |    42 |    15 |   15
+Docker Image               |    52 |   379 |   179 |  174
+Dynamo DB                  |    53 |  2352 |   979 |  958
+EBS                        |    54 |   330 |   147 |  107
+EC2                        |    55 |  4451 |  1935 | 1692
+EFS                        |    56 |   302 |   133 |  116
+EFS Mount Target           |    57 |   349 |   129 |  128
+EKS                        |    58 |   413 |   184 |  164
+ELB                        |    59 |  1347 |   583 |  521
+EMR                        |    60 |    41 |    15 |   15
+Edge Location              |    61 |   113 |    42 |   27
+ElastiCache                |    62 |   299 |   170 |  121
+Elastic Container Registry |    63 |   502 |   235 |  212
+Elastic Container Service  |    64 |   687 |   331 |  302
+Elastic Search             |    65 |   310 |   147 |  117
+Elemental MediaConvert     |    66 |   147 |    66 |   64
+Elemental MediaPackage     |    67 |    41 |    15 |   15
+Email                      |    68 |    64 |    25 |   29
+Endpoint                   |    69 |    60 |    27 |   22
+Event Bus                  |    70 |    39 |    16 |   15
+EventBridge                |    71 |   306 |   120 |  101
+Experiment Duration        |    72 |    39 |    17 |   14
+Experiments                |    73 |    39 |    17 |   14
+Fargate                    |    74 |   899 |   427 |  423
+Fault Injection Simulator  |    75 |   105 |    49 |   45
+Firewall Manager           |    76 |    41 |    15 |   15
+Flask                      |    77 |   114 |    45 |   51
+Flow logs                  |    78 |   164 |    60 |   60
+GameLift                   |    79 |    41 |    17 |   15
+Git                        |    80 |    38 |    15 |   17
+Github                     |    81 |   186 |    95 |   90
+Glacier                    |    82 |    41 |    15 |   15
+Glue                       |    83 |   260 |   116 |  118
+Glue DataBrew              |    84 |    57 |    26 |   22
+Grafana                    |    85 |    36 |    20 |   14
+GuardDuty                  |    86 |   325 |   132 |  117
+IAM                        |    87 |   779 |   334 |  335
+IAM Role                   |    88 |   531 |   207 |  185
+IOT Core                   |    89 |   132 |    54 |   52
+Image                      |    90 |   154 |    74 |   63
+Image Builder              |    91 |    40 |    15 |   15
+Ingress                    |    92 |    38 |    15 |   17
+Inspector Agent            |    93 |    41 |    15 |   15
+Instances                  |    94 |    68 |    38 |   32
+Internet                   |    95 |   741 |   345 |  272
+Internet Gateway           |    96 |   517 |   247 |  200
+Jenkins                    |    97 |    78 |    30 |   30
+Key Management Service     |    98 |   351 |   155 |  139
+Kibana                     |    99 |    37 |    15 |   18
+Kinesis Data Streams       |   100 |   483 |   198 |  207
+Kubernetes                 |   101 |    38 |    15 |   17
+Lambda                     |   102 |  5851 |  2489 | 2220
+Lex                        |   103 |    36 |    16 |   18
+MQ                         |   104 |   160 |    57 |   86
+Machine Learning           |   105 |   121 |    56 |   47
+Macie                      |   106 |   369 |   146 |  119
+Marketplace                |   107 |    49 |    21 |   19
+Memcached                  |   108 |    82 |    36 |   22
+Mobile Client              |   109 |   543 |   249 |  196
+Mongo DB                   |   110 |   153 |    70 |   62
+MySQL                      |   111 |    40 |    15 |   15
+NAT Gateway                |   112 |   802 |   375 |  293
+Neptune                    |   113 |    92 |    42 |   35
+Network Adapter            |   114 |    40 |    15 |   15
+Network Firewall           |   115 |    41 |    15 |   15
+Notebook                   |   116 |    37 |    18 |   15
+Order Controller           |   117 |    35 |    18 |   17
+Organization Trail         |   118 |   206 |    77 |   71
+Parameter Store            |   119 |    74 |    26 |   27
+Pinpoint                   |   120 |    38 |    16 |   16
+PostgreSQL                 |   121 |    40 |    15 |   15
+Private Link               |   122 |   204 |    89 |   87
+Private Subnet             |   123 |  2330 |   930 |  936
+Prometheus                 |   124 |    36 |    20 |   14
+Public Subnet              |   125 |  1809 |   841 |  715
+Quarkus                    |   126 |    36 |    20 |   14
+Quicksight                 |   127 |   107 |    51 |   50
+RDS                        |   128 |  1540 |   685 |  551
+React                      |   129 |    40 |    15 |   15
+Redis                      |   130 |   270 |   100 |   98
+Redshift                   |   131 |   200 |    80 |   72
+Region                     |   132 |   636 |   269 |  243
+Rekognition                |   133 |    70 |    33 |   37
+Results                    |   134 |    39 |    17 |   14
+Route 53                   |   135 |   118 |    53 |   39
+Route53                    |   136 |  1413 |   611 |  532
+S3                         |   137 |  4902 |  2096 | 1862
+SAR                        |   138 |    38 |    18 |   14
+SDK                        |   139 |   802 |   403 |  301
+SES                        |   140 |   218 |    87 |   84
+SNS                        |   141 |   653 |   279 |  254
+SQS                        |   142 |   482 |   199 |  197
+SSM Agent                  |   143 |    41 |    15 |   15
+Sagemaker                  |   144 |   602 |   267 |  241
+Secret Manager             |   145 |   123 |    46 |   44
+Security Group             |   146 |    40 |    15 |   16
+Security Hub               |   147 |   249 |    91 |   85
+Server                     |   148 |   502 |   193 |  165
+Service Catalog            |   149 |   204 |    91 |   72
+Shield                     |   150 |   129 |    58 |   52
+Sign-On                    |   151 |    41 |    15 |   15
+Slack                      |   152 |    73 |    37 |   30
+Snowball                   |   153 |    41 |    15 |   15
+Stack                      |   154 |    52 |    22 |   14
+Step Function              |   155 |   231 |    96 |   90
+Storage Gateway            |   156 |    41 |    15 |   15
+SwaggerHub                 |   157 |    40 |    15 |   15
+Systems Manager            |   158 |   181 |    76 |   68
+TV                         |   159 |    36 |    22 |   12
+Table                      |   160 |   478 |   196 |  154
+Task Runner                |   161 |    35 |    18 |   17
+Terraform                  |   162 |    75 |    32 |   38
+Text File                  |   163 |   279 |   122 |   99
+Textract                   |   164 |    39 |    17 |   14
+Transcribe                 |   165 |    34 |    17 |   19
+Transfer Family            |   166 |   151 |    68 |   67
+Transit Gateway            |   167 |    74 |    35 |   31
+Translate                  |   168 |   108 |    49 |   53
+Trusted Advisor            |   169 |    49 |    36 |   13
+Twilio                     |   170 |    37 |    15 |   18
+Users                      |   171 |  1858 |   790 |  656
+VDA                        |   172 |    40 |    16 |   14
+VP Gateway                 |   173 |    98 |    36 |   39
+VPC Router                 |   174 |   271 |   102 |   80
+VPN Connection             |   175 |   106 |    57 |   48
+WAF                        |   176 |   290 |   131 |  109
+Web Clients                |   177 |   605 |   248 |  268
+Websites                   |   178 |    85 |    31 |   34
+X-Ray                      |   179 |   232 |    95 |  112
+aws                        |   180 |  2810 |  1219 | 1067
+cache Worker               |   181 |    68 |    36 |   26
+```
+
 S
 🎯 Test Metrics (mean per class):
   Precision:    0.470
