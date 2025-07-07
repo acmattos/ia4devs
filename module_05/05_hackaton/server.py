@@ -6,11 +6,12 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.temp_file_handler import TempFileHandler
 from utils.architecture_detection_service import ArchitectureDetectionService
+from utils.auth import require_api_key
 
 app = Flask(__name__)
 
 """
-    MCP server for architecture detection.
+    server for architecture detection.
     This server is used to detect architecture components in an image.
     It uses the ArchitectureDetectionService to detect the components and generate a report.
     It also uses the TempFileHandler to save the uploaded image to a temporary file.
@@ -28,7 +29,7 @@ app = Flask(__name__)
         - error: An error message if the detection fails.
 
     Example:
-        curl -X POST -F "image=@path/to/image.jpg" http://localhost:8000/mcp/architecture-detect
+        curl -X POST -F "image=@path/to/image.jpg" -H "X-API-Key: your_api_key" http://localhost:8000/architecture-detect
 
     Example response:
         {
@@ -38,7 +39,8 @@ app = Flask(__name__)
             "markdown_report": "# Threat Model Report\n\nGerado automaticamente\n\n## Component A (image.jpg)\n- **Confiança:** 0.85\n..."
         }
 """
-@app.route('/mcp/architecture-detect', methods=['POST'])
+@app.route('/architecture-detect', methods=['POST'])
+@require_api_key
 def architecture_detect():
     if 'image' not in request.files:
         return jsonify({'error': 'An image is required'}), 400
@@ -54,7 +56,7 @@ def architecture_detect():
         architecture_detection_service = ArchitectureDetectionService()
         
         # Process the image (detect architecture components and generate report)
-        results, markdown_report = architecture_detection_service.process_image(temp_image_path)
+        results, report_json, markdown_report = architecture_detection_service.process_image(temp_image_path)
         
         return jsonify({
             'success': 'Architecture detection completed successfully!',
@@ -64,7 +66,8 @@ def architecture_detect():
         }), 201
         
     except Exception as detection_error:
-        return jsonify({'error': f'Architecture detection failed: {str(detection_error)}'}), 500
+        print(f"❌ Architecture detection failed: {str(detection_error)}")
+        return jsonify({'error': f'Architecture detection failed'}), 500
     
     finally:
         # Clean up the temporary file
