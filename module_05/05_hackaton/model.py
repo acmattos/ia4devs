@@ -22,7 +22,7 @@ if __name__ == '__main__':
     )
     # source_file_path: str = "./data/sample/aws_01.jpg"
     source_file_path: str = "./data/sample/aws_02.png"
-    conf                  = 0.5
+    conf                  = 0.7
 
     results = predict(
         trained_dir_name,
