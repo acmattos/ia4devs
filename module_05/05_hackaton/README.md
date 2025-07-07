@@ -527,36 +527,38 @@ verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3
 warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
 Overriding model.yaml nc=80 with nc=182
 
-            from  n    params  module                                arguments
-  0           -1  1       464  ultralytics.nn.modules.conv.Conv      [3, 16, 3, 2]
-  1           -1  1      4672  ultralytics.nn.modules.conv.Conv      [16, 32, 3, 2]
-  2           -1  1      6640  ultralytics.nn.modules.block.C3k2     [32, 64, 1, False, 0.25]
-  3           -1  1     36992  ultralytics.nn.modules.conv.Conv      [64, 64, 3, 2]
-  4           -1  1     26080  ultralytics.nn.modules.block.C3k2     [64, 128, 1, False, 0.25]
-  5           -1  1    147712  ultralytics.nn.modules.conv.Conv      [128, 128, 3, 2]
-  6           -1  1     87040  ultralytics.nn.modules.block.C3k2     [128, 128, 1, True]
-  7           -1  1    295424  ultralytics.nn.modules.conv.Conv      [128, 256, 3, 2]
-  8           -1  1    346112  ultralytics.nn.modules.block.C3k2     [256, 256, 1, True]
-  9           -1  1    164608  ultralytics.nn.modules.block.SPPF     [256, 256, 5]
- 10           -1  1    249728  ultralytics.nn.modules.block.C2PSA    [256, 256, 1]
- 11           -1  1         0  torch.nn.modules.upsampling.Upsample  [None, 2, 'nearest']
- 12      [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat    [1]
- 13           -1  1    111296  ultralytics.nn.modules.block.C3k2     [384, 128, 1, False]
- 14           -1  1         0  torch.nn.modules.upsampling.Upsample  [None, 2, 'nearest']
- 15      [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat    [1]
- 16           -1  1     32096  ultralytics.nn.modules.block.C3k2     [256, 64, 1, False]
- 17           -1  1     36992  ultralytics.nn.modules.conv.Conv      [64, 64, 3, 2]
- 18     [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat    [1]
- 19           -1  1     86720  ultralytics.nn.modules.block.C3k2     [192, 128, 1, False]
- 20           -1  1    147712  ultralytics.nn.modules.conv.Conv      [128, 128, 3, 2]
- 21     [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat    [1]
- 22           -1  1    378880  ultralytics.nn.modules.block.C3k2     [384, 256, 1, True]
- 23 [16, 19, 22]  1    521278  ultralytics.nn.modules.head.Detect    [182, [64, 128, 256]]
+                   from  n    params  module                                       arguments                     
+  0                  -1  1       464  ultralytics.nn.modules.conv.Conv             [3, 16, 3, 2]                 
+  1                  -1  1      4672  ultralytics.nn.modules.conv.Conv             [16, 32, 3, 2]                
+  2                  -1  1      6640  ultralytics.nn.modules.block.C3k2            [32, 64, 1, False, 0.25]      
+  3                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+  4                  -1  1     26080  ultralytics.nn.modules.block.C3k2            [64, 128, 1, False, 0.25]     
+  5                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+  6                  -1  1     87040  ultralytics.nn.modules.block.C3k2            [128, 128, 1, True]           
+  7                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]              
+  8                  -1  1    346112  ultralytics.nn.modules.block.C3k2            [256, 256, 1, True]           
+  9                  -1  1    164608  ultralytics.nn.modules.block.SPPF            [256, 256, 5]                 
+ 10                  -1  1    249728  ultralytics.nn.modules.block.C2PSA           [256, 256, 1]                 
+ 11                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 12             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 13                  -1  1    111296  ultralytics.nn.modules.block.C3k2            [384, 128, 1, False]          
+ 14                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 15             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 16                  -1  1     32096  ultralytics.nn.modules.block.C3k2            [256, 64, 1, False]           
+ 17                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+ 18            [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 19                  -1  1     86720  ultralytics.nn.modules.block.C3k2            [192, 128, 1, False]          
+ 20                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+ 21            [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 22                  -1  1    378880  ultralytics.nn.modules.block.C3k2            [384, 256, 1, True]           
+ 23        [16, 19, 22]  1    521278  ultralytics.nn.modules.head.Detect           [182, [64, 128, 256]]         
 YOLO11n summary: 181 layers, 2,680,446 parameters, 2,680,430 gradients, 6.9 GFLOPs
 
 Transferred 448/499 items from pretrained weights
 Freezing layer 'model.23.dfl.conv.weight'
 AMP: running Automatic Mixed Precision (AMP) checks...
+Downloading https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt to 'yolo11n.pt'...
+100%|██████████| 5.35M/5.35M [00:03<00:00, 1.77MB/s]
 AMP: checks passed
 train: Fast image access  (ping: 0.00.0 ms, read: 2741.9957.6 MB/s, size: 410.9 KB)
 train: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\train\labels.cache... 3457 images, 0 backgrounds, 0 c

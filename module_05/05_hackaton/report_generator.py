@@ -1,30 +1,34 @@
 import os, json, yaml
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
 
 from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 import markdown
 
 def generate_report(
-    reports_json_path: str,
-    stride_yaml: str,
+    reports_json_path: Union[str, list[Any]],
+    stride_yaml_path: str,
     controls_yaml: str,
     conf_threshold: float = 0.2,
     reports_path: str     = "."
-)-> None:
+)-> str:
     """
     Generate threat model reports in Markdown and HTML formats
     based on detection results, STRIDE mappings, and control mitigations.
 
     Args:
-        detections_json_path (str): Path to the JSON file containing detection outputs.
+        reports_json_path (str): Path to the JSON file containing detection outputs.
         stride_yaml_path (str): Path to the YAML file mapping component classes to STRIDE threats.
         controls_yaml_path (str): Path to the YAML file mapping STRIDE threats to CWEs and controls.
         conf_threshold (float, optional): Confidence threshold to filter detections. Defaults to 0.2.
         output_dir (str, optional): Directory where report.md and report.html will be saved. Defaults to current directory.
     """
     # Load detection results and mapping files
-    detections = json.load(open(reports_json_path))
-    stride_map  = yaml.safe_load(open(stride_yaml))
+    detections = (
+        json.load(open(reports_json_path))
+        if isinstance(reports_json_path, str)
+        else reports_json_path
+    )
+    stride_map  = yaml.safe_load(open(stride_yaml_path))
     controls_map= yaml.safe_load(open(controls_yaml))
 
     # Merge components, applying confidence filter and mapping threats/controls
@@ -73,11 +77,12 @@ Gerado automaticamente
     # Convert Markdown to HTML
     html_body = markdown.markdown(md, extensions=["tables"])
     html = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Report</title></head><body>{html_body}</body></html>"""
+<html><head><style>body {{background-color: #ffffff !important;color: #000000 !important; }} </style><meta charset="utf-8"><title>Report</title></head><body>{html_body}</body></html>"""
     html_path = os.path.join(reports_path, "report.html")
     open(html_path, "w", encoding="utf-8").write(html)
 
     print("Reports generated:", reports_path)
+    return html
 
 
 def load_report_results(json_path: str) -> List[Dict[str, Any]]:

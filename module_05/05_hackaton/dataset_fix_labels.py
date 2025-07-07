@@ -2,8 +2,6 @@ from pathlib import Path
 from typing import List
 from PIL import Image
 """
-fix_labels.py
-
 This script detects and converts mixed segmentation (polygon) annotations
 in YOLO label files to bounding-box format. It processes each .txt label
 file in the specified labels directory, computes bounding boxes from
@@ -114,8 +112,8 @@ if __name__ == '__main__':
         labels_dir='data/dataset/aws/test/labels',
         output_dir=None  # overwrite in place
     )
-    fix_labels(
-        images_dir='data/dataset/aws/valid/images',
-        labels_dir='data/dataset/aws/valid/labels',
-        output_dir=None  # overwrite in place
-    )
+    # fix_labels(
+    #     images_dir='data/dataset/aws/valid/images',
+    #     labels_dir='data/dataset/aws/valid/labels',
+    #     output_dir=None  # overwrite in place
+    # )
