@@ -1,13 +1,121 @@
-Dataset original:
-https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset/4
+# 🎓 Hackaton (Tech Challenge) - Pós-Tech - IA For Devs - FIAP
+# 📹 Fase 5 - Modelagem de ameaças utilizando IA
 
-O dataset original possui alguns problemas. O principal é não possuir nenhum 
-exemplo para validação. Outro grande problema é a disparidade entre os exemplos.
-Algumas classes possuem poucos exemplos como `ACM`, com 3 para treinar e 1 para 
-teste, contrastando com `Lambda`, com 316 para treino e 10 para teste ou `EC2`, 
-com 213 para treino e 40 para teste. Temos muitos casos, como 
-`Analytics Services`, que possui apenas 1 exemplo para treino e mais nenhum para 
-teste. 
+## 👥 1. Alunos
+
+- André Mattos - RM358905
+- Aurelio Thomasi Jr - RM358104
+- Leonardo Ramires - RM358190
+- Lucas Arruda - RM358628
+- Pedro Marins - RM356883
+
+## 📋 2. Evidências do projeto TODO
+
+- Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_04/04_Tech_Challenge)
+- Link para o vídeo de apresentação: [Video Apresentação]
+
+## 📚 3. Bibliotecas utilizadas TODO
+
+- Principais bibliotecas:
+  - **OpenCV (cv2)**: Biblioteca utilizada para processamento de vídeo, detecção de rostos e manipulação de imagens.
+  - **DeepFace**: Biblioteca utilizada para análise de emoções faciais (feliz, triste, etc).
+  - **MediaPipe**: Biblioteca utilizada para detecção de movimentos(pose corporal, movimentos das mãos, etc).
+  - **ultralytics**: Biblioteca alternativa que foi utilizada para detectar faces e classificar emoções, utilizando o modelo Yolo11.
+  
+- Bibliotecas de suporte:
+  - **Dlib**: Biblioteca base para o face_recognition, utilizada para detecção e codificação de rostos.
+  - **Tensorflow**: Dependência do DeepFace para análise de emoções.
+  - **Pandas**: Biblioteca utilizada para geração de relatórios e análise dos dados coletados.
+  - **NumPy**: Biblioteca utilizada para operações matemáticas e manipulação de arrays.
+  - **tqdm**: Biblioteca utilizada para exibir barras de progresso durante o processamento do vídeo que está sendo analisado.
+  - **Vosk**: Modelo utilizada para transcrição de áudio do vídeo para texto [Vosk Model](https://alphacephei.com/vosk/models).
+  - **Yolo**: Modelo utilizado pelo ultralytics na deteção de emoções: [yolov11l-face.pt](https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11l-face.pt).
+
+## 💻 4. Instalar Dlib e Tensorflow (Windows) (TODO PYTORCH)
+
+Durante o desenvolvimento do projeto, foi necessário instalar o Dlib e o 
+Tensorflow para a utilização de CUDA, para processar os vídeos com GPU e 
+consequentemente melhorar o desempenho do processamento.
+No final desta documentação, será apresentado o passo a passo para instalar o 
+Dlib e o Tensorflow para o ambiente Windows (ambiente de desenvolvimento utilizado).
+
+**CUDA**: É uma biblioteca de software utilizada em hardware de computação 
+gráfica da empresa NVIDIA, que permite a utilização de GPUs para acelerar o 
+processamento de cálculos matemáticos (Por exemplo, matrizes, cálculos de IA, etc).
+
+## 5. Como executar TODO
+
+Para executar o projeto, basta:
+````commandline
+py tech_chalenge.py
+````
+Isto permite executar, em sequencia, as análises realizadas nos arquivos a seguir:
+
+- face_detection_recognition.py: Deteção de Faces e Reconhecimento destas.
+- face_expression.py: Detecção de Emoções de Faces reconhecidas pelo código. 
+- pose_activity.py: Detecção de Poses e Gestos.
+- video_transcription.py: Transcrição do Áudio do vídeo.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Preparação do Modelo de IA 
+
+Para realizar a detecção de diagramas de arquitetura, precisamos preparar um 
+modelo para isto. A primeira etapa foi encontrar um dataset que nos ajudasse a 
+treinar o modelo. Nossa busca levou ao dataset 
+[AWS_icon_detector](https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset), 
+que parecia promissor, mas necessitava de alguns ajustes. 
+
+O principal problema com este dataset é não possuir nenhum exemplo para 
+validação. Outro grande problema é a disparidade entre os exemplos. Algumas 
+classes possuem poucos exemplos como:   
+
+- `ACM`, com 3 para treinar e 1 para teste, 
+
+contrastando com   
+
+- `Lambda`, com 316 para treino e 10 para teste  
+
+ou   
+
+- `EC2`, com 213 para treino e 40 para teste.  
+
+Temos muitos casos, como 
+- `Analytics Services`, que possui apenas 1 exemplo para treino e mais nenhum 
+  para teste.
+
 Você pode verificar como o dataset original se distribui pelos diretórios de 
 treino e teste, executando o seguinte script:
 
@@ -192,6 +300,8 @@ aws                        |   180 |   136 |     0 |   13
 cache Worker               |   181 |     2 |     0 |    0
 ```
 
+Como pode ser notado, muitas classes não possuem testes e outras apenas 1 ou 
+dois exemplos para treinos.   
 Mas será que estes são os únicos problemas do dataset? O script abaixo faz 
 algumas análises úteis:
 
@@ -201,7 +311,7 @@ py dataset_validation.py
 
 Verificamos que o `nc` corresponde ao total de classes declaradas. No momento, 
 temos 210 imagens e 210 labels.
-Não há nomes de classes duplicados, ne, imagens sem labels ou memso labels sem 
+Não há nomes de classes duplicados, `nc`, imagens sem labels ou mesmo labels sem 
 imagens. O resultado do script pode ser visto abaixo:
 
 ```bash
@@ -312,16 +422,16 @@ py dataset_rebalance_oversample.py
 ```
 
 O script faz basicamente três coisas — geração de exemplos via oversampling, 
-realocação para garantir ao menos um número mínimo de amostras em valid e em 
-test, sempre mantendo sincronizados os arquivos de imagem e os de label.
-Na fase 1, garante no mínimo MIN_TRAIN instâncias de cada classe em train, 
-duplicando (com oversampling) de forma round-robin pelas `bases` disponíveis.
-A cada nova imagem criada, também incrementa o contador e adiciona o novo 
-`basename` ao conjunto.
-Na fase 2, garante pelo menos MIN_VALID instâncias em valid, movendo pares 
-imagem+label de train (preferência) ou test.
-Na fase 3, aAssegura pelo menos MIN_TEST instâncias em test, movendo pares 
-imagem+label de train (preferência) ou valid.
+realocação para garantir ao menos um número mínimo de amostras em `valid` e em 
+`test`, sempre mantendo sincronizados os arquivos de imagem e os de label.
+Na fase 1, o script garante, no mínimo, `MIN_TRAIN` instâncias de cada classe em 
+`train`, duplicando (com oversampling de forma round-robin) pelas `bases` 
+disponíveis. A cada nova imagem criada, também incrementa o contador e adiciona 
+o novo `basename` ao conjunto.
+Na fase 2, garante pelo menos `MIN_VALID` instâncias em `valid`, movendo pares 
+`imagem+label` de `train` (preferência) ou `test`.
+Na fase 3, assegura pelo menos `MIN_TEST` instâncias em `test`, movendo pares 
+`imagem+label` de `train` (preferência) ou `valid`.
 
 Abaixo, um log de exemplo da execução do script:
 
@@ -486,15 +596,17 @@ Moved to VALID     : 2730
 Moved to TEST      : 2345
 ```
 
-Ao final, podemos executar o script abaixo novamente:
+Ao final, podemos verificar como ficou a distribuição de exemplos pelos três 
+diretórios de trabalho. Executando o script abaixo novamente:
 
 ```bash
 py dataset_report_samples_per_split.py 
 ```
 
-E já temos um dataset adequado ao treinamento do nosso modelo. O resultado pode 
-ser comparado com o que foi obtido anteriormente, sem fazer todas as mudanças 
-que foram aplicadas até o momento. 
+podemos ver o trabalho efetuado na geração de um dataset util para o treinamento 
+do modelo e execução deste trabalho. O resultado pode ser comparado com o que 
+foi obtido anteriormente, antes das mudanças que foram aplicadas, visando 
+melhorar o treinamento: 
 
 ```bash
 Classe                     |    id | Train | Valid | Test
@@ -682,22 +794,48 @@ aws                        |   180 |  2810 |  1219 | 1067
 cache Worker               |   181 |    68 |    36 |   26
 ```
 
-S
+Ainda temos classes com um número pequeno de exemplos, quando comparadas com 
+outras que tem um número bem expressivo. Como comparativo, alguns números 
+prévios, tomados ainda na fase aprimoramento de dataset:  
+
+```bash
 🎯 Test Metrics (mean per class):
   Precision:    0.470
   Recall:       0.317
   mAP@0.5:      0.318
   mAP@0.5:0.95: 0.257
-
-
-
-```commandline
-RESULTADO FINAL
 ```
 
+Já os mesmos números, tomados depois do aprimoramento do dataset, com o mesmo 
+modelo, mostram como é importante dispor de um bom conjunto de exemplos para o 
+treinamento de um modelo:
 
-## Treinamento do Yolo 11 Modelo N
+```bash
+🎯 Test Metrics (mean per class):
+  Precision:    0.960
+  Recall:       0.996
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.950
+```
 
+Como contexto, os números iniciais foram obtidos pelo modelo `S`, após 200 
+épocas de treinamento. Comparativamente, o mesmo modelo, utilizando o dataset 
+aprimorado, precisou de apenas 100 épocas para obter um resultado (precisão) 
+muito superior.
+
+Com isto, demos por encerrado o aprimoramento do [dataset](data/dataset/aws). 
+Partimos então para o treinamento dos modelos `N`ano, `S`mall e `M`edium.
+
+
+## Treinamento do Yolo 11 Modelo `N`
+
+O treinamento utilizou 100 épocas para treino, gastando 1,622 horas no processo.
+🎯 Test Metrics (mean per class):
+  Precision:    0.957
+  Recall:       0.992
+  mAP@0.5:      0.979
+  mAP@0.5:0.95: 0.911
+ 
 ```bash
 Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
 engine\trainer: agnostic_nms=False, amp=True, augment=True, 
@@ -1257,9 +1395,25 @@ probs: None
 save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
 speed: {'preprocess': 3.2868999987840652, 'inference': 47.22200002288446, 'postprocess': 5.245600012131035}]
 ```
-####################################################################
 
-## Treinamento do Yolo 11 Modelo S
+### Predição do Modelo `N`
+![Detecção do Modelo N](data/model/trained/yolo11n_custom_100/predict/aws_02.jpg)
+
+## Treinamento do Yolo 11 Modelo `S`
+
+O treinamento utilizou 100 épocas para treino, gastando 4.872 horas no processo.
+N
+🎯 Test Metrics (mean per class):
+  Precision:    0.957
+  Recall:       0.992
+  mAP@0.5:      0.979
+  mAP@0.5:0.95: 0.911
+S
+🎯 Test Metrics (mean per class):
+  Precision:    0.960
+  Recall:       0.996
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.950
 
 ```bash
 Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
@@ -1819,23 +1973,36 @@ probs: None
 save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
 speed: {'preprocess': 8.365600020624697, 'inference': 209.4717000145465, 'postprocess': 4.683099978137761}]
 ```
+### Predição do Modelo `S`
 
-Report
-```bash
-C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\.venv\Scripts\python.exe C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\report.py 
+![Detecção do Modelo S](data/model/trained/yolo11s_custom_100/predict/aws_02.jpg)
 
-image 1/1 C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\sample\aws_01.jpg: 544x640 1 Dynamo DB, 5 Lambdas, 1 S3, 1 SNS, 2 Userss, 1 aws, 55.0ms
-Speed: 2.3ms preprocess, 55.0ms inference, 67.7ms postprocess per image at shape (1, 3, 544, 640)
-Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict2
-1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict2\labels
-✅ Detailed JSON saved to data\reports\yolo11s_custom_200\results.json
-✅ Summary JSON saved to data\reports\yolo11s_custom_200\report.json
-Reports generated: data/reports/yolo11s_custom_200
-```
 ####################################################################
 
-## Treinamento do Yolo 11 Modelo M
+## Treinamento do Yolo 11 Modelo `M`
 
+O treinamento utilizou 82 épocas para treino, gastando 5.280 horas no processo. 
+O mecanismo de `Early Stop` foi acionado, após 10 épocas passarem sem nenhum 
+progresso no treinamento do modelo.
+
+N
+🎯 Test Metrics (mean per class):
+  Precision:    0.957
+  Recall:       0.992
+  mAP@0.5:      0.979
+  mAP@0.5:0.95: 0.911
+S
+🎯 Test Metrics (mean per class):
+  Precision:    0.960
+  Recall:       0.996
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.950
+M
+🎯 Test Metrics (mean per class):
+  Precision:    0.958
+  Recall:       0.989
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.957
 ```bash
 New https://pypi.org/project/ultralytics/8.3.162 available  Update with 'pip install -U ultralytics'
 Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
@@ -1954,11 +2121,6 @@ Starting training for 100 epochs...
                    all       1488      30084      0.955      0.976      0.982      0.872
 
 (...)
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     48/100      8.05G     0.4519     0.3103     0.8122          5        384: 100%|██████████| 577/577 [06:15<00:00,
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
-                   all       1488      30084      0.953      0.999      0.982      0.948
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
      49/100      7.66G     0.4436     0.3047     0.8118         52        608: 100%|██████████| 577/577 [03:15<00:00,
@@ -2410,5 +2572,96 @@ probs: None
 save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
 speed: {'preprocess': 3.1897000153549016, 'inference': 50.62539997743443, 'postprocess': 3.644100041128695}]
 ████████████████████████████████ 100% | 38.90/38.9 MB [01:27<00:00,  2.24s/MB]:
-(.venv) PS D:\ia4devs\module_05\05_hackaton>
 ```
+
+### Predição do Modelo `M`
+![Detecção do Modelo M](data/model/trained/yolo11m_custom_100/predict/aws_02.jpg)
+
+## 🎯 Métricas Médias de Teste por Classe
+
+| Métrica      | Modelo N |  Modelo S | Modelo M |
+|--------------|----------|-----------|----------|
+|  Precision   |    0.957 |     0.960 |    0.958 |
+| Recall       |    0.992 |     0.996 |    0.989 |
+| mAP@0.5      |    0.979 |     0.980 |    0.980 |
+| mAP@0.5:0.95 |    0.911 |     0.950 |    0.957 |
+
+- **Nano (N)**: Extremamente leve, mantém Precision/Recall/mAP@0.5 quase iguais 
+                aos demais, mas tem mAP@0.5:0.95 mais baixo (0.911), ou seja, 
+                caixas um pouco menos precisas.
+- **Small (S)**: Bom equilíbrio: maior Precision/Recall, mAP@0.5 e um 
+                 mAP@0.5:0.95 sólido (0.950). Ótima escolha geral para baixa 
+                 latência com boa exatidão.
+- **Medium (M)**: Caixa mais refinada (mAP@0.5:0.95 de 0.957), com 
+                  Precision/Recall/mAP@0.5 no mesmo patamar de S, mas exige mais 
+                  recursos.
+  
+Com base nos testes, decidimos utilizar o modelo `S` em nosso projeto, visando o 
+melhor desempenho com o menor gasto em recursos (disco e tempo de processamento).
+
+## Geração de Relatórios de Ameaças STRIDE
+
+A geração de relatórios de ameaças STRIDE é feita pelo script responsável por 
+esta etapa, `report_generator.py`, e pode ser testada da seguinte forma:
+
+```bash 
+py report.py 
+```
+
+Os relatórios podem ser encontrados [aqui](data/reports/yolo11s_custom_100). E o 
+resultado da execução do script pode ser visto abaixo:
+
+```bash
+image 1/1 D:\ia4devs\module_05\05_hackaton\data\sample\aws_01.jpg: 544x640 
+1 Cloud Watch, 1 Dynamo DB, 1 Event Bus, 5 Lambdas, 1 S3, 3 SNSs, 1 Users, 1 aws, 46.0ms
+Speed: 6.2ms preprocess, 46.0ms inference, 154.7ms postprocess per image at shape (1, 3, 544, 640)
+Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict
+1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict\labels
+✅ Detailed JSON saved to data\reports\yolo11s_custom_100\results.json
+✅ Summary JSON saved to data\reports\yolo11s_custom_100\report.json
+Reports generated: data/reports/yolo11s_custom_100
+```
+
+Nosso gerador cria duas versões de relatório por análise: uma em Markdown e 
+outra em HTML.
+
+As ameaças STRIDE estão definidas [aqui](data/stride). Baseado nestas definições,
+nosso script é capaz de categorizar e gerar o relatório para um diagrama de 
+arquitetura AWS informado.
+
+## Aplicação Demo
+
+Uma aplicação simples foi elaborada para demonstrar as funcionalidades desejadas 
+para a realização deste trabalho. Ela é baseado no [Streamlit](https://streamlit.io/)
+e funciona da seguinte maneira:
+
+```bash
+ streamlit run app.py 
+```
+
+Após executar a chamada acima, o browser deve abrir expondo a aplicação exemplo:
+
+![Imagem Inicial](data/image/app_01.png)
+
+Vamos utilizar [este arquivo exemplo](data/sample/aws_09.png) de arquitetura AWS.
+Após submetermos o arquivo exemplo para análise, vemos que a aplicação permite 
+executar a detecção de componentes:
+
+![Imagem Detecção](data/image/app_02.png)
+
+Ao clicar no botão `Executar detecção`, os componentes da arquitetura são 
+detectados pelo modelo treinado, conforme vista abaixo:
+
+![Imagem Detectado](data/image/app_03.png)
+
+Rolando a página mais para o final, podemos ver o relatório gerado pela 
+aplicação exemplo:
+
+![Imagem Relatório](data/image/app_04.png)
+
+O relatório apresentado reporta os componentes da arquitetura detectados, as 
+ameaças STRIDE correspondentes e suas respectivas contramedidas. 
+
+## Aplicação Proposta
+
+TODO DOCUMENTAR AQUI.
