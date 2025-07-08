@@ -823,7 +823,10 @@ Como contexto, os números iniciais foram obtidos pelo modelo `S`, após 200
 aprimorado, precisou de apenas 100 épocas para obter um resultado (precisão) 
 muito superior.
 
-Com isto, demos por encerrado o aprimoramento do [dataset](data/dataset/aws). 
+Com isto, demos por encerrado o aprimoramento do [dataset](data/dataset/aws). O
+mesmo datset também pode ser encontrado em 
+[AWS Icon Detector Improved](https://app.roboflow.com/acmattos/aws-icon-detector-improved/1).
+
 Partimos então para o treinamento dos modelos `N`ano, `S`mall e `M`edium.
 
 
