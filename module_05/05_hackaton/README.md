@@ -833,11 +833,6 @@ Partimos então para o treinamento dos modelos `N`ano, `S`mall e `M`edium.
 ## Treinamento do Yolo 11 Modelo `N`
 
 O treinamento utilizou 100 épocas para treino, gastando 1,622 horas no processo.
-🎯 Test Metrics (mean per class):
-  Precision:    0.957
-  Recall:       0.992
-  mAP@0.5:      0.979
-  mAP@0.5:0.95: 0.911
  
 ```bash
 Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
@@ -1400,7 +1395,7 @@ speed: {'preprocess': 3.2868999987840652, 'inference': 47.22200002288446, 'postp
 ```
 
 ### Predição do Modelo `N`
-![Detecção do Modelo N](data/model/trained/yolo11n_custom_100/predict/aws_02.jpg)
+![Detecção do Modelo N](data/model/trained/yolo11n_custom_100/predict/aws_01.jpg)
 
 ## Treinamento do Yolo 11 Modelo `S`
 
