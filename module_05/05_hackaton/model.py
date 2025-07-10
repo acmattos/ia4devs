@@ -8,7 +8,7 @@ if __name__ == '__main__':
     from multiprocessing import freeze_support
     freeze_support()
 
-    yolo: str             = 'yolo11m'
+    yolo: str             = 'yolo11s'
     epochs: int           = 100
     yolo_pt_path: str     = f'./data/model/{yolo}.pt'
     data_yaml_path: str   = './data/dataset/aws/data.yaml'

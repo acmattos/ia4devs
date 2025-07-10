@@ -769,10 +769,24 @@ mesmo datset também pode ser encontrado em
 Partimos então para o treinamento dos modelos `N`ano, `S`mall e `M`edium.
 
 
-## Treinamento do Yolo 11 Modelo `N`
+## Treinamento do Yolo 11 - Modelo `N`
 
-O treinamento utilizou 100 épocas para treino, gastando 1,622 horas no processo.
- 
+Para treinar o modelo, basta ajustar a variável abaixo:
+
+```bash 
+yolo: str = 'yolo11n'
+```
+
+Depois, execute a chamada a seguir:
+
+```bash 
+py model.py
+```
+
+Aguardar a conclusão do processo. O treinamento utilizou 100 épocas para treino, 
+gastando 1,622 horas no processo.
+Um exempplo de log de execução pode ser visto abaixo: 
+
 ```bash
 Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
 engine\trainer: agnostic_nms=False, amp=True, augment=True, 
@@ -1333,24 +1347,26 @@ save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
 speed: {'preprocess': 3.2868999987840652, 'inference': 47.22200002288446, 'postprocess': 5.245600012131035}]
 ```
 
-### Predição do Modelo `N`
+### Predição do do Yolo 11 - Modelo `N`
 ![Detecção do Modelo N](data/model/trained/yolo11n_custom_100/predict/aws_01.jpg)
 
 ## Treinamento do Yolo 11 Modelo `S`
 
-O treinamento utilizou 100 épocas para treino, gastando 4.872 horas no processo.
-N
-🎯 Test Metrics (mean per class):
-  Precision:    0.957
-  Recall:       0.992
-  mAP@0.5:      0.979
-  mAP@0.5:0.95: 0.911
-S
-🎯 Test Metrics (mean per class):
-  Precision:    0.960
-  Recall:       0.996
-  mAP@0.5:      0.980
-  mAP@0.5:0.95: 0.950
+Para treinar o modelo, basta ajustar a variável abaixo:
+
+```bash 
+yolo: str = 'yolo11s'
+```
+
+Depois, execute a chamada a seguir:
+
+```bash 
+py model.py
+```
+
+Aguardar a conclusão do processo. O treinamento utilizou 100 épocas para treino, 
+gastando 4.872 horas no processo.
+Um exempplo de log de execução pode ser visto abaixo: 
 
 ```bash
 Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
@@ -1910,36 +1926,30 @@ probs: None
 save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
 speed: {'preprocess': 8.365600020624697, 'inference': 209.4717000145465, 'postprocess': 4.683099978137761}]
 ```
-### Predição do Modelo `S`
+### Predição do Modelo do Yolo 11 - `S`
 
 ![Detecção do Modelo S](data/model/trained/yolo11s_custom_100/predict/aws_02.jpg)
 
-####################################################################
-
 ## Treinamento do Yolo 11 Modelo `M`
 
-O treinamento utilizou 82 épocas para treino, gastando 5.280 horas no processo. 
+Para treinar o modelo, basta ajustar a variável abaixo:
+
+```bash 
+yolo: str = 'yolo11m'
+```
+
+Depois, execute a chamada a seguir:
+
+```bash 
+py model.py
+```
+
+Aguardar a conclusão do processo. O treinamento utilizou 82 épocas para treino, 
+gastando 5.280 horas no processo.
 O mecanismo de `Early Stop` foi acionado, após 10 épocas passarem sem nenhum 
 progresso no treinamento do modelo.
+Um exempplo de log de execução pode ser visto abaixo: 
 
-N
-🎯 Test Metrics (mean per class):
-  Precision:    0.957
-  Recall:       0.992
-  mAP@0.5:      0.979
-  mAP@0.5:0.95: 0.911
-S
-🎯 Test Metrics (mean per class):
-  Precision:    0.960
-  Recall:       0.996
-  mAP@0.5:      0.980
-  mAP@0.5:0.95: 0.950
-M
-🎯 Test Metrics (mean per class):
-  Precision:    0.958
-  Recall:       0.989
-  mAP@0.5:      0.980
-  mAP@0.5:0.95: 0.957
 ```bash
 New https://pypi.org/project/ultralytics/8.3.162 available  Update with 'pip install -U ultralytics'
 Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
@@ -2511,7 +2521,7 @@ speed: {'preprocess': 3.1897000153549016, 'inference': 50.62539997743443, 'postp
 ████████████████████████████████ 100% | 38.90/38.9 MB [01:27<00:00,  2.24s/MB]:
 ```
 
-### Predição do Modelo `M`
+### Predição do do Yolo 11 - Modelo `M`
 ![Detecção do Modelo M](data/model/trained/yolo11m_custom_100/predict/aws_02.jpg)
 
 ## 🎯 Métricas Médias de Teste por Classe
@@ -2538,11 +2548,17 @@ melhor desempenho com o menor gasto em recursos (disco e tempo de processamento)
 
 ## Geração de Relatórios de Ameaças STRIDE
 
-A geração de relatórios de ameaças STRIDE é feita pelo script responsável por 
-esta etapa, `report_generator.py`, e pode ser testada da seguinte forma:
+Para fazer a geração de relatórios de ameaças STRIDE, usando os modelos treinado, 
+basta ajustar a variável abaixo:
 
 ```bash 
-py report.py 
+trained_dir_name: str = "yolo11@_custom_100"
+```
+
+onde `@ = n, s, m`. Depois, execute a chamada a seguir:
+
+```bash 
+py report_generator_test.py 
 ```
 
 Os relatórios podem ser encontrados [aqui](data/reports/yolo11s_custom_100). E o 
