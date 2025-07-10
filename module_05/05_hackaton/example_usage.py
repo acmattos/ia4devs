@@ -15,9 +15,10 @@ def example_1_basic_usage():
     service = ArchitectureDetectionService()
     
     # Process an image
-    results, markdown_report = service.process_image(DEFAULT_SOURCE_FILE_PATH)
+    results, report_json, markdown_report = service.process_image(DEFAULT_SOURCE_FILE_PATH)
     
     print(f"Detected {len(results)} architecture components")
+    print(f"Report JSON items: {len(report_json)}")
     print(f"Report content length: {len(markdown_report)} characters")
     print("✅ Basic usage completed\n")
 
@@ -32,9 +33,10 @@ def example_2_custom_parameters():
     )
     
     # Process an image
-    results, markdown_report = service.process_image(DEFAULT_SOURCE_FILE_PATH)
+    results, report_json, markdown_report = service.process_image(DEFAULT_SOURCE_FILE_PATH)
     
     print(f"Detected {len(results)} architecture components with custom confidence threshold")
+    print(f"Report JSON items: {len(report_json)}")
     print(f"Report content length: {len(markdown_report)} characters")
     print("✅ Custom parameters usage completed\n")
 
@@ -64,13 +66,14 @@ def example_4_temp_file_handling():
     
     # Process the temp file
     service = ArchitectureDetectionService()
-    results, markdown_report = service.process_image(temp_path)
+    results, report_json, markdown_report = service.process_image(temp_path)
     
     # Clean up
     TempFileHandler.cleanup_temp_file(temp_path)
     print("Cleaned up temporary file")
     
     print(f"✅ Processed {len(results)} detections from temp file")
+    print(f"📄 Report JSON items: {len(report_json)}")
     print(f"📄 Report content length: {len(markdown_report)} characters\n")
 
 if __name__ == '__main__':
