@@ -167,3 +167,5 @@ amazon_titles_reasoning.json
 trn_500 copy.json
 trn.json
 reasoning_old.json
+
+runs/
