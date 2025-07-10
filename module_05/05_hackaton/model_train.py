@@ -38,7 +38,7 @@ def train(
         scale           = 0.5,            # Random scale factor
         perspective     = 0.0,            # Perspective augmentation
         optimizer       = 'AdamW',        # Optimizer choice
-        lr0             = 0.001,           # Initial learning rate
+        lr0             = 0.0005,           # Initial learning rate
         lrf             = 0.05,           # Final learning rate factor (5% of lr0)
         warmup_epochs   = 3,              # Number of warmup epochs
         warmup_momentum = 0.8,            # Warmup momentum

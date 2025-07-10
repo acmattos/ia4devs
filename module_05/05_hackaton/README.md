@@ -1,967 +1,1383 @@
-yolo11n
+# 🎓 Hackaton (Tech Challenge) - Pós-Tech - IA For Devs - FIAP
+# 📹 Fase 5 - Modelagem de ameaças utilizando IA
+
+## 👥 1. Alunos
+
+- André Mattos - RM358905
+- Aurelio Thomasi Jr - RM358104
+- Leonardo Ramires - RM358190
+- Lucas Arruda - RM358628
+- Pedro Marins - RM356883
+
+## 📋 2. Evidências do projeto TODO
+
+- Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_04/04_Tech_Challenge)
+- Link para o vídeo de apresentação: [Video Apresentação]
+
+## 📚 3. Bibliotecas utilizadas TODO
+
+- Principais bibliotecas:
+  - **OpenCV (cv2)**: Biblioteca utilizada para processamento de vídeo, detecção de rostos e manipulação de imagens.
+  - **DeepFace**: Biblioteca utilizada para análise de emoções faciais (feliz, triste, etc).
+  - **MediaPipe**: Biblioteca utilizada para detecção de movimentos(pose corporal, movimentos das mãos, etc).
+  - **ultralytics**: Biblioteca alternativa que foi utilizada para detectar faces e classificar emoções, utilizando o modelo Yolo11.
+  
+- Bibliotecas de suporte:
+  - **Dlib**: Biblioteca base para o face_recognition, utilizada para detecção e codificação de rostos.
+  - **Tensorflow**: Dependência do DeepFace para análise de emoções.
+  - **Pandas**: Biblioteca utilizada para geração de relatórios e análise dos dados coletados.
+  - **NumPy**: Biblioteca utilizada para operações matemáticas e manipulação de arrays.
+  - **tqdm**: Biblioteca utilizada para exibir barras de progresso durante o processamento do vídeo que está sendo analisado.
+  - **Vosk**: Modelo utilizada para transcrição de áudio do vídeo para texto [Vosk Model](https://alphacephei.com/vosk/models).
+  - **Yolo**: Modelo utilizado pelo ultralytics na deteção de emoções: [yolov11l-face.pt](https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11l-face.pt).
+
+## 💻 4. Instalar Dlib e Tensorflow (Windows) (TODO PYTORCH)
+
+Durante o desenvolvimento do projeto, foi necessário instalar o Dlib e o 
+Tensorflow para a utilização de CUDA, para processar os vídeos com GPU e 
+consequentemente melhorar o desempenho do processamento.
+No final desta documentação, será apresentado o passo a passo para instalar o 
+Dlib e o Tensorflow para o ambiente Windows (ambiente de desenvolvimento utilizado).
+
+**CUDA**: É uma biblioteca de software utilizada em hardware de computação 
+gráfica da empresa NVIDIA, que permite a utilização de GPUs para acelerar o 
+processamento de cálculos matemáticos (Por exemplo, matrizes, cálculos de IA, etc).
+
+## 5. Como executar TODO
+
+Para executar o projeto, basta:
+````commandline
+py tech_chalenge.py
+````
+Isto permite executar, em sequencia, as análises realizadas nos arquivos a seguir:
+
+- face_detection_recognition.py: Deteção de Faces e Reconhecimento destas.
+- face_expression.py: Detecção de Emoções de Faces reconhecidas pelo código. 
+- pose_activity.py: Detecção de Poses e Gestos.
+- video_transcription.py: Transcrição do Áudio do vídeo.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Preparação do Modelo de IA 
+
+Para realizar a detecção de diagramas de arquitetura, precisamos preparar um 
+modelo para isto. A primeira etapa foi encontrar um dataset que nos ajudasse a 
+treinar o modelo. Nossa busca levou ao dataset 
+[AWS_icon_detector](https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset), 
+que parecia promissor, mas necessitava de alguns ajustes. 
+
+O principal problema com este dataset é não possuir nenhum exemplo para 
+validação. Outro grande problema é a disparidade entre os exemplos. Algumas 
+classes possuem poucos exemplos como:   
+
+- `ACM`, com 3 para treinar e 1 para teste, 
+
+contrastando com   
+
+- `Lambda`, com 316 para treino e 10 para teste  
+
+ou   
+
+- `EC2`, com 213 para treino e 40 para teste.  
+
+Temos muitos casos, como 
+- `Analytics Services`, que possui apenas 1 exemplo para treino e mais nenhum 
+  para teste.
+
+Você pode verificar como o dataset original se distribui pelos diretórios de 
+treino e teste, executando o seguinte script:
+
 ```bash
-(.venv) PS C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton> py .\model.py
-New https://pypi.org/project/ultralytics/8.3.162 available  Update with 'pip install -U ultralytics'
-Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
-engine\trainer: agnostic_nms=False, amp=True, augment=True, auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=False, cfg=None, classes=None, close_mosaic=10, cls=0.5, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=./data/dataset/aws/data.yaml, degrees=0.0, deterministic=True, dev
-ice=0, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=100, erasing=0.4, exist_ok=False, fliplr=0.5, flipud=0.0, format=torchscript, fraction=
-1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.001, lrf=0.05, mas
-k_ratio=4, max_det=300, mixup=0.5, mode=train, model=./data/model/yolo11n.pt, momentum=0.937, mosaic=1.0, multi_scale=True, name=yolo11n_custom_100, nbs=64, nms=
-False, opset=None, optimize=False, optimizer=AdamW, overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, proje
-ct=None, rect=False, resume=False, retina_masks=False, save=True, save_conf=False, save_crop=False, save_dir=C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yol
-o11n_custom_100, save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, s
-how_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3, warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None       
+py dataset_report_samples_per_split.py 
+```
+
+A execução do script, no 
+[dataset **original**](https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset/),
+mostra os seguintes valores por classe: 
+
+```bash
+Classe                     |    id | Train | Valid | Test
+ACM                        |     0 |     3 |     0 |    1
+ALB                        |     1 |    32 |     0 |    5
+AMI                        |     2 |     4 |     0 |    0
+API-Gateway                |     3 |   163 |     0 |    0
+Active Directory Service   |     4 |     1 |     0 |    1
+Airflow_                   |     5 |     2 |     0 |    0
+Amplify                    |     6 |     8 |     0 |    0
+Analytics Services         |     7 |     1 |     0 |    0
+AppFlow                    |     8 |     1 |     0 |    0
+Appsync                    |     9 |     5 |     0 |    0
+Athena                     |    10 |    10 |     0 |    1
+Aurora                     |    11 |    14 |     0 |    7
+Auto Scaling               |    12 |    34 |     0 |    8
+Auto Scaling Group         |    13 |     8 |     0 |    0
+Automated Tests            |    14 |     6 |     0 |    0
+Availability Zone          |    15 |     4 |     0 |    0
+Backup                     |    16 |     2 |     0 |    0
+Build Environment          |    17 |     3 |     0 |    0
+CDN                        |    18 |     2 |     0 |    1
+CUR                        |    19 |     3 |     0 |    0
+Call Metrics               |    20 |     1 |     0 |    0
+Call Recordings            |    21 |     1 |     0 |    0
+Certificate Manager        |    22 |     7 |     0 |    1
+Client                     |    23 |     7 |     0 |    0
+Cloud Connector            |    24 |     2 |     0 |    0
+Cloud Map                  |    25 |     1 |     0 |    0
+Cloud Search               |    26 |     3 |     0 |    1
+Cloud Trail                |    27 |    16 |     0 |    3
+Cloud Watch                |    28 |    70 |     0 |    7
+CloudFormation Stack       |    29 |    15 |     0 |    1
+CloudHSM                   |    30 |     1 |     0 |    1
+CloudWatch Alarm           |    31 |    11 |     0 |    0
+Cloudfront                 |    32 |    52 |     0 |    9
+CodeBuild                  |    33 |    21 |     0 |    1
+CodeCommit                 |    34 |     8 |     0 |    1
+CodeDeploy                 |    35 |     1 |     0 |    1
+CodePipeline               |    36 |    20 |     0 |    0
+Cognito                    |    37 |    51 |     0 |    1
+Comprehend                 |    38 |     5 |     0 |    0
+Config                     |    39 |     6 |     0 |    6
+Connect                    |    40 |     1 |     0 |    0
+Connect Contact Lens       |    41 |     1 |     0 |    0
+Container                  |    42 |    68 |     0 |    1
+Control Tower              |    43 |     1 |     0 |    0
+Customer Gateway           |    44 |     7 |     0 |    0
+DSI                        |    45 |     4 |     0 |    0
+Data Pipeline              |    46 |     2 |     0 |    0
+DataSync                   |    47 |     2 |     0 |    0
+Deploy Stage               |    48 |     2 |     0 |    0
+Direct Connect             |    50 |    14 |     0 |   11
+Docker Image               |    52 |    13 |     0 |    2
+Dynamo DB                  |    53 |   144 |     0 |   19
+EBS                        |    54 |     8 |     0 |    4
+EC2                        |    55 |   213 |     0 |   40
+EFS                        |    56 |     9 |     0 |    5
+EFS Mount Target           |    57 |     8 |     0 |    9
+EKS                        |    58 |    15 |     0 |    0
+ELB                        |    59 |    77 |     0 |   13
+Edge Location              |    61 |     4 |     0 |    3
+ElastiCache                |    62 |    21 |     0 |    5
+Elastic Container Registry |    63 |    25 |     0 |    0
+Elastic Container Service  |    64 |    38 |     0 |    2
+Elastic Search             |    65 |    12 |     0 |    1
+Elemental MediaConvert     |    66 |     3 |     0 |    1
+Email                      |    68 |     3 |     0 |    1
+Endpoint                   |    69 |     2 |     0 |    0
+Event Bus                  |    70 |     1 |     0 |    0
+EventBridge                |    71 |     3 |     0 |    5
+Experiment Duration        |    72 |     1 |     0 |    0
+Experiments                |    73 |     1 |     0 |    0
+Fargate                    |    74 |    41 |     0 |    0
+Fault Injection Simulator  |    75 |     3 |     0 |    0
+Flask                      |    77 |     3 |     0 |    0
+GameLift                   |    79 |     2 |     0 |    0
+Git                        |    80 |     1 |     0 |    0
+Github                     |    81 |    11 |     0 |    0
+Glue                       |    83 |    10 |     0 |    2
+Glue DataBrew              |    84 |     2 |     0 |    0
+Grafana                    |    85 |     1 |     0 |    0
+GuardDuty                  |    86 |     4 |     0 |    5
+IAM                        |    87 |    27 |     0 |    9
+IAM Role                   |    88 |    16 |     0 |    7
+IOT Core                   |    89 |     7 |     0 |    1
+Image                      |    90 |     6 |     0 |    0
+Image Builder              |    91 |     1 |     0 |    0
+Ingress                    |    92 |     1 |     0 |    0
+Instances                  |    94 |     2 |     0 |    0
+Internet                   |    95 |    41 |     0 |    8
+Internet Gateway           |    96 |    19 |     0 |    4
+Jenkins                    |    97 |     2 |     0 |    0
+Key Management Service     |    98 |    13 |     0 |    3
+Kibana                     |    99 |     1 |     0 |    0
+Kinesis Data Streams       |   100 |    21 |     0 |    4
+Kubernetes                 |   101 |     1 |     0 |    0
+Lambda                     |   102 |   316 |     0 |   10
+Lex                        |   103 |     1 |     0 |    0
+MQ                         |   104 |     9 |     0 |    0
+Machine Learning           |   105 |     4 |     0 |    0
+Macie                      |   106 |     5 |     0 |    4
+Marketplace                |   107 |     2 |     0 |    0
+Memcached                  |   108 |     2 |     0 |    2
+Mobile Client              |   109 |    28 |     0 |    4
+Mongo DB                   |   110 |     6 |     0 |    0
+MySQL                      |   111 |     1 |     0 |    0
+NAT Gateway                |   112 |    36 |     0 |    8
+Neptune                    |   113 |     3 |     0 |    0
+Network Adapter            |   114 |     1 |     0 |    0
+Notebook                   |   116 |     1 |     0 |    0
+Order Controller           |   117 |     1 |     0 |    0
+Organization Trail         |   118 |     1 |     0 |    4
+Parameter Store            |   119 |     2 |     0 |    0
+Pinpoint                   |   120 |     1 |     0 |    0
+PostgreSQL                 |   121 |     1 |     0 |    0
+Private Link               |   122 |     7 |     0 |    0
+Private Subnet             |   123 |   101 |     0 |   10
+Prometheus                 |   124 |     1 |     0 |    0
+Public Subnet              |   125 |    82 |     0 |   18
+Quarkus                    |   126 |     1 |     0 |    0
+Quicksight                 |   127 |     4 |     0 |    0
+RDS                        |   128 |    70 |     0 |   14
+React                      |   129 |     1 |     0 |    0
+Redis                      |   130 |    11 |     0 |    1
+Redshift                   |   131 |     6 |     0 |    1
+Region                     |   132 |    28 |     0 |    2
+Rekognition                |   133 |     2 |     0 |    0
+Results                    |   134 |     1 |     0 |    0
+Route 53                   |   135 |     2 |     0 |    1
+Route53                    |   136 |    65 |     0 |    9
+S3                         |   137 |   225 |     0 |   24
+SAR                        |   138 |     1 |     0 |    0
+SDK                        |   139 |    31 |     0 |    1
+SES                        |   140 |    12 |     0 |    2
+SNS                        |   141 |    30 |     0 |    3
+SQS                        |   142 |    21 |     0 |    2
+Sagemaker                  |   144 |    27 |     0 |    0
+Secret Manager             |   145 |     4 |     0 |    1
+Security Group             |   146 |     1 |     0 |    1
+Security Hub               |   147 |     1 |     0 |    5
+Server                     |   148 |    19 |     0 |   12
+Service Catalog            |   149 |     6 |     0 |    0
+Shield                     |   150 |     3 |     0 |    1
+Slack                      |   152 |     2 |     0 |    0
+Stack                      |   154 |     2 |     0 |    0
+Step Function              |   155 |     3 |     0 |    3
+SwaggerHub                 |   157 |     1 |     0 |    0
+Systems Manager            |   158 |     3 |     0 |    2
+TV                         |   159 |     1 |     0 |    0
+Table                      |   160 |    19 |     0 |    0
+Task Runner                |   161 |     1 |     0 |    0
+Terraform                  |   162 |     3 |     0 |    0
+Text File                  |   163 |     9 |     0 |    0
+Textract                   |   164 |     1 |     0 |    0
+Transcribe                 |   165 |     1 |     0 |    0
+Transfer Family            |   166 |     6 |     0 |    0
+Transit Gateway            |   167 |     2 |     0 |    0
+Translate                  |   168 |     3 |     0 |    0
+Trusted Advisor            |   169 |     2 |     0 |    0
+Twilio                     |   170 |     1 |     0 |    0
+Users                      |   171 |    95 |     0 |   13
+VDA                        |   172 |     1 |     0 |    0
+VP Gateway                 |   173 |     4 |     0 |    1
+VPC Router                 |   174 |    11 |     0 |    6
+VPN Connection             |   175 |     5 |     0 |    1
+WAF                        |   176 |    14 |     0 |    1
+Web Clients                |   177 |    36 |     0 |    7
+Websites                   |   178 |     4 |     0 |    0
+X-Ray                      |   179 |    12 |     0 |    0
+aws                        |   180 |   136 |     0 |   13
+cache Worker               |   181 |     2 |     0 |    0
+```
+
+Como pode ser notado, muitas classes não possuem testes e outras apenas 1 ou 
+dois exemplos para treinos.   
+Mas será que estes são os únicos problemas do dataset? O script abaixo faz 
+algumas análises úteis:
+
+```bash
+py dataset_validation.py
+```
+
+Verificamos que o `nc` corresponde ao total de classes declaradas. No momento, 
+temos 210 imagens e 210 labels.
+Não há nomes de classes duplicados, `nc`, imagens sem labels ou mesmo labels sem 
+imagens. O resultado do script pode ser visto abaixo:
+
+```bash
+── Passo 1: contagens ───────────────────────────────────────────────────────
+nc declarado:       182
+len(names):         182
+total imagens:      210
+total labels:       210
+✅ nc == len(names)
+✅ #imagens == #labels
+
+── Passo 2: duplicatas em names ─────────────────────────────────────────────
+✅ Nenhuma duplicata em names
+
+── Passo 3: consistência labels x names x imagens ──────────────────────────
+✅ Todos os class_id em labels têm names associados
+
+✅ Todas as imagens têm .txt correspondente
+✅ Todos os labels têm imagem correspondente
+
+✅ Todas as classes em names têm pelo menos 1 exemplo
+```
+
+Se decidirmos treinar o modelo com o dataset incompleto (isto é, com 
+`valid/images` e `valid/labels` vazios), notaremos duas coisas:
+
+```bash
+[1]
+WARNING Box and segment counts should be equal, but got len(segments) = 502, 
+len(boxes) = 3108. To resolve this only boxes will be used and all segments will 
+be removed. To avoid this please supply either a detect or segment dataset, not 
+a detect-segment mixed dataset.
+albumentations: Blur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, 
+blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', 
+num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
+[2]
+Traceback (most recent call last):
+  File "D:\ia4devs\module_05\05_hackaton\.venv\Lib\site-packages\ultralytics\data\base.py", 
+  line 178, in get_img_files
+    assert im_files, f"{self.prefix}No images found in {img_path}. {FORMATS_HELP_MSG}"
+           ^^^^^^^^
+AssertionError: val: No images found in D:\ia4devs\module_05\05_hackaton\data\dataset\aws\valid\images. 
+Supported formats are:
+images: {'heic', 'jpg', 'pfm', 'dng', 'mpo', 'bmp', 'jpeg', 'png', 'tiff', 'webp', 'tif'}
+videos: {'mov', 'mkv', 'gif', 'asf', 'ts', 'm4v', 'mpeg', 'webm', 'wmv', 'mpg', 'mp4', 'avi'}
+```
+
+[1] - Temos um aviso de que alguns rótulos nos arquivos de `label` estão 
+inadequados. O formato de segmentação foi encontrado e o yolo vai descartar 
+estas marcações.
+
+[2] - O diretório `valid` deve conter imagens e labels.
+
+Para corrigir [1], precisamos rodar o script:
+
+```bash 
+py dataset_fix_labels.py
+```
+
+Para que ele detecte e corrija os rótulos inadequados. O resultado final será 
+visto a seguir:
+
+```bash
+Fixed segments in: index101_jpg.rf.86ebe1a7bcfdd3fa92ef93ba5bfd2d19.txt
+Fixed segments in: index108_png.rf.c04ccc21c4ad1c3f1ca51903606f7f0c.txt
+Fixed segments in: index121_png.rf.71f9a36ddec18e197b04cc9cfc9e33c0.txt
+Fixed segments in: index126_png.rf.a27b004ecd3aaae4b1d3a4747b69d613.txt
+Fixed segments in: index136_png.rf.fd69f2a7634f5d83d4b09ace2ed4e8cd.txt
+Fixed segments in: index137_jpg.rf.4a31794a0730be847e886f42f0fb7c94.txt
+Fixed segments in: index154_jpg.rf.77cf8cc45b8a14d6fe9ea46e7f476f96.txt
+Fixed segments in: index156_png.rf.b5d9270f67fd558d8e9036f3dfd575c0.txt
+Fixed segments in: index161_png.rf.6c17459407b2e312e7adcc5649873ef9.txt
+Fixed segments in: index177_png.rf.0cbfadbf1c1f8a322c3fcc7dd55e46a2.txt
+Fixed segments in: index190_png.rf.ff2f24ed464240039309195bf0a73958.txt
+Fixed segments in: index200_png.rf.3e34f6ab90231de27051ce831507656f.txt
+Fixed segments in: index60_png.rf.1e092d82c19763160ffbb6b2fdbf68fe.txt
+Fixed segments in: index62_png.rf.a1dc5d4beaf0dce66f55b97b7218aa5a.txt
+Fixed segments in: index67_png.rf.6101eff034895460da133f0a0c7bb7e9.txt
+Fixed segments in: index69_png.rf.f31ae1094002aac0abf4942427ce17c3.txt
+Fixed segments in: index72_png.rf.946082aea49f9d39dbfc714ab9a7becf.txt
+Fixed segments in: index76_jpg.rf.acd014a7447bfd032a059df9a3c42ed2.txt
+Fixed segments in: index78_jpg.rf.41ff895dc95a8301b653232b1f6076f7.txt
+Fixed segments in: index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af.txt
+Fixed segments in: index80_jpg.rf.ff8325243baab715ecc57e8b2816b32c.txt
+Fixed segments in: index82_png.rf.59d98bc77a90b37701036d534176c12b.txt
+Fixed segments in: index86_png.rf.1f930ebaa16216d58c45b42eed1980ff.txt
+Fixed segments in: index87_png.rf.340a2720a19109394b7209a44a0a0560.txt
+Fixed segments in: index93_png.rf.1b8824bdce863db0c370aa9e08dc6025.txt
+Fixed segments in: index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601.txt
+Fixed segments in: index97_png.rf.c7f0f49920f42b2c1ff635062a6db557.txt
+Total files fixed: 27/189
+Fixed segments in: index32_png.rf.1f5e0fbbf9b24e978afe47ad026cd451.txt
+Fixed segments in: index40_png.rf.c25d82eaf131a966b05189d26ad5bcba.txt
+Fixed segments in: index42_png.rf.fe55375b35dcd8d5acb87b455aefe16a.txt
+Fixed segments in: index43_jpg.rf.57e2088b019cbe2301f88be96faa8caf.txt
+Fixed segments in: index45_png.rf.b8216c6948f9c7338bbc2d54c154b512.txt
+Fixed segments in: index46_png.rf.a43f82f889300675176613a33f4e8168.txt
+Fixed segments in: index5_png.rf.88b49ae013835d02145d6c80bce061fd.txt
+Fixed segments in: index6_jpg.rf.f5a1f31d53e0577b2a9745e1f9b4f77b.txt
+Total files fixed: 8/21
+Total files fixed: 0/0
+```
+
+Para corrigir [2], precisamos rodar o script:
+
+```bash 
+py dataset_rebalance_oversample.py
+```
+
+O script faz basicamente três coisas — geração de exemplos via oversampling, 
+realocação para garantir ao menos um número mínimo de amostras em `valid` e em 
+`test`, sempre mantendo sincronizados os arquivos de imagem e os de label.
+Na fase 1, o script garante, no mínimo, `MIN_TRAIN` instâncias de cada classe em 
+`train`, duplicando (com oversampling de forma round-robin) pelas `bases` 
+disponíveis. A cada nova imagem criada, também incrementa o contador e adiciona 
+o novo `basename` ao conjunto.
+Na fase 2, garante pelo menos `MIN_VALID` instâncias em `valid`, movendo pares 
+`imagem+label` de `train` (preferência) ou `test`.
+Na fase 3, assegura pelo menos `MIN_TEST` instâncias em `test`, movendo pares 
+`imagem+label` de `train` (preferência) ou `valid`.
+
+Abaixo, um log de exemplo da execução do script:
+
+```bash
+=== Phase 1: Oversampling → TRAIN ===
+
+Class   0: train has 70, target 70 → need 0
+  → OK, não precisa oversample
+
+Class   1: train has 48, target 70 → need 22
+  → usando fonte train para oversample
+
+(...)
+
+Class 181: train has 2, target 70 → need 68
+  → usando fonte train para oversample
+
+=== Phase 2: Rebalance → VALID ===
+
+Class   0: valid has 0, min 15 → need 15
+  → movendo de train para valid
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_5 from train → valid
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_5 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_24 from train → valid
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_24 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_20 from train → valid
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_20 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_58 from train → valid
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_58 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_16 from train → valid
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_16 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_19 from train → valid
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_19 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_57 from train → valid
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_57 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_9 from train → valid
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_9 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_11 from train → valid
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_11 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_56 from train → valid
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_56 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_0 from train → valid
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_0 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_36 from train → valid
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_36 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_55 from train → valid
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_55 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_27 from train → valid
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_27 from train → valid
+  → movendo de train para valid
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_48 from train → valid
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_48 from train → valid
+
+(...)
+
+Class 181: valid has 0, min 15 → need 15
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+    Moved IMAGE  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_29 from train → valid
+    Moved LABEL  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_29 from train → valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+    Moved IMAGE  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_61 from train → valid
+    Moved LABEL  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_61 from train → valid
+  → movendo de train para valid
+  → movendo de train para valid
+  → movendo de train para valid
+
+=== Phase 3: Rebalance → TEST ===
+
+Class   0: test has 1, min 15 → need 14
+  → movendo 'index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_60' de train para test
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_60 from train → test
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_60 from train → test
+  → movendo 'index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_28' de train para test
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_28 from train → test
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_28 from train → test
+  → movendo 'index93_png.rf.1b8824bdce863db0c370aa9e08dc6025' de train para test
+  → movendo 'index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_48' de train para test
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_48 from train → test
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_48 from train → test
+  → movendo 'index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_50' de train para test
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_50 from train → test
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_50 from train → test
+  → movendo 'index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_40' de train para test
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_40 from train → test
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_40 from train → test
+  → movendo 'index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_49' de train para test
+  → movendo 'index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_37' de train para test
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_37 from train → test
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_37 from train → test
+  → movendo 'index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_4' de train para test
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_4 from train → test
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_4 from train → test
+  → movendo 'index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_2' de train para test
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_2 from train → test
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_2 from train → test
+  → movendo 'index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_26' de train para test
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_26 from train → test
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_26 from train → test
+  → movendo 'index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_41' de train para test
+    Moved IMAGE  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_41 from train → test
+    Moved LABEL  index151_jpg.rf.9e63372d562634afb9a7d4bcef7c59f6_os_41 from train → test
+  → movendo 'index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_6' de train para test
+    Moved IMAGE  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_6 from train → test
+    Moved LABEL  index79_jpg.rf.4546d4d5cf54f6ddfb791a379783d3af_os_6 from train → test
+  → movendo 'index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_19' de train para test
+    Moved IMAGE  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_19 from train → test
+    Moved LABEL  index93_png.rf.1b8824bdce863db0c370aa9e08dc6025_os_19 from train → test
+  → test agora tem 15 para classe 0
+
+(...)
+
+Class 181: test has 0, min 15 → need 15
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_39' de train para test
+  → movendo 'index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601_os_30' de train para test
+  → movendo 'index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601_os_8' de train para test
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_23' de train para test
+    Moved IMAGE  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_23 from train → test
+    Moved LABEL  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_23 from train → test
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_31' de train para test
+  → movendo 'index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601_os_36' de train para test
+  → movendo 'index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601_os_6' de train para test
+  → movendo 'index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601_os_16' de train para test
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_19' de train para test
+    Moved IMAGE  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_19 from train → test
+    Moved LABEL  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_19 from train → test
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_33' de train para test
+  → movendo 'index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601_os_38' de train para test
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_67' de train para test
+    Moved IMAGE  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_67 from train → test
+    Moved LABEL  index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_67 from train → test
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_3' de train para test
+  → movendo 'index161_png.rf.6c17459407b2e312e7adcc5649873ef9_os_27' de train para test
+  → movendo 'index96_png.rf.50a8179a165b9e4dfa62dadcb03a7601_os_34' de train para test
+  → test agora tem 15 para classe 181
+
+=== Summary ===
+Oversampled → TRAIN : 10484
+Moved to VALID     : 2730
+Moved to TEST      : 2345
+```
+
+Ao final, podemos verificar como ficou a distribuição de exemplos pelos três 
+diretórios de trabalho. Executando o script abaixo novamente:
+
+```bash
+py dataset_report_samples_per_split.py 
+```
+
+podemos ver o trabalho efetuado na geração de um dataset util para o treinamento 
+do modelo e execução deste trabalho. O resultado pode ser comparado com o que 
+foi obtido anteriormente, antes das mudanças que foram aplicadas, visando 
+melhorar o treinamento: 
+
+```bash
+Classe                     |    id | Train | Valid | Test
+ACM                        |     0 |   120 |    62 |   42
+ALB                        |     1 |   746 |   332 |  292
+AMI                        |     2 |   109 |    44 |   39
+API-Gateway                |     3 |  2798 |  1178 | 1063
+Active Directory Service   |     4 |    81 |    31 |   29
+Airflow                    |     5 |    78 |    30 |   30
+Amplify                    |     6 |   198 |    84 |   76
+Analytics Services         |     7 |    40 |    15 |   15
+AppFlow                    |     8 |    40 |    15 |   15
+Appsync                    |     9 |   120 |    61 |   50
+Athena                     |    10 |   328 |   148 |  141
+Aurora                     |    11 |   331 |   126 |  112
+Auto Scaling               |    12 |   668 |   307 |  211
+Auto Scaling Group         |    13 |   146 |    88 |   58
+Automated Tests            |    14 |   198 |    98 |   89
+Availability Zone          |    15 |   118 |    48 |   46
+Backup                     |    16 |    76 |    30 |   32
+Build Environment          |    17 |    88 |    44 |   34
+CDN                        |    18 |    53 |    20 |   21
+CUR                        |    19 |    92 |    42 |   35
+Call Metrics               |    20 |    40 |    15 |   15
+Call Recordings            |    21 |    40 |    15 |   15
+Certificate Manager        |    22 |   227 |    98 |  103
+Client                     |    23 |   124 |    61 |   61
+Cloud Connector            |    24 |    80 |    32 |   28
+Cloud Map                  |    25 |    40 |    15 |   15
+Cloud Search               |    26 |   127 |    56 |   48
+Cloud Trail                |    27 |   434 |   192 |  142
+Cloud Watch                |    28 |  1474 |   644 |  566
+CloudFormation Stack       |    29 |   392 |   168 |  138
+CloudHSM                   |    30 |    74 |    34 |   33
+CloudWatch Alarm           |    31 |   260 |   121 |  106
+Cloudfront                 |    32 |   943 |   427 |  366
+CodeBuild                  |    33 |   610 |   245 |  208
+CodeCommit                 |    34 |   192 |    80 |   66
+CodeDeploy                 |    35 |    41 |    17 |   13
+CodePipeline               |    36 |   504 |   220 |  190
+Cognito                    |    37 |   876 |   391 |  354
+Comprehend                 |    38 |   153 |    72 |   73
+Config                     |    39 |   447 |   178 |  147
+Connect                    |    40 |    40 |    15 |   15
+Connect Contact Lens       |    41 |    40 |    15 |   15
+Container                  |    42 |   812 |   346 |  403
+Control Tower              |    43 |    39 |    17 |   14
+Customer Gateway           |    44 |   148 |    74 |   62
+DSI                        |    45 |   126 |    68 |   62
+Data Pipeline              |    46 |    61 |    23 |   22
+DataSync                   |    47 |    67 |    32 |   30
+Deploy Stage               |    48 |    72 |    30 |   27
+Detective                  |    49 |    41 |    15 |   15
+Direct Connect             |    50 |   329 |   126 |  112
+Distribution               |    51 |    42 |    15 |   15
+Docker Image               |    52 |   379 |   179 |  174
+Dynamo DB                  |    53 |  2352 |   979 |  958
+EBS                        |    54 |   330 |   147 |  107
+EC2                        |    55 |  4451 |  1935 | 1692
+EFS                        |    56 |   302 |   133 |  116
+EFS Mount Target           |    57 |   349 |   129 |  128
+EKS                        |    58 |   413 |   184 |  164
+ELB                        |    59 |  1347 |   583 |  521
+EMR                        |    60 |    41 |    15 |   15
+Edge Location              |    61 |   113 |    42 |   27
+ElastiCache                |    62 |   299 |   170 |  121
+Elastic Container Registry |    63 |   502 |   235 |  212
+Elastic Container Service  |    64 |   687 |   331 |  302
+Elastic Search             |    65 |   310 |   147 |  117
+Elemental MediaConvert     |    66 |   147 |    66 |   64
+Elemental MediaPackage     |    67 |    41 |    15 |   15
+Email                      |    68 |    64 |    25 |   29
+Endpoint                   |    69 |    60 |    27 |   22
+Event Bus                  |    70 |    39 |    16 |   15
+EventBridge                |    71 |   306 |   120 |  101
+Experiment Duration        |    72 |    39 |    17 |   14
+Experiments                |    73 |    39 |    17 |   14
+Fargate                    |    74 |   899 |   427 |  423
+Fault Injection Simulator  |    75 |   105 |    49 |   45
+Firewall Manager           |    76 |    41 |    15 |   15
+Flask                      |    77 |   114 |    45 |   51
+Flow logs                  |    78 |   164 |    60 |   60
+GameLift                   |    79 |    41 |    17 |   15
+Git                        |    80 |    38 |    15 |   17
+Github                     |    81 |   186 |    95 |   90
+Glacier                    |    82 |    41 |    15 |   15
+Glue                       |    83 |   260 |   116 |  118
+Glue DataBrew              |    84 |    57 |    26 |   22
+Grafana                    |    85 |    36 |    20 |   14
+GuardDuty                  |    86 |   325 |   132 |  117
+IAM                        |    87 |   779 |   334 |  335
+IAM Role                   |    88 |   531 |   207 |  185
+IOT Core                   |    89 |   132 |    54 |   52
+Image                      |    90 |   154 |    74 |   63
+Image Builder              |    91 |    40 |    15 |   15
+Ingress                    |    92 |    38 |    15 |   17
+Inspector Agent            |    93 |    41 |    15 |   15
+Instances                  |    94 |    68 |    38 |   32
+Internet                   |    95 |   741 |   345 |  272
+Internet Gateway           |    96 |   517 |   247 |  200
+Jenkins                    |    97 |    78 |    30 |   30
+Key Management Service     |    98 |   351 |   155 |  139
+Kibana                     |    99 |    37 |    15 |   18
+Kinesis Data Streams       |   100 |   483 |   198 |  207
+Kubernetes                 |   101 |    38 |    15 |   17
+Lambda                     |   102 |  5851 |  2489 | 2220
+Lex                        |   103 |    36 |    16 |   18
+MQ                         |   104 |   160 |    57 |   86
+Machine Learning           |   105 |   121 |    56 |   47
+Macie                      |   106 |   369 |   146 |  119
+Marketplace                |   107 |    49 |    21 |   19
+Memcached                  |   108 |    82 |    36 |   22
+Mobile Client              |   109 |   543 |   249 |  196
+Mongo DB                   |   110 |   153 |    70 |   62
+MySQL                      |   111 |    40 |    15 |   15
+NAT Gateway                |   112 |   802 |   375 |  293
+Neptune                    |   113 |    92 |    42 |   35
+Network Adapter            |   114 |    40 |    15 |   15
+Network Firewall           |   115 |    41 |    15 |   15
+Notebook                   |   116 |    37 |    18 |   15
+Order Controller           |   117 |    35 |    18 |   17
+Organization Trail         |   118 |   206 |    77 |   71
+Parameter Store            |   119 |    74 |    26 |   27
+Pinpoint                   |   120 |    38 |    16 |   16
+PostgreSQL                 |   121 |    40 |    15 |   15
+Private Link               |   122 |   204 |    89 |   87
+Private Subnet             |   123 |  2330 |   930 |  936
+Prometheus                 |   124 |    36 |    20 |   14
+Public Subnet              |   125 |  1809 |   841 |  715
+Quarkus                    |   126 |    36 |    20 |   14
+Quicksight                 |   127 |   107 |    51 |   50
+RDS                        |   128 |  1540 |   685 |  551
+React                      |   129 |    40 |    15 |   15
+Redis                      |   130 |   270 |   100 |   98
+Redshift                   |   131 |   200 |    80 |   72
+Region                     |   132 |   636 |   269 |  243
+Rekognition                |   133 |    70 |    33 |   37
+Results                    |   134 |    39 |    17 |   14
+Route 53                   |   135 |   118 |    53 |   39
+Route53                    |   136 |  1413 |   611 |  532
+S3                         |   137 |  4902 |  2096 | 1862
+SAR                        |   138 |    38 |    18 |   14
+SDK                        |   139 |   802 |   403 |  301
+SES                        |   140 |   218 |    87 |   84
+SNS                        |   141 |   653 |   279 |  254
+SQS                        |   142 |   482 |   199 |  197
+SSM Agent                  |   143 |    41 |    15 |   15
+Sagemaker                  |   144 |   602 |   267 |  241
+Secret Manager             |   145 |   123 |    46 |   44
+Security Group             |   146 |    40 |    15 |   16
+Security Hub               |   147 |   249 |    91 |   85
+Server                     |   148 |   502 |   193 |  165
+Service Catalog            |   149 |   204 |    91 |   72
+Shield                     |   150 |   129 |    58 |   52
+Sign-On                    |   151 |    41 |    15 |   15
+Slack                      |   152 |    73 |    37 |   30
+Snowball                   |   153 |    41 |    15 |   15
+Stack                      |   154 |    52 |    22 |   14
+Step Function              |   155 |   231 |    96 |   90
+Storage Gateway            |   156 |    41 |    15 |   15
+SwaggerHub                 |   157 |    40 |    15 |   15
+Systems Manager            |   158 |   181 |    76 |   68
+TV                         |   159 |    36 |    22 |   12
+Table                      |   160 |   478 |   196 |  154
+Task Runner                |   161 |    35 |    18 |   17
+Terraform                  |   162 |    75 |    32 |   38
+Text File                  |   163 |   279 |   122 |   99
+Textract                   |   164 |    39 |    17 |   14
+Transcribe                 |   165 |    34 |    17 |   19
+Transfer Family            |   166 |   151 |    68 |   67
+Transit Gateway            |   167 |    74 |    35 |   31
+Translate                  |   168 |   108 |    49 |   53
+Trusted Advisor            |   169 |    49 |    36 |   13
+Twilio                     |   170 |    37 |    15 |   18
+Users                      |   171 |  1858 |   790 |  656
+VDA                        |   172 |    40 |    16 |   14
+VP Gateway                 |   173 |    98 |    36 |   39
+VPC Router                 |   174 |   271 |   102 |   80
+VPN Connection             |   175 |   106 |    57 |   48
+WAF                        |   176 |   290 |   131 |  109
+Web Clients                |   177 |   605 |   248 |  268
+Websites                   |   178 |    85 |    31 |   34
+X-Ray                      |   179 |   232 |    95 |  112
+aws                        |   180 |  2810 |  1219 | 1067
+cache Worker               |   181 |    68 |    36 |   26
+```
+
+Ainda temos classes com um número pequeno de exemplos, quando comparadas com 
+outras que tem um número bem expressivo. Como comparativo, alguns números 
+prévios, tomados ainda na fase aprimoramento de dataset:  
+
+```bash
+🎯 Test Metrics (mean per class):
+  Precision:    0.470
+  Recall:       0.317
+  mAP@0.5:      0.318
+  mAP@0.5:0.95: 0.257
+```
+
+Já os mesmos números, tomados depois do aprimoramento do dataset, com o mesmo 
+modelo, mostram como é importante dispor de um bom conjunto de exemplos para o 
+treinamento de um modelo:
+
+```bash
+🎯 Test Metrics (mean per class):
+  Precision:    0.960
+  Recall:       0.996
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.950
+```
+
+Como contexto, os números iniciais foram obtidos pelo modelo `S`, após 200 
+épocas de treinamento. Comparativamente, o mesmo modelo, utilizando o dataset 
+aprimorado, precisou de apenas 100 épocas para obter um resultado (precisão) 
+muito superior.
+
+Com isto, demos por encerrado o aprimoramento do [dataset](data/dataset/aws). O
+mesmo datset também pode ser encontrado em 
+[AWS Icon Detector Improved](https://app.roboflow.com/acmattos/aws-icon-detector-improved/1).
+
+Partimos então para o treinamento dos modelos `N`ano, `S`mall e `M`edium.
+
+
+## Treinamento do Yolo 11 Modelo `N`
+
+O treinamento utilizou 100 épocas para treino, gastando 1,622 horas no processo.
+ 
+```bash
+Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+engine\trainer: agnostic_nms=False, amp=True, augment=True, 
+auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=False, cfg=None, 
+classes=None, close_mosaic=10, cls=0.5, conf=None, copy_paste=0.0, 
+copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=./data/dataset/aws/data.yaml, 
+degrees=0.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, 
+dynamic=False, embed=None, epochs=100, erasing=0.4, exist_ok=False, fliplr=0.5, 
+flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, 
+hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, 
+kobj=1.0, line_width=None, lr0=0.0005, lrf=0.05, mask_ratio=4, max_det=300, 
+mixup=0.5, mode=train, model=./data/model/yolo11n.pt, momentum=0.937, 
+mosaic=1.0, multi_scale=True, name=yolo11n_custom_100, nbs=64, nms=False, 
+opset=None, optimize=False, optimizer=AdamW, overlap_mask=True, patience=10, 
+perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, 
+project=None, rect=False, resume=False, retina_masks=False, save=True, 
+save_conf=False, save_crop=False, 
+save_dir=C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100, 
+save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, 
+seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, 
+simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, 
+task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, 
+verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3, 
+warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
 Overriding model.yaml nc=80 with nc=182
 
-                   from  n    params  module                                       arguments
-  0                  -1  1       464  ultralytics.nn.modules.conv.Conv             [3, 16, 3, 2]
-  1                  -1  1      4672  ultralytics.nn.modules.conv.Conv             [16, 32, 3, 2]
-  2                  -1  1      6640  ultralytics.nn.modules.block.C3k2            [32, 64, 1, False, 0.25]
-  3                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]
-  4                  -1  1     26080  ultralytics.nn.modules.block.C3k2            [64, 128, 1, False, 0.25]
-  5                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]
+                   from  n    params  module                                       arguments                     
+  0                  -1  1       464  ultralytics.nn.modules.conv.Conv             [3, 16, 3, 2]                 
+  1                  -1  1      4672  ultralytics.nn.modules.conv.Conv             [16, 32, 3, 2]                
+  2                  -1  1      6640  ultralytics.nn.modules.block.C3k2            [32, 64, 1, False, 0.25]      
+  3                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+  4                  -1  1     26080  ultralytics.nn.modules.block.C3k2            [64, 128, 1, False, 0.25]     
+  5                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
   6                  -1  1     87040  ultralytics.nn.modules.block.C3k2            [128, 128, 1, True]           
-  7                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]
-  8                  -1  1    346112  ultralytics.nn.modules.block.C3k2            [256, 256, 1, True]
-  9                  -1  1    164608  ultralytics.nn.modules.block.SPPF            [256, 256, 5]
- 10                  -1  1    249728  ultralytics.nn.modules.block.C2PSA           [256, 256, 1]
- 11                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']
- 12             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]
- 13                  -1  1    111296  ultralytics.nn.modules.block.C3k2            [384, 128, 1, False]
- 14                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']
- 15             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]
+  7                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]              
+  8                  -1  1    346112  ultralytics.nn.modules.block.C3k2            [256, 256, 1, True]           
+  9                  -1  1    164608  ultralytics.nn.modules.block.SPPF            [256, 256, 5]                 
+ 10                  -1  1    249728  ultralytics.nn.modules.block.C2PSA           [256, 256, 1]                 
+ 11                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 12             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 13                  -1  1    111296  ultralytics.nn.modules.block.C3k2            [384, 128, 1, False]          
+ 14                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 15             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
  16                  -1  1     32096  ultralytics.nn.modules.block.C3k2            [256, 64, 1, False]           
- 17                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]
- 18            [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat           [1]
- 19                  -1  1     86720  ultralytics.nn.modules.block.C3k2            [192, 128, 1, False]
- 20                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]
- 21            [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat           [1]
- 22                  -1  1    378880  ultralytics.nn.modules.block.C3k2            [384, 256, 1, True]
- 23        [16, 19, 22]  1    521278  ultralytics.nn.modules.head.Detect           [182, [64, 128, 256]]
+ 17                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+ 18            [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 19                  -1  1     86720  ultralytics.nn.modules.block.C3k2            [192, 128, 1, False]          
+ 20                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+ 21            [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 22                  -1  1    378880  ultralytics.nn.modules.block.C3k2            [384, 256, 1, True]           
+ 23        [16, 19, 22]  1    521278  ultralytics.nn.modules.head.Detect           [182, [64, 128, 256]]         
 YOLO11n summary: 181 layers, 2,680,446 parameters, 2,680,430 gradients, 6.9 GFLOPs
 
 Transferred 448/499 items from pretrained weights
-ClearML Task: created new task id=799a905aa2024052b84ed7c861172dae
-ClearML results page: https://app.clear.ml/projects/14f0119248fa451f826c387955b212a3/experiments/799a905aa2024052b84ed7c861172dae/output/log
-WARNING ClearML Initialized a new task. If you want to run remotely, please add clearml-init and connect your arguments before initializing YOLO.
 Freezing layer 'model.23.dfl.conv.weight'
 AMP: running Automatic Mixed Precision (AMP) checks...
-AMP: checks passed 
-train: Fast image access  (ping: 0.10.0 ms, read: 306.3170.7 MB/s, size: 416.9 KB)
-train: Scanning C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\dataset\aws\train\labels.cache... 5276 images, 0 backgrounds, 0 corrupt: 100%|██
-albumentations: Blur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
-val: Fast image access  (ping: 0.00.0 ms, read: 207.4103.9 MB/s, size: 226.2 KB)
-val: Scanning C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\dataset\aws\valid\labels.cache... 393 images, 0 backgrounds, 0 corrupt: 100%|█████ 
-Plotting labels to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100\labels.jpg... 
-optimizer: AdamW(lr=0.001, momentum=0.937) with parameter groups 81 weight(decay=0.0), 88 weight(decay=0.0005), 87 bias(decay=0.0)
+Downloading https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt to 'yolo11n.pt'...
+100%|██████████| 5.35M/5.35M [00:03<00:00, 1.77MB/s]
+AMP: checks passed
+train: Fast image access  (ping: 0.00.0 ms, read: 2741.9957.6 MB/s, size: 410.9 KB)
+train: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\train\labels.cache... 3457 images, 0 backgrounds, 0 c
+val: Fast image access  (ping: 0.00.0 ms, read: 977.6420.3 MB/s, size: 204.4 KB)
+val: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\valid\labels.cache... 1488 images, 0 backgrounds, 0 cor
+Plotting labels to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100\labels.jpg...
+optimizer: AdamW(lr=0.0005, momentum=0.937) with parameter groups 81 weight(decay=0.0), 88 weight(decay=0.0005), 87 bias(decay=0.0)
 Image sizes 640 train, 640 val
 Using 8 dataloader workers
 Logging results to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100
 Starting training for 100 epochs...
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      1/100      5.41G       1.28      3.598     0.9796        428        768:  83%|████████▎ | 551/660 [02:22<00:12,  8.41it/s]ClearML Monitor: Could not detect iteration reporting, falling back to iterations as seconds-from-start
-      1/100      5.41G      1.265      3.459     0.9794        147        352: 100%|██████████| 660/660 [02:36<00:00,  4.21it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:04<00:00,  6.13it/s]
-                   all        393       9029      0.514      0.111     0.0812       0.06
+      1/100      6.44G      1.233      3.756     0.9746         32        864: 100%|██████████| 433/433 [00:54<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:23
+                   all       1488      30084      0.385     0.0828     0.0319     0.0239
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      2/100      4.37G      1.177      2.551     0.9643        505        704:  15%|█▌        | 99/660 [00:11<01:00,  9.32it/s]ClearML Monitor: Reporting detected, reverting back to iteration based reporting
-      2/100      4.88G      1.142      2.272     0.9578        249        544: 100%|██████████| 660/660 [01:30<00:00,  7.28it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.18it/s]
-                   all        393       9029      0.488      0.304      0.271      0.191
+      2/100      6.12G       1.14      2.761     0.9666        125        320: 100%|██████████| 433/433 [00:48<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:09
+                   all       1488      30084      0.643      0.138       0.12     0.0872
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      3/100      4.13G      1.096      1.875      0.944        299        416: 100%|██████████| 660/660 [01:20<00:00,  8.24it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.49it/s]
-                   all        393       9029      0.491      0.462      0.443      0.338
+      3/100       4.7G      1.075      2.182     0.9515         24        480: 100%|██████████| 433/433 [00:47<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:09
+                   all       1488      30084      0.609      0.248      0.258      0.196
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      4/100      5.26G       1.05      1.605     0.9345        289        736: 100%|██████████| 660/660 [01:15<00:00,  8.72it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.77it/s]
-                   all        393       9029      0.683      0.537      0.622       0.49
+      4/100      4.43G      1.049      1.896     0.9445         98        608: 100%|██████████| 433/433 [00:47<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.585      0.324      0.354      0.269
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      5/100      6.39G      1.025       1.42     0.9225        179        672: 100%|██████████| 660/660 [01:13<00:00,  8.99it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.98it/s]
-                   all        393       9029      0.763      0.606       0.73       0.57
+      5/100      5.45G      1.005      1.644     0.9351         78        640: 100%|██████████| 433/433 [00:46<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.643      0.426      0.461      0.361
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      6/100      5.38G     0.9956      1.296     0.9177        201        704: 100%|██████████| 660/660 [02:12<00:00,  4.98it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.08it/s]
-                   all        393       9029      0.729      0.709      0.789      0.618
+      6/100      5.35G     0.9933        1.5     0.9282         30        896: 100%|██████████| 433/433 [00:46<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.624      0.515       0.57      0.441
 
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      7/100      5.66G      0.975      1.196     0.9189        169        512: 100%|██████████| 660/660 [03:59<00:00,  2.76it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.00it/s]
-                   all        393       9029       0.78      0.774      0.859      0.687
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      8/100      5.83G     0.9647      1.119      0.912        127        960: 100%|██████████| 660/660 [04:20<00:00,  2.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  1.99it/s]
-                   all        393       9029      0.849       0.83      0.908      0.726
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      9/100       4.4G     0.9469      1.063     0.9064        188        960: 100%|██████████| 660/660 [04:19<00:00,  2.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.17it/s]
-                   all        393       9029      0.861      0.845      0.922      0.751
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     10/100      5.28G      0.921     0.9857     0.9025        152        352: 100%|██████████| 660/660 [04:19<00:00,  2.54it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.22it/s]
-                   all        393       9029      0.869      0.871      0.937      0.769
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     11/100      5.69G     0.9186     0.9701     0.9031        302        960: 100%|██████████| 660/660 [04:18<00:00,  2.56it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.01it/s]
-                   all        393       9029      0.874      0.881      0.939      0.777
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     12/100       5.2G     0.9052     0.9297     0.8941        208        576: 100%|██████████| 660/660 [04:18<00:00,  2.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.01it/s]
-                   all        393       9029      0.905      0.891      0.952      0.793
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     13/100      4.97G     0.8944     0.8946     0.8938        131        576: 100%|██████████| 660/660 [04:17<00:00,  2.56it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.22it/s]
-                   all        393       9029      0.913       0.92      0.962      0.801
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     14/100      5.01G     0.8914     0.8843     0.8911        182        864: 100%|██████████| 660/660 [04:20<00:00,  2.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.17it/s]
-                   all        393       9029      0.921      0.924      0.967      0.801
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     15/100       6.3G     0.8722     0.8429     0.8912        149        864: 100%|██████████| 660/660 [04:20<00:00,  2.54it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.21it/s]
-                   all        393       9029      0.895       0.93      0.961      0.803
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     16/100      5.13G     0.8701     0.8235     0.8831        197        544: 100%|██████████| 660/660 [04:15<00:00,  2.58it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.03it/s]
-                   all        393       9029      0.919      0.952      0.977      0.821
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     17/100      5.98G     0.8689     0.8336      0.888        216        832: 100%|██████████| 660/660 [04:20<00:00,  2.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.15it/s]
-                   all        393       9029      0.913      0.949      0.977      0.813
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     18/100      4.83G     0.8492       0.79     0.8872         76        672: 100%|██████████| 660/660 [04:18<00:00,  2.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.17it/s]
-                   all        393       9029      0.941      0.965      0.983       0.83
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     19/100       5.1G     0.8549     0.7866     0.8842        175        896: 100%|██████████| 660/660 [04:19<00:00,  2.54it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.19it/s]
-                   all        393       9029      0.943      0.946       0.98      0.822
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     20/100      7.46G     0.8422     0.7601     0.8812        203        928: 100%|██████████| 660/660 [04:20<00:00,  2.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.00it/s]
-                   all        393       9029      0.948      0.963      0.981      0.826
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     21/100      4.79G     0.8346     0.7539     0.8794        142        736: 100%|██████████| 660/660 [04:18<00:00,  2.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.06it/s]
-                   all        393       9029      0.931      0.961      0.978      0.826
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     22/100      4.62G     0.8277     0.7413     0.8787        186        640: 100%|██████████| 660/660 [04:18<00:00,  2.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.17it/s]
-                   all        393       9029      0.944      0.963      0.985      0.839
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     23/100      6.69G     0.8203     0.7339     0.8773        235        896: 100%|██████████| 660/660 [04:20<00:00,  2.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.15it/s]
-                   all        393       9029      0.928      0.952      0.982      0.833
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     24/100       6.1G     0.8174     0.7202     0.8758        281        416: 100%|██████████| 660/660 [04:18<00:00,  2.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.00it/s]
-                   all        393       9029      0.926      0.962      0.983       0.84
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     25/100      4.97G     0.8136     0.7158     0.8748        166        896: 100%|██████████| 660/660 [03:08<00:00,  3.51it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.53it/s]
-                   all        393       9029      0.935      0.961      0.981       0.84
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     26/100      6.37G      0.804     0.7083     0.8716        231        960: 100%|██████████| 660/660 [04:01<00:00,  2.73it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.30it/s]
-                   all        393       9029      0.948      0.967      0.986      0.848
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     27/100      4.75G     0.8091     0.6999     0.8729        221        448: 100%|██████████| 660/660 [04:02<00:00,  2.73it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.21it/s]
-                   all        393       9029      0.936      0.977      0.987      0.849
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     28/100      6.25G     0.7954     0.6824     0.8708        366        768: 100%|██████████| 660/660 [04:05<00:00,  2.69it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.46it/s]
-                   all        393       9029       0.94      0.969      0.986      0.853
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     29/100      4.39G     0.7993     0.6959     0.8712        219        320: 100%|██████████| 660/660 [04:14<00:00,  2.59it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:13<00:00,  1.88it/s]
-                   all        393       9029      0.935      0.979      0.987      0.855
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     30/100      3.82G     0.7986     0.6889      0.868        130        448: 100%|██████████| 660/660 [04:32<00:00,  2.42it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  1.93it/s]
-                   all        393       9029      0.934      0.964      0.982      0.849
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     31/100      4.26G     0.7826     0.6627      0.867        279        320: 100%|██████████| 660/660 [04:13<00:00,  2.61it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.32it/s]
-                   all        393       9029      0.947      0.979      0.988      0.861
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     32/100      5.21G     0.7767     0.6512     0.8676        183        672: 100%|██████████| 660/660 [03:44<00:00,  2.95it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.33it/s]
-                   all        393       9029      0.956       0.96      0.985      0.863
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     33/100      4.49G     0.7742     0.6541     0.8654        176        640: 100%|██████████| 660/660 [04:10<00:00,  2.64it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.36it/s]
-                   all        393       9029      0.956      0.972      0.988      0.865
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     34/100      4.73G     0.7669     0.6388     0.8635        227        768: 100%|██████████| 660/660 [04:07<00:00,  2.66it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.42it/s]
-                   all        393       9029      0.956      0.978       0.99      0.869
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     35/100      5.44G     0.7604     0.6312     0.8629        134        320: 100%|██████████| 660/660 [03:00<00:00,  3.66it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  2.08it/s]
-                   all        393       9029       0.95      0.972      0.989      0.864
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     36/100      5.48G     0.7661     0.6329     0.8648        125        576: 100%|██████████| 660/660 [02:55<00:00,  3.77it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.98it/s]
-                   all        393       9029      0.957      0.964      0.987      0.861
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     37/100      5.89G     0.7645     0.6235     0.8627        196        480: 100%|██████████| 660/660 [03:23<00:00,  3.24it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:12<00:00,  1.95it/s]
-                   all        393       9029       0.95      0.975      0.989      0.863
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     38/100      4.91G     0.7576     0.6277     0.8642        266        352: 100%|██████████| 660/660 [02:37<00:00,  4.18it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  6.70it/s]
-                   all        393       9029      0.963      0.972      0.989      0.867
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     39/100      5.39G     0.7535     0.6162     0.8624        422        736: 100%|██████████| 660/660 [02:43<00:00,  4.05it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.44it/s]
-                   all        393       9029      0.951      0.982      0.989      0.873
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     40/100      5.83G     0.7554      0.621     0.8593        241        480: 100%|██████████| 660/660 [01:20<00:00,  8.20it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  7.71it/s]
-                   all        393       9029      0.956      0.978      0.989      0.869
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     41/100      4.89G     0.7455     0.6096     0.8565        256        704: 100%|██████████| 660/660 [01:19<00:00,  8.33it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.54it/s]
-                   all        393       9029      0.965      0.965      0.989      0.867
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     42/100      4.62G     0.7462     0.6132      0.859        250        704: 100%|██████████| 660/660 [01:21<00:00,  8.07it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.05it/s]
-                   all        393       9029      0.943      0.971      0.987      0.871
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     43/100      5.29G     0.7453     0.6111     0.8589        227        768: 100%|██████████| 660/660 [01:21<00:00,  8.12it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.26it/s]
-                   all        393       9029      0.953      0.973      0.988      0.876
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     44/100      4.96G      0.726     0.5808     0.8559        325        320: 100%|██████████| 660/660 [01:19<00:00,  8.26it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.10it/s]
-                   all        393       9029       0.95      0.979      0.988       0.88
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     45/100      4.64G     0.7399     0.6007     0.8575        124        480: 100%|██████████| 660/660 [01:21<00:00,  8.09it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.21it/s]
-                   all        393       9029      0.943      0.985      0.989       0.88
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     46/100      4.17G     0.7312     0.5906     0.8538        218        512: 100%|██████████| 660/660 [01:17<00:00,  8.47it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.85it/s]
-                   all        393       9029      0.952      0.979      0.989      0.877
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     47/100      5.37G     0.7241     0.5831      0.856        221        800: 100%|██████████| 660/660 [01:21<00:00,  8.06it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.83it/s]
-                   all        393       9029      0.965      0.966      0.989      0.879
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     48/100      4.87G      0.721     0.5721     0.8557        143        704: 100%|██████████| 660/660 [01:21<00:00,  8.14it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.82it/s]
-                   all        393       9029      0.948      0.979      0.989      0.877
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     49/100      4.16G     0.7269     0.5936     0.8519        205        736: 100%|██████████| 660/660 [01:47<00:00,  6.16it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.24it/s]
-                   all        393       9029      0.955      0.978      0.988      0.881
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     50/100      4.42G     0.7214     0.5833     0.8514        216        960: 100%|██████████| 660/660 [01:20<00:00,  8.16it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.82it/s]
-                   all        393       9029      0.965      0.977       0.99      0.884
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     51/100      5.02G     0.7133     0.5649     0.8515        172        416: 100%|██████████| 660/660 [01:46<00:00,  6.19it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.68it/s]
-                   all        393       9029      0.957      0.987      0.989      0.885
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     52/100      4.74G     0.7117     0.5647     0.8512        323        576: 100%|██████████| 660/660 [02:08<00:00,  5.15it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.38it/s]
-                   all        393       9029      0.959      0.975      0.988      0.885
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     53/100      4.72G     0.7015     0.5558     0.8506        188        800: 100%|██████████| 660/660 [01:46<00:00,  6.19it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.69it/s]
-                   all        393       9029      0.956      0.972      0.988      0.882
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     54/100      5.61G     0.7063     0.5648     0.8505        271        896: 100%|██████████| 660/660 [01:22<00:00,  8.03it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.78it/s]
-                   all        393       9029      0.952      0.977      0.989      0.885
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     55/100       4.6G     0.7044     0.5595     0.8507        223        864: 100%|██████████| 660/660 [01:25<00:00,  7.71it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.55it/s]
-                   all        393       9029      0.971      0.961      0.988      0.887
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     56/100      5.02G     0.7042     0.5537     0.8497        192        512: 100%|██████████| 660/660 [01:22<00:00,  7.99it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:04<00:00,  5.43it/s]
-                   all        393       9029       0.95      0.985      0.989      0.889
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     57/100      5.37G     0.6962     0.5507     0.8482        301        832: 100%|██████████| 660/660 [02:09<00:00,  5.10it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.22it/s]
-                   all        393       9029      0.947      0.985      0.988       0.89
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     58/100      4.65G     0.7083     0.5673     0.8485        187        384: 100%|██████████| 660/660 [01:49<00:00,  6.01it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.41it/s]
-                   all        393       9029      0.959      0.981      0.989      0.891
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     59/100      5.35G        0.7     0.5538     0.8499        237        768: 100%|██████████| 660/660 [02:15<00:00,  4.88it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.18it/s]
-                   all        393       9029      0.948      0.986      0.989       0.89
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     60/100      4.82G     0.6979     0.5501     0.8465        280        416: 100%|██████████| 660/660 [02:45<00:00,  3.99it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.19it/s]
-                   all        393       9029       0.95      0.987      0.989       0.89
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     61/100      5.12G     0.6926     0.5468     0.8467        206        512: 100%|██████████| 660/660 [03:08<00:00,  3.49it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.30it/s]
-                   all        393       9029      0.962      0.975       0.99       0.89
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     62/100       5.4G     0.6973     0.5567     0.8443        295        736: 100%|██████████| 660/660 [02:19<00:00,  4.74it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.31it/s]
-                   all        393       9029      0.955      0.982      0.989      0.893
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     63/100      7.11G     0.6796     0.5283     0.8437        146        512: 100%|██████████| 660/660 [01:56<00:00,  5.67it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.14it/s]
-                   all        393       9029      0.965      0.973       0.99      0.894
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     64/100      5.18G      0.684     0.5233     0.8447        167        320: 100%|██████████| 660/660 [01:36<00:00,  6.82it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.87it/s]
-                   all        393       9029      0.962      0.977      0.989      0.894
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     65/100      5.54G      0.676     0.5253     0.8445        170        384: 100%|██████████| 660/660 [01:22<00:00,  8.01it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.47it/s]
-                   all        393       9029      0.963      0.977      0.989      0.895
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     66/100      5.24G     0.6772     0.5238     0.8456        237        512: 100%|██████████| 660/660 [01:22<00:00,  7.99it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.35it/s]
-                   all        393       9029      0.942      0.987      0.989      0.894
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     67/100      5.62G      0.674     0.5253     0.8434        366        832: 100%|██████████| 660/660 [01:19<00:00,  8.28it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.18it/s]
-                   all        393       9029      0.972      0.964      0.989      0.892
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     68/100      6.31G     0.6728     0.5239     0.8438        127        800: 100%|██████████| 660/660 [01:20<00:00,  8.23it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.56it/s]
-                   all        393       9029      0.961      0.967      0.989      0.897
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     69/100       5.1G     0.6736     0.5182     0.8422        227        864: 100%|██████████| 660/660 [01:33<00:00,  7.07it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.95it/s]
-                   all        393       9029      0.973      0.962       0.99      0.896
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     70/100      5.09G     0.6684     0.5073      0.843        248        928: 100%|██████████| 660/660 [01:47<00:00,  6.17it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.18it/s]
-                   all        393       9029      0.953      0.983      0.989      0.897
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     71/100      6.04G     0.6703     0.5139     0.8406        154        800: 100%|██████████| 660/660 [01:20<00:00,  8.25it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.91it/s]
-                   all        393       9029      0.969      0.966      0.989      0.897
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     72/100      4.38G     0.6647     0.5098     0.8403        216        576: 100%|██████████| 660/660 [01:20<00:00,  8.24it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.03it/s]
-                   all        393       9029      0.966      0.966      0.989      0.897
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     73/100      5.03G     0.6672     0.5189       0.84        170        736: 100%|██████████| 660/660 [01:19<00:00,  8.25it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.83it/s]
-                   all        393       9029      0.972      0.965      0.989      0.898
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     74/100      4.68G      0.667     0.5157     0.8392        307        544: 100%|██████████| 660/660 [01:19<00:00,  8.28it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.63it/s]
-                   all        393       9029      0.951      0.986      0.989        0.9
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     75/100      3.88G     0.6586     0.5028     0.8399        265        896: 100%|██████████| 660/660 [01:19<00:00,  8.25it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.08it/s]
-                   all        393       9029      0.975      0.966      0.989        0.9
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     76/100      4.73G     0.6592     0.5029     0.8386        267        736: 100%|██████████| 660/660 [01:20<00:00,  8.25it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.91it/s]
-                   all        393       9029      0.973      0.968       0.99      0.902
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     77/100      5.02G     0.6507     0.4899     0.8392        192        544: 100%|██████████| 660/660 [03:55<00:00,  2.80it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.30it/s]
-                   all        393       9029      0.977      0.966      0.989      0.903
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     78/100      6.17G      0.652     0.4961     0.8369        207        512: 100%|██████████| 660/660 [04:12<00:00,  2.62it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.12it/s]
-                   all        393       9029      0.974      0.965      0.989      0.902
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     79/100       6.4G     0.6556     0.5011     0.8396        265        864: 100%|██████████| 660/660 [04:11<00:00,  2.63it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.39it/s]
-                   all        393       9029      0.975      0.967      0.989      0.902
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     80/100      4.88G     0.6527     0.5092     0.8371        364        512: 100%|██████████| 660/660 [03:10<00:00,  3.46it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.82it/s]
-                   all        393       9029      0.973      0.967      0.989      0.903
+ (...)     
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     81/100      4.48G     0.6501     0.4963     0.8367        194        800: 100%|██████████| 660/660 [01:20<00:00,  8.15it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.93it/s]
-                   all        393       9029      0.973      0.967      0.989      0.903
+     48/100      5.61G     0.7054     0.5857      0.862         23        896: 100%|██████████| 433/433 [00:48<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.954      0.982      0.981      0.871
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     82/100      4.73G     0.6459     0.4877     0.8361        264        608: 100%|██████████| 660/660 [01:20<00:00,  8.24it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.10it/s]
-                   all        393       9029      0.976      0.964      0.989      0.903
+     49/100      5.03G     0.7039     0.5761     0.8637         43        928: 100%|██████████| 433/433 [00:50<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.951      0.989      0.981      0.874
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     83/100      4.45G     0.6497     0.4981     0.8362        172        544: 100%|██████████| 660/660 [01:20<00:00,  8.20it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.99it/s]
-                   all        393       9029      0.973      0.963       0.99      0.904
+     50/100      3.88G     0.7042     0.5848     0.8582         17        416: 100%|██████████| 433/433 [00:48<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.955      0.986       0.98      0.871
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     84/100      4.43G     0.6422     0.4873     0.8356        246        608: 100%|██████████| 660/660 [02:29<00:00,  4.42it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:09<00:00,  2.71it/s]
-                   all        393       9029      0.978      0.964       0.99      0.907
+     51/100      3.89G     0.6942     0.5689      0.863         41        832: 100%|██████████| 433/433 [00:49<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.955      0.987       0.98      0.876
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     85/100       5.2G     0.6449     0.4897     0.8334        293        768: 100%|██████████| 660/660 [02:43<00:00,  4.03it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:13<00:00,  1.91it/s]
-                   all        393       9029      0.977      0.964       0.99      0.907
+     52/100      3.91G     0.6947     0.5699     0.8605         91        960: 100%|██████████| 433/433 [00:48<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.959      0.983      0.981      0.878
 
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     86/100      4.36G     0.6423     0.4893     0.8366        152        608: 100%|██████████| 660/660 [02:06<00:00,  5.22it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.28it/s]
-                   all        393       9029      0.974      0.967      0.989      0.907
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     87/100      4.57G     0.6403     0.4827     0.8346        296        928: 100%|██████████| 660/660 [02:55<00:00,  3.76it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.10it/s]
-                   all        393       9029      0.977      0.965      0.989      0.908
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     88/100      5.23G     0.6413     0.4843     0.8357        356        672: 100%|██████████| 660/660 [03:44<00:00,  2.94it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.88it/s]
-                   all        393       9029      0.976      0.966      0.989      0.907
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     89/100      4.92G     0.6369      0.483     0.8329        168        640: 100%|██████████| 660/660 [01:34<00:00,  7.02it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.66it/s]
-                   all        393       9029      0.975      0.966       0.99      0.908
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     90/100       4.4G     0.6395     0.4895     0.8363        292        672: 100%|██████████| 660/660 [02:05<00:00,  5.25it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:07<00:00,  3.14it/s]
-                   all        393       9029      0.971      0.967       0.99      0.909
-Closing dataloader mosaic
-albumentations: Blur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     91/100      3.65G     0.4982     0.3127     0.8096         74        832: 100%|██████████| 660/660 [01:53<00:00,  5.79it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.39it/s]
-                   all        393       9029      0.977      0.966      0.989      0.908
+(...)
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     92/100      3.66G       0.48      0.296     0.8045         62        960: 100%|██████████| 660/660 [01:13<00:00,  9.01it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.51it/s]
-                   all        393       9029      0.979      0.965      0.989      0.911
+     98/100      3.61G     0.4652     0.2971     0.8127         18        416: 100%|██████████| 433/433 [00:46<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084       0.96      0.995      0.983      0.911
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     93/100      3.68G       0.47     0.2943     0.8026         61        352: 100%|██████████| 660/660 [03:46<00:00,  2.91it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.43it/s]
-                   all        393       9029       0.98      0.964       0.99      0.914
+     99/100      3.61G     0.4553     0.2923     0.8131         30        896: 100%|██████████| 433/433 [00:46<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.961      0.994      0.984      0.911
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     94/100      3.69G     0.4606     0.2827     0.8018         79        672: 100%|██████████| 660/660 [04:05<00:00,  2.69it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:11<00:00,  2.24it/s]
-                   all        393       9029      0.981      0.964       0.99      0.916
+    100/100      3.61G     0.4588     0.2938     0.8114         22        960: 100%|██████████| 433/433 [00:45<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:08
+                   all       1488      30084      0.961      0.994      0.983      0.912
 
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     95/100      3.69G     0.4556     0.2838     0.8004         81        544: 100%|██████████| 660/660 [03:56<00:00,  2.79it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:10<00:00,  2.48it/s]
-                   all        393       9029      0.981      0.965       0.99      0.915
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     96/100      3.69G     0.4535     0.2814     0.8006         86        512: 100%|██████████| 660/660 [02:07<00:00,  5.17it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.31it/s]
-                   all        393       9029       0.98      0.965       0.99      0.916
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     97/100      3.69G     0.4445     0.2762        0.8         75        416: 100%|██████████| 660/660 [01:17<00:00,  8.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.64it/s]
-                   all        393       9029       0.98      0.965       0.99      0.918
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     98/100      3.69G     0.4448     0.2743     0.7989         71        672: 100%|██████████| 660/660 [01:13<00:00,  8.93it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00, 10.46it/s]
-                   all        393       9029      0.981      0.966       0.99       0.92
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     99/100      3.69G     0.4407     0.2746     0.7993         80        544: 100%|██████████| 660/660 [01:17<00:00,  8.57it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.61it/s]
-                   all        393       9029      0.981      0.965       0.99       0.92
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-    100/100      3.69G     0.4388     0.2693     0.7976         75        960: 100%|██████████| 660/660 [02:25<00:00,  4.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.55it/s]
-                   all        393       9029      0.981      0.965       0.99      0.921
-
-100 epochs completed in 4.609 hours.
-Optimizer stripped from C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100\weights\last.pt, 5.7MB
+100 epochs completed in 1.622 hours.
 Optimizer stripped from C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100\weights\best.pt, 5.7MB
 
 Validating C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100\weights\best.pt...
-Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
 YOLO11n summary (fused): 100 layers, 2,672,434 parameters, 0 gradients, 6.8 GFLOPs
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:05<00:00,  4.70it/s]
-                   all        393       9029       0.98      0.966       0.99      0.896
-                   ACM         40         40      0.995          1      0.995      0.933
-                   ALB         67         83      0.988          1      0.995      0.846
-                   AMI          7         12       0.98          1      0.995      0.956
-           API-Gateway        200        304      0.997      0.988      0.995      0.909
-Active Directory Service         36         36      0.994          1      0.995       0.97
-              Airflow_          3          6      0.965          1      0.995      0.895
-               Amplify         16         16      0.988          1      0.995      0.804
-    Analytics Services          5          5      0.967          1      0.995      0.903
-               AppFlow         25         25      0.993          1      0.995      0.919
-               Appsync          6          6      0.969          1      0.995      0.722
-                Athena         36         37      0.995          1      0.995      0.928
-                Aurora         44         54      0.998          1      0.995      0.936
-          Auto Scaling         48         73          1      0.998      0.995      0.837
-    Auto Scaling Group          4         10      0.992          1      0.995      0.783
-       Automated Tests         15         20      0.991          1      0.995      0.931
-     Availability Zone         12         24      0.994          1      0.995       0.87
-                Backup          3          6      0.972          1      0.995      0.931
-     Build Environment          7          7      0.972          1      0.995      0.858
-                   CDN          5          5      0.965          1      0.995      0.877
-                   CUR          5          5      0.965          1      0.995      0.705
-          Call Metrics         25         25      0.993          1      0.995      0.881
-       Call Recordings         25         25      0.994          1      0.995      0.831
-   Certificate Manager         43         43      0.996          1      0.995      0.938
-                Client          3         13      0.856      0.923      0.938      0.832
-       Cloud Connector         11         22      0.993          1      0.995      0.915
-             Cloud Map          5          5      0.969          1      0.995      0.957
-          Cloud Search         19         19      0.977          1      0.995      0.925
-           Cloud Trail         53         53      0.977      0.981      0.982      0.946
-           Cloud Watch        113        135      0.993      0.994      0.994      0.903
-  CloudFormation Stack         32         37      0.995          1      0.995      0.951
-              CloudHSM         30         30      0.994          1      0.995      0.935
-      CloudWatch Alarm         18         23      0.995          1      0.995      0.908
-            Cloudfront        102        108      0.994          1      0.995      0.911
-             CodeBuild         30         50      0.995          1      0.995      0.943
-            CodeCommit         17         17      0.991          1      0.995      0.981
-            CodeDeploy          5          5      0.968          1      0.995      0.963
-          CodePipeline         43         43      0.996          1      0.995      0.883
-               Cognito         90        104      0.977      0.962      0.955      0.894
-            Comprehend         25         25      0.992          1      0.995      0.971
-                Config         38        163      0.987          1      0.983      0.824
-               Connect         25         25      0.993          1      0.995      0.975
-  Connect Contact Lens         25         25      0.958          1      0.995      0.874
-             Container         17         66          1      0.996      0.995      0.852
-         Control Tower          5          5       0.97          1      0.995      0.915
-      Customer Gateway          8         11      0.986          1      0.995      0.884
-                   DSI          5         10      0.982          1      0.995      0.836
-         Data Pipeline          5          5          1      0.842      0.995      0.976
-              DataSync          5          5      0.963          1      0.995       0.95
-          Deploy Stage         10         10      0.985          1      0.995      0.832
-             Detective         25         25      0.992          1      0.995      0.984
-        Direct Connect         21         21      0.991          1      0.995      0.944
-          Distribution          5          5          1      0.672      0.995      0.972
-          Docker Image         21         72      0.984      0.864      0.992      0.783
-             Dynamo DB        169        263          1          1      0.995       0.92
-                   EBS         27         37      0.998          1      0.995      0.901
-                   EC2        179        418      0.994      0.957      0.994       0.86
-                   EFS         22         30      0.961      0.967      0.985      0.906
-      EFS Mount Target         52        102      0.971      0.975      0.987      0.803
-                   EKS         53         59      0.958      0.983      0.993      0.956
-                   ELB        111        150      0.998      0.933      0.949      0.892
-                   EMR         10         10      0.982          1      0.995      0.936
-         Edge Location          5          7      0.982          1      0.995      0.946
-           ElastiCache         22         26          1       0.99      0.995      0.924
-Elastic Container Registry         43         43      0.996          1      0.995      0.958
-Elastic Container Service         50         60      0.977      0.983      0.994       0.85
-        Elastic Search         38         38      0.994          1      0.995      0.864
-Elemental MediaConvert         16         18      0.929          1      0.992      0.954
-Elemental MediaPackage          5          5          1      0.822      0.995      0.995
-                 Email          5          5      0.967          1      0.995        0.9
-              Endpoint          5          5      0.969          1      0.995      0.916
-             Event Bus          5          5      0.966          1      0.995      0.995
-           EventBridge         35        135      0.999          1      0.995      0.866
-   Experiment Duration          7          7          1          0      0.906      0.706
-           Experiments          7          7          1          0      0.871      0.851
-               Fargate         29         71      0.997          1      0.995      0.896
-Fault Injection Simulator         15         15      0.994          1      0.995      0.907
-      Firewall Manager         25         25      0.992          1      0.995      0.871
-                 Flask          8         24          1      0.977      0.995      0.724
-             Flow logs         25        100      0.983       0.99      0.995      0.693
-              GameLift          5          5      0.967          1      0.995      0.917
-                   Git          8          8      0.955          1      0.995      0.906
-                Github         17         18      0.993          1      0.995      0.951
-               Glacier         10         10      0.982          1      0.995      0.968
-                  Glue         19         38      0.996          1      0.995      0.934
-         Glue DataBrew          7          7      0.973          1      0.995      0.995
-               Grafana         10         10       0.98          1      0.995      0.995
-             GuardDuty         34        134      0.998          1      0.995       0.84
-                   IAM         66        207      0.984      0.971      0.994      0.854
-              IAM Role         41        169      0.978      0.941      0.982      0.761
-              IOT Core         13         17      0.989          1      0.995      0.956
-                 Image         11         11      0.987          1      0.995      0.845
-         Image Builder          5          5      0.964          1      0.995      0.995
-               Ingress          5          5      0.967          1      0.995      0.995
-       Inspector Agent         25         25      0.994          1      0.995      0.978
-             Instances          3          6      0.483      0.333       0.68      0.616
-              Internet         59         82       0.91      0.991      0.989      0.903
-      Internet Gateway         51         87      0.963      0.954      0.992      0.835
-               Jenkins          3          6      0.974          1      0.995      0.884
-Key Management Service         47         75      0.997          1      0.995      0.851
-                Kibana          7          7      0.978          1      0.995      0.955
-  Kinesis Data Streams         72         85      0.988       0.99      0.984      0.916
-            Kubernetes          8          8      0.981          1      0.995      0.893
-                Lambda        255        675      0.997      0.997      0.995      0.929
-                   Lex          5          5      0.965          1      0.995      0.995
-                    MQ          6         12      0.988          1      0.995      0.808
-      Machine Learning          9          9       0.92          1      0.995      0.908
-                 Macie         45        110      0.999          1      0.995      0.821
-           Marketplace          5          5      0.987          1      0.995      0.819
-             Memcached          5         10       0.98          1      0.995      0.915
-         Mobile Client         36         41          1      0.943      0.995       0.85
-              Mongo DB         11         23      0.971          1      0.995      0.729
-                 MySQL          7          7      0.984          1      0.995      0.832
-           NAT Gateway         44         85      0.986          1      0.992      0.929
-               Neptune          5          5      0.967          1      0.995      0.504
-       Network Adapter          5          5      0.965          1      0.995      0.933
-      Network Firewall         25         25      0.993          1      0.995      0.922
-              Notebook          5          5      0.977          1      0.995      0.924
-      Order Controller          5          5      0.931          1      0.995      0.828
-    Organization Trail         30        105      0.999          1      0.995      0.868
-       Parameter Store          7          7      0.981          1      0.995      0.937
-              Pinpoint          5          5      0.962          1      0.995      0.971
-            PostgreSQL          7          7      0.978          1      0.995      0.912
-          Private Link         25         25      0.993          1      0.995      0.939
-        Private Subnet        106        263      0.878      0.962      0.959      0.782
-            Prometheus         10         10      0.981          1      0.995      0.995
-         Public Subnet        104        216      0.995       0.95      0.994      0.802
-               Quarkus         10         10       0.98          1      0.995      0.939
-            Quicksight         32         34      0.995          1      0.995      0.876
-                   RDS         93        197          1      0.993      0.995      0.896
-                 React          3          3      0.991          1      0.995      0.741
-                 Redis         10         21      0.993          1      0.995      0.911
-              Redshift         45         46      0.995      0.978      0.981      0.891
-                Region         36         53      0.998          1      0.995      0.808
-           Rekognition         14         14      0.986          1      0.995      0.963
-               Results          7          7          1          0      0.871      0.711
-              Route 53         40         40      0.995          1      0.995       0.93
-               Route53         87        138      0.985          1      0.992      0.908
-                    S3        260        514      0.996      0.994      0.993      0.899
-                   SAR          5          5      0.964          1      0.995      0.995
-                   SDK         26         88          1      0.949      0.995      0.866
-                   SES         14         17      0.988          1      0.995      0.892
-                   SNS         62         69      0.993      0.957      0.987      0.934
-                   SQS         43         44      0.996          1      0.995      0.925
-             SSM Agent         25         25      0.992          1      0.995      0.941
-             Sagemaker         18         61          1      0.572      0.995      0.755
-        Secret Manager         30         30      0.991          1      0.995      0.892
-        Security Group          5          5      0.965          1      0.995      0.995
-          Security Hub         30        130      0.998          1      0.995       0.83
-                Server         27         42      0.997          1      0.995      0.878
-       Service Catalog          8         23      0.993          1      0.995       0.91
-                Shield         31         31      0.994          1      0.995      0.922
-               Sign-On         25         25      0.992          1      0.995      0.995
-                 Slack         12         12      0.978          1      0.995      0.922
-              Snowball         10         10      0.985          1      0.995      0.972
-                 Stack          5          5      0.968          1      0.995      0.957
-         Step Function          7         21      0.953          1      0.995      0.945
-       Storage Gateway         10         10      0.982          1      0.995      0.995
-            SwaggerHub          3          3      0.949          1      0.995      0.964
-       Systems Manager         39         64      0.997          1      0.995      0.964
-                    TV          5          5      0.965          1      0.995      0.872
-                 Table         20         40       0.99          1      0.995      0.875
-           Task Runner          5          5      0.972          1      0.995      0.976
-             Terraform         13         13      0.988          1      0.995      0.905
-             Text File         14         32          1      0.952      0.995      0.885
-              Textract          3          3      0.941          1      0.995      0.995
-            Transcribe          9          9      0.979          1      0.995      0.951
-       Transfer Family         16         16      0.989          1      0.995      0.975
-       Transit Gateway         10         10      0.983          1      0.995       0.92
-             Translate         19         19      0.991          1      0.995      0.932
-       Trusted Advisor          5          5      0.979          1      0.995      0.941
-                Twilio          7          7      0.975          1      0.995      0.962
-                 Users        152        204      0.995      0.991      0.995      0.874
-                   VDA         11         11      0.986          1      0.995      0.961
-            VP Gateway          6          7       0.96          1      0.995      0.837
-            VPC Router          9         16       0.99          1      0.995      0.875
-        VPN Connection          5          8      0.982          1      0.995      0.914
-                   WAF         43         46          1      0.934      0.995      0.959
-           Web Clients         45         62          1      0.722       0.98      0.846
-              Websites          5          5      0.981          1      0.995       0.86
-                 X-Ray         16         20      0.986          1      0.995      0.935
-                   aws        240        322      0.992      0.981      0.995      0.855
-          cache Worker          8          8      0.979          1      0.995      0.929
-Speed: 0.2ms preprocess, 8.8ms inference, 0.0ms loss, 1.5ms postprocess per image
+                     Class  Images Instances  Box(P      R  mAP50mAP50-95): 100%|██████████| 93/93 [00:12
+                       all    1488     30084  0.957  0.994  0.984    0.892
+                       ACM      62        62  0.989      1  0.995    0.958
+                       ALB     228       332  0.992      1  0.994    0.862
+                       AMI      29        44  0.982      1  0.995    0.943
+               API-Gateway     774      1178  0.997  0.983  0.995    0.909
+  Active Directory Service      31        31  0.984      1  0.995    0.954
+                  Airflow_      15        30  0.983      1  0.995    0.898
+                   Amplify      84        84   0.99      1  0.995    0.833
+        Analytics Services      15        15  0.969      1  0.995    0.897
+                   AppFlow      15        15  0.969      1  0.995    0.897
+                   Appsync      61        61  0.989      1  0.995    0.824
+                    Athena     143       148      1  0.995  0.995     0.91
+                    Aurora      89       126  0.963      1  0.982    0.935
+              Auto Scaling     173       307  0.984  0.993  0.995     0.83
+        Auto Scaling Group      35        88  0.992      1  0.995     0.82
+           Automated Tests      64        98  0.995      1  0.995    0.917
+         Availability Zone      24        48  0.989      1  0.995    0.898
+                    Backup      15        30  0.984      1  0.995    0.995
+         Build Environment      44        44  0.848      1  0.995    0.862
+                       CDN      20        20   0.89      1  0.966    0.921
+                       CUR      42        42  0.988      1  0.995    0.751
+              Call Metrics      15        15   0.97      1  0.995    0.887
+           Call Recordings      15        15  0.973      1  0.995    0.793
+       Certificate Manager      98        98  0.994      1  0.995    0.945
+                    Client      16        61  0.671  0.702   0.74    0.649
+           Cloud Connector      16        32  0.982      1  0.995    0.877
+                 Cloud Map      15        15  0.968      1  0.995    0.995
+              Cloud Search      56        56  0.801      1  0.995    0.893
+               Cloud Trail     187       192  0.997      1  0.995    0.903
+               Cloud Watch     543       644  0.986      1  0.995    0.906
+      CloudFormation Stack     150       168  0.995      1  0.995    0.929
+                  CloudHSM      34        34  0.983      1  0.995    0.916
+          CloudWatch Alarm      87       121  0.996      1  0.995    0.882
+                Cloudfront     401       427  0.997  0.998  0.995      0.9
+                 CodeBuild     157       245  0.997      1  0.995     0.94
+                CodeCommit      68        80  0.992      1  0.995    0.941
+                CodeDeploy      17        17  0.971      1  0.995    0.995
+              CodePipeline     214       220  0.998      1  0.995    0.915
+                   Cognito     346       391  0.971  0.927  0.982    0.898
+                Comprehend      72        72  0.992      1  0.995    0.959
+                    Config     103       178  0.903  0.993  0.982    0.873
+                   Connect      15        15  0.969      1  0.995    0.962
+      Connect Contact Lens      15        15  0.964      1  0.995    0.902
+                 Container      79       346  0.964  0.997  0.995    0.834
+             Control Tower      17        17  0.973      1  0.995    0.986
+          Customer Gateway      38        74  0.996      1  0.995    0.905
+                       DSI      34        68  0.993      1  0.995    0.858
+             Data Pipeline      23        23  0.978      1  0.995    0.914
+                  DataSync      32        32  0.985      1  0.995    0.995
+              Deploy Stage      30        30  0.978      1  0.995    0.848
+                 Detective      15        15  0.967      1  0.995    0.922
+            Direct Connect      91       126  0.995      1  0.995    0.939
+              Distribution      15        15  0.603      1  0.947    0.927
+              Docker Image      56       179  0.953  0.904  0.983    0.744
+                 Dynamo DB     660       979  0.997      1  0.995    0.915
+                       EBS      92       147  0.936  0.993  0.995    0.846
+                       EC2     707      1935  0.982  0.997  0.995    0.892
+                       EFS     100       133  0.995      1  0.995    0.928
+          EFS Mount Target      99       129  0.995      1  0.995    0.877
+                       EKS     161       184  0.996      1  0.995    0.926
+                       ELB     425       583  0.997  0.966   0.97    0.907
+                       EMR      15        15  0.968      1  0.995    0.922
+             Edge Location      20        42  0.989      1  0.995    0.978
+               ElastiCache     138       170  0.989      1  0.995    0.882
+Elastic Container Registry     235       235  0.979  0.996  0.995    0.936
+ Elastic Container Service     258       331  0.998      1  0.995    0.866
+            Elastic Search     142       147  0.995      1  0.995    0.882
+    Elemental MediaConvert      49        66  0.898  0.802  0.961    0.951
+    Elemental MediaPackage      15        15  0.467      1  0.669    0.669
+                     Email      25        25   0.98      1  0.995    0.912
+                  Endpoint      27        27  0.973      1  0.995    0.815
+                 Event Bus      16        16  0.962      1  0.995    0.995
+               EventBridge      60       120  0.915      1  0.994     0.89
+       Experiment Duration      17        17  0.565      1  0.772    0.597
+               Experiments      17        17  0.561      1  0.641    0.585
+                   Fargate     193       427  0.999      1  0.995    0.885
+ Fault Injection Simulator      49        49   0.99      1  0.995    0.918
+          Firewall Manager      15        15  0.968      1  0.995    0.922
+                     Flask      15        45  0.977  0.956  0.984    0.726
+                 Flow logs      15        60  0.985      1  0.995    0.745
+                  GameLift      17        17  0.973      1  0.995     0.93
+                       Git      15        15   0.97      1  0.995    0.904
+                    Github      81        95  0.986      1  0.995    0.911
+                   Glacier      15        15  0.967      1  0.995      0.9
+                      Glue      58       116      1  0.979  0.995    0.876
+             Glue DataBrew      26        26  0.982      1  0.995    0.969
+                   Grafana      20        20  0.977      1  0.995    0.995
+                 GuardDuty      72       132  0.996      1  0.995    0.843
+                       IAM     201       334   0.83      1  0.985    0.844
+                  IAM Role      98       207  0.823  0.965  0.971    0.776
+                  IOT Core      40        54  0.991      1  0.995    0.969
+                     Image      74        74  0.992      1  0.995    0.821
+             Image Builder      15        15  0.964      1  0.995    0.995
+                   Ingress      15        15   0.97      1  0.995    0.989
+           Inspector Agent      15        15  0.969      1  0.995    0.834
+                 Instances      19        38  0.554   0.98  0.661    0.587
+                  Internet     240       345  0.949      1  0.994    0.907
+          Internet Gateway     167       247  0.965      1  0.995    0.836
+                   Jenkins      15        30  0.984      1  0.995     0.97
+    Key Management Service     127       155  0.997      1  0.995    0.915
+                    Kibana      15        15   0.97      1  0.995    0.845
+      Kinesis Data Streams     150       198  0.986      1  0.995    0.937
+                Kubernetes      15        15   0.97      1  0.995    0.918
+                    Lambda     945      2489  0.994  0.997  0.995    0.919
+                       Lex      16        16   0.97      1  0.995    0.995
+                        MQ      25        57  0.991      1  0.995    0.869
+          Machine Learning      56        56  0.832      1   0.98    0.947
+                     Macie      65       146   0.99      1  0.995    0.832
+               Marketplace      21        21  0.981      1  0.995    0.662
+                 Memcached      18        36  0.976      1  0.995    0.923
+             Mobile Client     198       249  0.975  0.984  0.989    0.831
+                  Mongo DB      26        70  0.971  0.957  0.994    0.775
+                     MySQL      15        15  0.973      1  0.995    0.844
+               NAT Gateway     187       375  0.999      1  0.995    0.913
+                   Neptune      42        42  0.991      1  0.995    0.679
+           Network Adapter      15        15  0.916      1  0.995    0.995
+          Network Firewall      15        15  0.968      1  0.995    0.986
+                  Notebook      18        18  0.974      1  0.995    0.982
+          Order Controller      18        18  0.973      1  0.995     0.91
+        Organization Trail      32        77  0.992      1  0.995    0.873
+           Parameter Store      26        26   0.98      1  0.995     0.92
+                  Pinpoint      16        16   0.97      1  0.995    0.973
+                PostgreSQL      15        15  0.964      1  0.995    0.911
+              Private Link      89        89  0.994      1  0.995    0.912
+            Private Subnet     368       930  0.982  0.967  0.986    0.798
+                Prometheus      20        20  0.976      1  0.995    0.922
+             Public Subnet     338       841   0.98  0.987  0.993     0.79
+                   Quarkus      20        20  0.976      1  0.995    0.966
+                Quicksight      41        51  0.972      1  0.995     0.92
+                       RDS     345       685  0.985  0.987  0.994     0.89
+                     React      15        15  0.852      1  0.995    0.815
+                     Redis      49       100      1  0.995  0.995     0.91
+                  Redshift      73        80  0.994      1  0.995    0.868
+                    Region     183       269  0.994      1  0.995    0.828
+               Rekognition      33        33  0.984      1  0.995    0.973
+                   Results      17        17  0.564      1  0.737    0.681
+                  Route 53      53        53  0.987      1  0.995     0.97
+                   Route53     428       611  0.995      1  0.995    0.918
+                        S3     977      2096  0.995  0.999  0.995    0.894
+                       SAR      18        18  0.974      1  0.995    0.989
+                       SDK     123       403  0.972  0.995  0.995     0.89
+                       SES      72        87  0.994      1  0.995    0.895
+                       SNS     258       279  0.994      1  0.995    0.954
+                       SQS     189       199  0.997      1  0.995    0.913
+                 SSM Agent      15        15  0.969      1  0.995    0.967
+                 Sagemaker      81       267  0.985      1  0.995    0.731
+            Secret Manager      46        46  0.987      1  0.995    0.924
+            Security Group      15        15  0.967      1  0.995    0.995
+              Security Hub      31        91  0.955      1  0.995    0.812
+                    Server     101       193  0.989      1  0.995     0.91
+           Service Catalog      40        91  0.994      1  0.995    0.885
+                    Shield      58        58  0.991      1  0.995    0.966
+                   Sign-On      15        15  0.969      1  0.995     0.91
+                     Slack      37        37  0.984      1  0.995    0.923
+                  Snowball      15        15  0.969      1  0.995    0.984
+                     Stack      22        22  0.977      1  0.995    0.862
+             Step Function      32        96  0.994      1  0.995    0.909
+           Storage Gateway      15        15  0.966      1  0.995    0.902
+                SwaggerHub      15        15  0.966      1  0.995     0.96
+           Systems Manager      61        76   0.99      1  0.995    0.949
+                        TV      22        22  0.976      1  0.995    0.897
+                     Table      88       196      1      1  0.995    0.847
+               Task Runner      18        18   0.97      1  0.995    0.905
+                 Terraform      32        32  0.986      1  0.995    0.874
+                 Text File      54       122  0.946      1  0.994    0.881
+                  Textract      17        17  0.971      1  0.995    0.966
+                Transcribe      17        17  0.972      1  0.995    0.909
+           Transfer Family      68        68  0.993      1  0.995    0.954
+           Transit Gateway      35        35  0.964      1  0.995    0.927
+                 Translate      49        49   0.99      1  0.995     0.96
+           Trusted Advisor      36        36  0.987      1  0.995    0.952
+                    Twilio      15        15  0.969      1  0.995    0.987
+                     Users     574       790  0.994  0.971  0.992     0.87
+                       VDA      16        16  0.964      1  0.995    0.895
+                VP Gateway      30        36   0.99      1  0.995     0.85
+                VPC Router      50       102  0.933      1  0.995    0.894
+            VPN Connection      21        57   0.99      1  0.995    0.917
+                       WAF     112       131  0.996      1  0.995    0.917
+               Web Clients     213       248  0.784      1  0.983    0.826
+                  Websites      31        31  0.985      1  0.995    0.933
+                     X-Ray      83        95  0.995      1  0.995    0.911
+                       aws     971      1219  0.981  0.991  0.994    0.841
+              cache Worker      36        36  0.982      1  0.995    0.933
+Speed: 0.1ms preprocess, 4.4ms inference, 0.0ms loss, 1.1ms postprocess per image
 Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100
 🚀 Save dir: C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100
 ✅ best.pt:  C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11n_custom_100\weights\best.pt
-Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
 YOLO11n summary (fused): 100 layers, 2,672,434 parameters, 0 gradients, 6.8 GFLOPs
-val: Fast image access  (ping: 0.00.0 ms, read: 231.0122.0 MB/s, size: 343.9 KB)
-val: Scanning C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels... 386 images, 0 backgrounds, 0 corrupt: 100%|██████████| 
-val: New cache created: C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels.cache
-█████████████████████████████████ 100% | 5.39/5.39 MB [00:04<00:00,  1.26MB/s]: 
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 49/49 [00:03<00:00, 13.35it/s]
-                   all        386       7672      0.977      0.954      0.983      0.923
-                   ACM         22         22      0.992          1      0.995      0.986
-                   ALB         58         74      0.993      0.905       0.99      0.892: 100%|██████████| 49/49 [00:03<00:00, 11.23it/s]
-                   AMI          8         13      0.984          1      0.995       0.97
-           API-Gateway        201        304      0.997      0.993      0.994      0.951
-Active Directory Service         15         15      0.986          1      0.995      0.995
-              Airflow_          3          6      0.959          1      0.995      0.913
-               Amplify         18         18      0.993          1      0.995      0.942
-    Analytics Services          5          5      0.967          1      0.995      0.895
-               AppFlow         12         12      0.983          1      0.995      0.971
-               Appsync          8          8      0.975          1      0.995      0.906
-                Athena         32         33      0.993          1      0.995      0.984
-                Aurora         27         36      0.996      0.889      0.925       0.89
-          Auto Scaling         45         75          1      0.946      0.988      0.831
-    Auto Scaling Group          3          8      0.986          1      0.995      0.799
-       Automated Tests         12         17      0.989          1      0.995      0.944
-     Availability Zone         10         20      0.992          1      0.995      0.928
-                Backup          3          6      0.967          1      0.995      0.954
-     Build Environment          6          6      0.972          1      0.995      0.829
-                   CDN          7          7       0.97          1      0.995      0.942
-                   CUR          6          6      0.966          1      0.995       0.96
-          Call Metrics         12         12      0.989          1      0.995      0.909
-       Call Recordings         12         12      0.994          1      0.995      0.877
-   Certificate Manager         28         28      0.994          1      0.995      0.983
-                Client          3          8      0.635       0.87      0.765      0.664
-       Cloud Connector          7         14      0.988          1      0.995      0.921
-             Cloud Map          5          5      0.978          1      0.995      0.995
-          Cloud Search         14         14      0.984          1      0.995      0.985
-           Cloud Trail         39         41      0.992      0.976       0.98      0.959
-           Cloud Watch        126        151      0.999          1      0.995      0.911
-  CloudFormation Stack         38         45      0.995          1      0.995      0.961
-              CloudHSM         13         13      0.985          1      0.995      0.989
-      CloudWatch Alarm         18         23      0.993          1      0.995      0.914
-            Cloudfront         97        101      0.986          1      0.995      0.942
-             CodeBuild         33         53      0.997          1      0.995      0.952
-            CodeCommit         15         15      0.989          1      0.995      0.985
-            CodeDeploy          5          5      0.967          1      0.995      0.971
-          CodePipeline         43         43      0.973          1      0.972      0.939
-               Cognito         85        100      0.997       0.98      0.982      0.963
-            Comprehend         27         27      0.994          1      0.995      0.992
-                Config         25         65      0.968          1      0.967       0.95
-               Connect         12         12      0.983          1      0.995      0.987
-  Connect Contact Lens         12         12       0.99          1      0.995       0.91
-             Container         18         81      0.999          1      0.995      0.869
-         Control Tower          7          7      0.993          1      0.995      0.995
-      Customer Gateway          5         11       0.96          1      0.995      0.927
-                   DSI          5         10      0.981          1      0.995      0.849
-         Data Pipeline          5          5          1      0.847      0.995      0.948
-              DataSync          5          5      0.962          1      0.995      0.971
-          Deploy Stage          7          7      0.975          1      0.995      0.803
-             Detective          8          8      0.975          1      0.995      0.975
-        Direct Connect         19         26      0.992      0.962       0.97      0.846
-          Distribution          5          5          1      0.675      0.962      0.962
-          Docker Image         18         61          1      0.806      0.969      0.818
-             Dynamo DB        174        270      0.999       0.97      0.986       0.94
-                   EBS         24         36      0.998          1      0.995      0.915
-                   EC2        166        406      0.987      0.939      0.987      0.874
-                   EFS         28         36       0.94      0.864      0.935      0.875
-      EFS Mount Target         35         54       0.98      0.909      0.936      0.868
-                   EKS         51         58      0.996      0.983      0.995      0.956
-                   ELB        104        149      0.997       0.94      0.965      0.901
-                   EMR          5          5      0.963          1      0.995      0.995
-         Edge Location          3          5      0.967          1      0.995      0.827
-           ElastiCache         25         31          1      0.871      0.944      0.884
-Elastic Container Registry         51         51      0.998          1      0.995      0.987
-Elastic Container Service         50         62      0.996      0.952      0.994      0.877
-        Elastic Search         32         33      0.995          1      0.995      0.923
-Elemental MediaConvert         17         20      0.832          1       0.97      0.967
-Elemental MediaPackage          5          5          1      0.251       0.84       0.84
-                 Email          5          5          1      0.845      0.995      0.858
-              Endpoint          6          6      0.963          1      0.995       0.93
-             Event Bus          5          5      0.961          1      0.995      0.995
-           EventBridge         21         53      0.996          1      0.995      0.975
-   Experiment Duration          5          5          1          0      0.851      0.701
-           Experiments          5          5          1          0      0.817      0.817
-               Fargate         30         72      0.997          1      0.995       0.94
-Fault Injection Simulator         12         12      0.988          1      0.995      0.903
-      Firewall Manager          8          8       0.98          1      0.995      0.984
-                 Flask          6         18      0.997          1      0.995      0.793
-             Flow logs          8         32      0.997          1      0.995      0.892
-              GameLift          5          5      0.924          1      0.995       0.92
-                   Git          6          6      0.972          1      0.995      0.975
-                Github         20         25      0.994          1      0.995      0.928
-               Glacier          5          5       0.96          1      0.995      0.995
-                  Glue         15         30      0.996          1      0.995      0.917
-         Glue DataBrew          7          7      0.971          1      0.995      0.995
-               Grafana          8          8      0.975          1      0.995      0.995
-             GuardDuty         17         49      0.996          1      0.995      0.954
-                   IAM         51        104      0.997      0.933       0.99      0.893
-              IAM Role         25         68      0.969      0.935      0.967      0.826
-              IOT Core         12         14          1      0.962      0.995      0.975
-                 Image         13         13       0.99          1      0.995      0.949
-         Image Builder          5          5      0.959          1      0.995      0.995
-               Ingress          5          5      0.969          1      0.995      0.995
-       Inspector Agent          8          8      0.977          1      0.995      0.995
-             Instances          3          6      0.512      0.353      0.663      0.597
-              Internet         63         86      0.933       0.97      0.985      0.909
-      Internet Gateway         32         50      0.961      0.986      0.994      0.901
-               Jenkins          3          6      0.999          1      0.995      0.947
-Key Management Service         29         40          1      0.981      0.995      0.988
-                Kibana          7          7      0.976          1      0.995      0.921
-  Kinesis Data Streams         50         66      0.969       0.94      0.977      0.945
-            Kubernetes          6          6      0.967          1      0.995      0.924
-                Lambda        243        673      0.999      0.997      0.995      0.957
-                   Lex          5          5      0.961          1      0.995      0.995
-                    MQ          5         11      0.996          1      0.995       0.85
-      Machine Learning         11         11      0.918      0.727      0.965      0.923
-                 Macie         27         70      0.997          1      0.995      0.928
-           Marketplace          5          5      0.985          1      0.995      0.637
-             Memcached          6         12      0.983          1      0.995      0.909
-         Mobile Client         40         49          1      0.876      0.993      0.853
-              Mongo DB          9         21          1          1      0.995      0.811
-                 MySQL          7          7      0.989          1      0.995      0.899
-           NAT Gateway         46         88      0.966      0.955       0.96       0.92
-               Neptune          6          6      0.972          1      0.995      0.901
-       Network Adapter          5          5       0.96          1      0.995      0.995
-      Network Firewall          8          8      0.977          1      0.995      0.976
-              Notebook          5          5      0.977          1      0.995      0.953
-      Order Controller          5          5       0.95          1      0.995      0.895
-    Organization Trail         17         41      0.996          1      0.995      0.955
-       Parameter Store          7          7      0.976          1      0.995      0.974
-              Pinpoint          5          5      0.958          1      0.995      0.995
-            PostgreSQL          7          7      0.975          1      0.995      0.942
-          Private Link         24         24      0.992          1      0.995      0.955
-        Private Subnet         89        208      0.985      0.952      0.973      0.831
-            Prometheus          8          8      0.976          1      0.995      0.995
-         Public Subnet         90        203      0.995      0.922      0.978       0.81
-               Quarkus          8          8      0.975          1      0.995      0.995
-            Quicksight         19         21      0.991          1      0.995      0.972
-                   RDS         83        163      0.955      0.902      0.948      0.868
-                 React          4          4      0.955          1      0.995      0.872
-                 Redis         10         25      0.979       0.96      0.993      0.948
-              Redshift         27         29      0.994      0.966       0.97      0.937
-                Region         36         52          1      0.981      0.995      0.834
-           Rekognition         14         14      0.985          1      0.995      0.977
-               Results          5          5          1          0       0.83      0.812
-              Route 53         21         21      0.946          1      0.969      0.964
-               Route53         98        167      0.987      0.994      0.987      0.925
-                    S3        256        520      0.998      0.994      0.995       0.93
-                   SAR          5          5      0.959          1      0.995      0.995
-                   SDK         24         80      0.987      0.983      0.983      0.884
-                   SES         17         20          1      0.958      0.995      0.917
-                   SNS         63         69          1      0.975      0.995      0.958
-                   SQS         49         50      0.999          1      0.995      0.955
-             SSM Agent          8          8      0.973          1      0.995      0.995
-             Sagemaker         16         59          1      0.538      0.994      0.757
-        Secret Manager         14         14      0.989          1      0.995      0.973
-        Security Group          5          5       0.96          1      0.995      0.943
-          Security Hub         13         45      0.996          1      0.995      0.967
-                Server         20         32      0.995          1      0.995       0.88
-       Service Catalog         10         31      0.994          1      0.995      0.909
-                Shield         15         15      0.986          1      0.995       0.99
-               Sign-On          8          8      0.974          1      0.995      0.995
-                 Slack         13         13      0.985          1      0.995      0.979
-              Snowball          5          5      0.963          1      0.995      0.995
-                 Stack          5          5      0.986          1      0.995      0.926
-         Step Function          8         24      0.993          1      0.995      0.925
-       Storage Gateway          5          5      0.964          1      0.995      0.995
-            SwaggerHub          5          5      0.968          1      0.995      0.958
-       Systems Manager         20         28      0.993          1      0.995      0.969
-                    TV          6          6          1       0.97      0.995      0.865
-                 Table         23         46      0.987          1      0.995       0.92
-           Task Runner          5          5      0.966          1      0.995      0.995
-             Terraform         11         11      0.985          1      0.995      0.898
-             Text File         11         28      0.861      0.964      0.947      0.864
-              Textract          5          5      0.958          1      0.995      0.995
-            Transcribe          9          9      0.977          1      0.995      0.995
-       Transfer Family         15         15      0.988          1      0.995      0.978
-       Transit Gateway         12         12      0.984          1      0.995      0.968
-             Translate         19         19      0.989          1      0.995      0.995
-       Trusted Advisor          6          6       0.98          1      0.995      0.966
-                Twilio          7          7       0.97          1      0.995      0.995
-                 Users        144        196          1      0.972      0.994      0.906
-                   VDA          7          7      0.977          1      0.995      0.917
-            VP Gateway          5          6      0.974      0.833      0.843      0.742
-            VPC Router          8         16      0.989          1      0.995      0.851
-        VPN Connection          3          9      0.995          1      0.995      0.871
-                   WAF         25         28      0.986          1      0.995      0.947
-           Web Clients         50         62      0.995      0.774       0.98      0.861
-              Websites          9          9      0.985          1      0.995      0.934
-                 X-Ray         19         21      0.985          1      0.995      0.945
-                   aws        243        326      0.984      0.972      0.991      0.881
-          cache Worker          7          7      0.971          1      0.995      0.938
-Speed: 0.2ms preprocess, 4.9ms inference, 0.0ms loss, 0.9ms postprocess per image
+val: Fast image access  (ping: 0.00.0 ms, read: 627.2396.8 MB/s, size: 365.8 KB)
+val: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels... 1327 images, 0 backgrounds, 0 corrupt: 1
+val: New cache created: D:\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels.cache
+                     Class Images Instances  Box(P      R  mAP50 mAP50-95): 100%|██████████| 166/166 [00:
+                       all   1327     26828  0.957  0.992  0.979     0.911
+                       ACM     42        42  0.984      1  0.995      0.99
+                       ALB    206       292  0.968  0.983  0.993     0.891
+                       AMI     24        39  0.985      1  0.995     0.956
+               API-Gateway    707      1063      1  0.981  0.995      0.93
+  Active Directory Service     29        29  0.982      1  0.995     0.985
+                  Airflow_     15        30  0.983      1  0.995     0.901
+                   Amplify     76        76  0.998      1  0.995     0.894
+        Analytics Services     15        15  0.967      1  0.995     0.978
+                   AppFlow     15        15  0.968      1  0.995     0.986
+                   Appsync     50        50  0.972      1  0.995     0.817
+                    Athena    133       141      1  0.979  0.995     0.939
+                    Aurora     79       112  0.983  0.964  0.968     0.933
+              Auto Scaling    126       211  0.996  0.976  0.989     0.826
+        Auto Scaling Group     25        58  0.988      1  0.995     0.848
+           Automated Tests     58        89  0.996      1  0.995      0.95
+         Availability Zone     23        46  0.987      1  0.995     0.935
+                    Backup     16        32  0.983      1  0.995     0.995
+         Build Environment     34        34   0.89      1  0.995     0.845
+                       CDN     21        21  0.974      1  0.995     0.976
+                       CUR     35        35  0.985      1  0.995      0.79
+              Call Metrics     15        15  0.965      1  0.995     0.863
+           Call Recordings     15        15  0.976      1  0.995     0.859
+       Certificate Manager    103       103  0.995      1  0.995     0.987
+                    Client     16        61  0.559   0.82  0.686     0.612
+           Cloud Connector     14        28  0.979      1  0.995     0.919
+                 Cloud Map     15        15  0.966      1  0.995     0.995
+              Cloud Search     48        48  0.761      1  0.995      0.93
+               Cloud Trail    140       142  0.996      1  0.995     0.944
+               Cloud Watch    468       566  0.997      1  0.995     0.924
+      CloudFormation Stack    124       138  0.988      1  0.995     0.981
+                  CloudHSM     33        33  0.981      1  0.995     0.977
+          CloudWatch Alarm     75       106  0.995      1  0.995     0.886
+                Cloudfront    346       366  0.996      1  0.995      0.91
+                 CodeBuild    140       208  0.997      1  0.995     0.963
+                CodeCommit     52        66  0.992      1  0.995     0.983
+                CodeDeploy     13        13   0.96      1  0.995     0.988
+              CodePipeline    183       190  0.993      1   0.99     0.916
+                   Cognito    310       354  0.969  0.935  0.975     0.927
+                Comprehend     73        73  0.993      1  0.995      0.95
+                    Config     72       147  0.912  0.983  0.986     0.889
+                   Connect     15        15  0.967      1  0.995     0.984
+      Connect Contact Lens     15        15   0.97      1  0.995     0.942
+                 Container     86       403  0.988      1  0.995     0.861
+             Control Tower     14        14  0.964      1  0.995     0.976
+          Customer Gateway     35        62  0.996      1  0.995     0.929
+                       DSI     31        62  0.992      1  0.995     0.854
+             Data Pipeline     22        22  0.975      1  0.995     0.995
+                  DataSync     30        30  0.982      1  0.995     0.995
+              Deploy Stage     27        27  0.979      1  0.995     0.863
+                 Detective     15        15  0.963      1  0.995     0.922
+            Direct Connect     77       112  0.995  0.991  0.995     0.914
+              Distribution     15        15  0.594      1  0.849     0.822
+              Docker Image     44       174  0.993  0.877  0.984      0.76
+                 Dynamo DB    619       958  0.997  0.993  0.995     0.921
+                       EBS     65       107  0.931  0.963  0.992     0.825
+                       EC2    609      1692  0.982  0.987  0.994     0.904
+                       EFS     90       116  0.986  0.983  0.989     0.931
+          EFS Mount Target     95       128      1  0.925  0.981     0.905
+                       EKS    147       164  0.996      1  0.995     0.956
+                       ELB    379       521  0.996  0.956   0.97     0.912
+                       EMR     15        15  0.966      1  0.995      0.98
+             Edge Location     15        27  0.982      1  0.995      0.94
+               ElastiCache    101       121  0.994  0.967  0.971     0.871
+Elastic Container Registry    212       212  0.998      1  0.995     0.957
+ Elastic Container Service    236       302  0.995      1  0.995       0.9
+            Elastic Search    116       117  0.984      1  0.995      0.89
+    Elemental MediaConvert     49        64  0.853  0.938   0.97     0.955
+    Elemental MediaPackage     15        15  0.498      1  0.563     0.563
+                     Email     29        29   0.98  0.966  0.969     0.871
+                  Endpoint     22        22  0.975      1  0.995     0.846
+                 Event Bus     15        15  0.963      1  0.995     0.995
+               EventBridge     41       101  0.912   0.99  0.993     0.923
+       Experiment Duration     14        14  0.552   0.88  0.559     0.489
+               Experiments     14        14  0.513      1  0.692     0.666
+                   Fargate    180       423  0.999      1  0.995     0.923
+ Fault Injection Simulator     45        45  0.989      1  0.995     0.931
+          Firewall Manager     15        15  0.966      1  0.995     0.915
+                     Flask     17        51  0.996   0.98  0.994     0.742
+                 Flow logs     15        60  0.992      1  0.995      0.81
+                  GameLift     15        15  0.966      1  0.995     0.933
+                       Git     17        17  0.974      1  0.995     0.964
+                    Github     73        90  0.995      1  0.995     0.928
+                   Glacier     15        15  0.967      1  0.995     0.989
+                      Glue     59       118      1  0.964  0.995     0.923
+             Glue DataBrew     22        22  0.976      1  0.995     0.995
+                   Grafana     14        14  0.966      1  0.995     0.995
+                 GuardDuty     57       117  0.998      1  0.995     0.904
+                       IAM    180       335  0.921  0.994  0.991     0.889
+                  IAM Role     78       185  0.843  0.984   0.98     0.816
+                  IOT Core     46        52      1  0.991  0.995     0.988
+                     Image     63        63   0.99      1  0.995     0.843
+             Image Builder     15        15  0.966      1  0.995     0.984
+                   Ingress     17        17  0.971      1  0.995     0.995
+           Inspector Agent     15        15  0.968      1  0.995     0.995
+                 Instances     16        32  0.517      1  0.536     0.476
+                  Internet    201       272  0.947  0.993  0.993     0.915
+          Internet Gateway    133       200  0.996   0.99  0.995     0.836
+                   Jenkins     15        30  0.982      1  0.995     0.969
+    Key Management Service    111       139  0.997      1  0.995     0.965
+                    Kibana     18        18  0.983      1  0.995     0.899
+      Kinesis Data Streams    156       207  0.995  0.986  0.995     0.946
+                Kubernetes     17        17  0.971      1  0.995     0.957
+                    Lambda    830      2220  0.995  0.995  0.995     0.939
+                       Lex     18        18  0.971      1  0.995     0.995
+                        MQ     34        86  0.994      1  0.995     0.899
+          Machine Learning     47        47  0.805      1  0.981     0.933
+                     Macie     56       119  0.983  0.977  0.994     0.911
+               Marketplace     19        19  0.979      1  0.995     0.689
+                 Memcached     11        22  0.895      1  0.995     0.943
+             Mobile Client    150       196  0.987   0.98  0.986     0.848
+                  Mongo DB     26        62      1  0.986  0.995     0.783
+                     MySQL     15        15  0.974      1  0.995       0.9
+               NAT Gateway    147       293  0.987  0.986  0.988     0.919
+                   Neptune     35        35  0.988      1  0.995     0.708
+           Network Adapter     15        15  0.949      1  0.995     0.995
+          Network Firewall     15        15  0.966      1  0.995     0.995
+                  Notebook     15        15  0.965      1  0.995     0.995
+          Order Controller     17        17   0.97      1  0.995     0.905
+        Organization Trail     26        71  0.992      1  0.995     0.934
+           Parameter Store     27        27  0.978      1  0.995      0.94
+                  Pinpoint     16        16  0.969      1  0.995     0.995
+                PostgreSQL     15        15  0.962      1  0.995     0.919
+              Private Link     87        87  0.994      1  0.995     0.967
+            Private Subnet    335       936  0.994  0.966  0.985      0.83
+                Prometheus     14        14  0.964      1  0.995     0.995
+             Public Subnet    299       715  0.995  0.976  0.994     0.823
+                   Quarkus     14        14  0.962      1  0.995     0.995
+                Quicksight     40        50  0.986      1  0.995     0.966
+                       RDS    266       551  0.972  0.975  0.977     0.898
+                     React     15        15  0.838  0.933  0.973     0.756
+                     Redis     47        98      1  0.996  0.995     0.975
+                  Redshift     65        72  0.993      1  0.995     0.945
+                    Region    161       243      1      1  0.995     0.876
+               Rekognition     37        37  0.986      1  0.995     0.981
+                   Results     14        14  0.517      1  0.555     0.525
+                  Route 53     39        39  0.957      1  0.993      0.98
+                   Route53    376       532  0.992  0.991  0.993     0.926
+                        S3    867      1862  0.999  0.995  0.995     0.916
+                       SAR     14        14  0.964      1  0.995      0.99
+                       SDK     98       301  0.974  0.999  0.993     0.887
+                       SES     69        84  0.991  0.988  0.995     0.932
+                       SNS    232       254  0.998  0.996  0.995     0.967
+                       SQS    184       197  0.997      1  0.995     0.956
+                 SSM Agent     15        15  0.966      1  0.995     0.995
+                 Sagemaker     76       241  0.999      1  0.995     0.736
+            Secret Manager     44        44  0.986      1  0.995     0.957
+            Security Group     16        16  0.969      1  0.995     0.966
+              Security Hub     25        85  0.994      1  0.995     0.897
+                    Server     88       165  0.995      1  0.995     0.904
+           Service Catalog     30        72  0.994      1  0.995     0.907
+                    Shield     52        52  0.991      1  0.995     0.963
+                   Sign-On     15        15  0.966      1  0.995     0.934
+                     Slack     30        30   0.98      1  0.995     0.983
+                  Snowball     15        15  0.968      1  0.995     0.995
+                     Stack     14        14  0.967      1  0.995     0.908
+             Step Function     30        90  0.994      1  0.995      0.92
+           Storage Gateway     15        15  0.965      1  0.995      0.97
+                SwaggerHub     15        15  0.971      1  0.995     0.965
+           Systems Manager     53        68  0.987      1  0.995      0.99
+                        TV     12        12  0.956      1  0.995     0.912
+                     Table     72       154  0.991  0.987  0.995      0.88
+               Task Runner     17        17   0.97      1  0.995     0.995
+                 Terraform     38        38  0.989      1  0.995     0.864
+                 Text File     49        99  0.949  0.899   0.97     0.866
+                  Textract     14        14  0.965      1  0.995     0.995
+                Transcribe     19        19  0.974      1  0.995     0.995
+           Transfer Family     67        67  0.993      1  0.995     0.985
+           Transit Gateway     31        31  0.962      1  0.995     0.895
+                 Translate     53        53   0.99      1  0.995     0.959
+           Trusted Advisor     13        13  0.958      1  0.995     0.964
+                    Twilio     18        18  0.971      1  0.995      0.98
+                     Users    486       656  0.995   0.98  0.987     0.893
+                       VDA     14        14  0.966      1  0.995     0.912
+                VP Gateway     27        39  0.989  0.974  0.984     0.841
+                VPC Router     39        80   0.98      1  0.995     0.879
+            VPN Connection     21        48  0.997      1  0.995      0.91
+                       WAF     99       109  0.995      1  0.995     0.968
+               Web Clients    202       268  0.795      1  0.971      0.84
+                  Websites     34        34   0.99      1  0.995     0.953
+                     X-Ray     88       112      1  0.988  0.995     0.953
+                       aws    845      1067  0.982  0.986  0.992      0.87
+              cache Worker     26        26  0.981      1  0.995     0.995
+Speed: 0.2ms preprocess, 2.7ms inference, 0.0ms loss, 1.0ms postprocess per image
 Saving C:\acmattos\dev\tools\Python\ia4devs\runs\detect\val\predictions.json...
 Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\val
 
 🎯 Test Metrics (mean per class):
-  Precision:    0.977
-  Recall:       0.954
-  mAP@0.5:      0.983
-  mAP@0.5:0.95: 0.923
+  Precision:    0.957
+  Recall:       0.992
+  mAP@0.5:      0.979
+  mAP@0.5:0.95: 0.911
 
-image 1/1 C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\sample\aws_02.png: 576x640 2 Cloud Watchs, 4 EC2s, 2 NAT Gateways, 3 Private Subnets, 3 Public Subnets, 1 RDS, 1 Region, 1 Route53, 2 S3s, 1 Users, 2 WAFs, 1 aws, 62.1ms
-Speed: 3.4ms preprocess, 62.1ms inference, 3.8ms postprocess per image at shape (1, 3, 576, 640)
-Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict2
-1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict2\labels
+image 1/1 D:\ia4devs\module_05\05_hackaton\data\sample\aws_02.png: 576x640 
+1 ALB, 1 Auto Scaling, 1 Auto Scaling Group, 2 Cloud Watchs, 1 Cloudfront, 4 EC2s, 
+1 EFS, 1 Key Management Service, 2 NAT Gateways, 3 Private Subnets, 3 Public Subnets, 
+1 RDS, 1 Region, 1 Users, 2 WAFs, 1 aws, 47.2ms
+Speed: 3.3ms preprocess, 47.2ms inference, 5.2ms postprocess per image at shape (1, 3, 576, 640)
+Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict
+1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict\labels
 ✅ Detailed JSON saved to data\reports\yolo11n_custom_100\results.json
 ✅ Summary JSON saved to data\reports\yolo11n_custom_100\report.json
 [ultralytics.engine.results.Results object with attributes:
@@ -969,1435 +1385,1281 @@ Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict2
 boxes: ultralytics.engine.results.Boxes object
 keypoints: None
 masks: None
-names: {0: 'ACM', 1: 'ALB', 2: 'AMI', 3: 'API-Gateway', 4: 'Active Directory Service', 5: 'Airflow_', 6: 'Amplify', 7: 'Analytics Services', 8: 'AppFlow', 9: 'Ap
-psync', 10: 'Athena', 11: 'Aurora', 12: 'Auto Scaling', 13: 'Auto Scaling Group', 14: 'Automated Tests', 15: 'Availability Zone', 16: 'Backup', 17: 'Build Enviro
-nment', 18: 'CDN', 19: 'CUR', 20: 'Call Metrics', 21: 'Call Recordings', 22: 'Certificate Manager', 23: 'Client', 24: 'Cloud Connector', 25: 'Cloud Map', 26: 'Cl
-oud Search', 27: 'Cloud Trail', 28: 'Cloud Watch', 29: 'CloudFormation Stack', 30: 'CloudHSM', 31: 'CloudWatch Alarm', 32: 'Cloudfront', 33: 'CodeBuild', 34: 'Co
-deCommit', 35: 'CodeDeploy', 36: 'CodePipeline', 37: 'Cognito', 38: 'Comprehend', 39: 'Config', 40: 'Connect', 41: 'Connect Contact Lens', 42: 'Container', 43: '
-Control Tower', 44: 'Customer Gateway', 45: 'DSI', 46: 'Data Pipeline', 47: 'DataSync', 48: 'Deploy Stage', 49: 'Detective', 50: 'Direct Connect', 51: 'Distribut
-ion', 52: 'Docker Image', 53: 'Dynamo DB', 54: 'EBS', 55: 'EC2', 56: 'EFS', 57: 'EFS Mount Target', 58: 'EKS', 59: 'ELB', 60: 'EMR', 61: 'Edge Location', 62: 'El
-astiCache', 63: 'Elastic Container Registry', 64: 'Elastic Container Service', 65: 'Elastic Search', 66: 'Elemental MediaConvert', 67: 'Elemental MediaPackage', 
-68: 'Email', 69: 'Endpoint', 70: 'Event Bus', 71: 'EventBridge', 72: 'Experiment Duration', 73: 'Experiments', 74: 'Fargate', 75: 'Fault Injection Simulator', 76
-: 'Firewall Manager', 77: 'Flask', 78: 'Flow logs', 79: 'GameLift', 80: 'Git', 81: 'Github', 82: 'Glacier', 83: 'Glue', 84: 'Glue DataBrew', 85: 'Grafana', 86: '
-GuardDuty', 87: 'IAM', 88: 'IAM Role', 89: 'IOT Core', 90: 'Image', 91: 'Image Builder', 92: 'Ingress', 93: 'Inspector Agent', 94: 'Instances', 95: 'Internet', 9
-6: 'Internet Gateway', 97: 'Jenkins', 98: 'Key Management Service', 99: 'Kibana', 100: 'Kinesis Data Streams', 101: 'Kubernetes', 102: 'Lambda', 103: 'Lex', 104:
- 'MQ', 105: 'Machine Learning', 106: 'Macie', 107: 'Marketplace', 108: 'Memcached', 109: 'Mobile Client', 110: 'Mongo DB', 111: 'MySQL', 112: 'NAT Gateway', 113:
- 'Neptune', 114: 'Network Adapter', 115: 'Network Firewall', 116: 'Notebook', 117: 'Order Controller', 118: 'Organization Trail', 119: 'Parameter Store', 120: 'P
-inpoint', 121: 'PostgreSQL', 122: 'Private Link', 123: 'Private Subnet', 124: 'Prometheus', 125: 'Public Subnet', 126: 'Quarkus', 127: 'Quicksight', 128: 'RDS', 
-129: 'React', 130: 'Redis', 131: 'Redshift', 132: 'Region', 133: 'Rekognition', 134: 'Results', 135: 'Route 53', 136: 'Route53', 137: 'S3', 138: 'SAR', 139: 'SDK
-', 140: 'SES', 141: 'SNS', 142: 'SQS', 143: 'SSM Agent', 144: 'Sagemaker', 145: 'Secret Manager', 146: 'Security Group', 147: 'Security Hub', 148: 'Server', 149:
- 'Service Catalog', 150: 'Shield', 151: 'Sign-On', 152: 'Slack', 153: 'Snowball', 154: 'Stack', 155: 'Step Function', 156: 'Storage Gateway', 157: 'SwaggerHub', 
-158: 'Systems Manager', 159: 'TV', 160: 'Table', 161: 'Task Runner', 162: 'Terraform', 163: 'Text File', 164: 'Textract', 165: 'Transcribe', 166: 'Transfer Famil
-y', 167: 'Transit Gateway', 168: 'Translate', 169: 'Trusted Advisor', 170: 'Twilio', 171: 'Users', 172: 'VDA', 173: 'VP Gateway', 174: 'VPC Router', 175: 'VPN Connection', 176: 'WAF', 177: 'Web Clients', 178: 'Websites', 179: 'X-Ray', 180: 'aws', 181: 'cache Worker'}
+(...)
 obb: None
-orig_img: array([[[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       ...,
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]]], dtype=uint8)
-orig_shape: (993, 1167)
-path: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\module_05\\05_hackaton\\data\\sample\\aws_02.png'
+(...)
+path: 'D:\\ia4devs\\module_05\\05_hackaton\\data\\sample\\aws_02.png'
 probs: None
-save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict2'
-speed: {'preprocess': 3.3930000208783895, 'inference': 62.051799992332235, 'postprocess': 3.7826000188943}]
-████████████████████████████████ 100% | 0.46/0.46 MB [05:04<00:00, 662.77s/MB]: 
-████████████████████████████████ 100% | 0.44/0.44 MB [05:04<00:00, 692.89s/MB]:
-████████████████████████████████ 100% | 0.43/0.43 MB [05:04<00:00, 709.01s/MB]:
+save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
+speed: {'preprocess': 3.2868999987840652, 'inference': 47.22200002288446, 'postprocess': 5.245600012131035}]
 ```
 
-Report:
+### Predição do Modelo `N`
+![Detecção do Modelo N](data/model/trained/yolo11n_custom_100/predict/aws_01.jpg)
+
+## Treinamento do Yolo 11 Modelo `S`
+
+O treinamento utilizou 100 épocas para treino, gastando 4.872 horas no processo.
+N
+🎯 Test Metrics (mean per class):
+  Precision:    0.957
+  Recall:       0.992
+  mAP@0.5:      0.979
+  mAP@0.5:0.95: 0.911
+S
+🎯 Test Metrics (mean per class):
+  Precision:    0.960
+  Recall:       0.996
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.950
+
 ```bash
-C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\.venv\Scripts\python.exe C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\report.py 
-
-image 1/1 C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\sample\aws_01.jpg: 544x640 3 Cloud Watchs, 1 Dynamo DB, 5 Lambdas, 1 S3, 2 SNSs, 2 Userss, 41.6ms
-Speed: 2.2ms preprocess, 41.6ms inference, 86.1ms postprocess per image at shape (1, 3, 544, 640)
-Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict7
-1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict7\labels
-✅ Detailed JSON saved to data\reports\yolo11n_custom_200\results.json
-✅ Summary JSON saved to data\reports\yolo11n_custom_200\report.json
-Reports generated: data/reports/yolo11n_custom_200
-```
-
-yolo11s
-
-```bash
-C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\.venv\Scripts\python.exe C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\model.py 
-New https://pypi.org/project/ultralytics/8.3.162 available  Update with 'pip install -U ultralytics'
-Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
-engine\trainer: agnostic_nms=False, amp=True, augment=True, auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=False, cfg=None, classes=None, close_mosaic=10, cls=0.5, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=./data/dataset/aws/data.yaml, degrees=0.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=100, erasing=0.4, exist_ok=False, fliplr=0.5, flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.001, lrf=0.05, mask_ratio=4, max_det=300, mixup=0.5, mode=train, model=./data/model/yolo11s.pt, momentum=0.937, mosaic=1.0, multi_scale=True, name=yolo11s_custom_100, nbs=64, nms=False, opset=None, optimize=False, optimizer=AdamW, overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=None, rect=False, resume=False, retina_masks=False, save=True, save_conf=False, save_crop=False, save_dir=C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100, save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3, warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
+Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+engine\trainer: agnostic_nms=False, amp=True, augment=True, 
+auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=False, cfg=None, 
+classes=None, close_mosaic=10, cls=0.5, conf=None, copy_paste=0.0, 
+copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=./data/dataset/aws/data.yaml, 
+degrees=0.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, 
+dynamic=False, embed=None, epochs=100, erasing=0.4, exist_ok=False, fliplr=0.5, 
+flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, 
+hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, 
+kobj=1.0, line_width=None, lr0=0.0005, lrf=0.05, mask_ratio=4, max_det=300, 
+mixup=0.5, mode=train, model=./data/model/yolo11s.pt, momentum=0.937, 
+mosaic=1.0, multi_scale=True, name=yolo11s_custom_100, nbs=64, nms=False, 
+opset=None, optimize=False, optimizer=AdamW, overlap_mask=True, patience=10, 
+perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, 
+project=None, rect=False, resume=False, retina_masks=False, save=True, 
+save_conf=False, save_crop=False, 
+save_dir=C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100, 
+save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, 
+seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, 
+simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, 
+task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, 
+verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3, 
+warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
 Overriding model.yaml nc=80 with nc=182
 
-                   from  n    params  module                                       arguments                     
-  0                  -1  1       928  ultralytics.nn.modules.conv.Conv             [3, 32, 3, 2]                 
-  1                  -1  1     18560  ultralytics.nn.modules.conv.Conv             [32, 64, 3, 2]                
-  2                  -1  1     26080  ultralytics.nn.modules.block.C3k2            [64, 128, 1, False, 0.25]     
-  3                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
-  4                  -1  1    103360  ultralytics.nn.modules.block.C3k2            [128, 256, 1, False, 0.25]    
-  5                  -1  1    590336  ultralytics.nn.modules.conv.Conv             [256, 256, 3, 2]              
-  6                  -1  1    346112  ultralytics.nn.modules.block.C3k2            [256, 256, 1, True]           
-  7                  -1  1   1180672  ultralytics.nn.modules.conv.Conv             [256, 512, 3, 2]              
-  8                  -1  1   1380352  ultralytics.nn.modules.block.C3k2            [512, 512, 1, True]           
-  9                  -1  1    656896  ultralytics.nn.modules.block.SPPF            [512, 512, 5]                 
- 10                  -1  1    990976  ultralytics.nn.modules.block.C2PSA           [512, 512, 1]                 
- 11                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
- 12             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
- 13                  -1  1    443776  ultralytics.nn.modules.block.C3k2            [768, 256, 1, False]          
- 14                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
- 15             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
- 16                  -1  1    127680  ultralytics.nn.modules.block.C3k2            [512, 128, 1, False]          
- 17                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
- 18            [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
- 19                  -1  1    345472  ultralytics.nn.modules.block.C3k2            [384, 256, 1, False]          
- 20                  -1  1    590336  ultralytics.nn.modules.conv.Conv             [256, 256, 3, 2]              
- 21            [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
- 22                  -1  1   1511424  ultralytics.nn.modules.block.C3k2            [768, 512, 1, True]           
- 23        [16, 19, 22]  1    889842  ultralytics.nn.modules.head.Detect           [182, [128, 256, 512]]        
+            from  n    params  module                                arguments
+  0           -1  1       928  ultralytics.nn.modules.conv.Conv      [3, 32, 3, 2]
+  1           -1  1     18560  ultralytics.nn.modules.conv.Conv      [32, 64, 3, 2]
+  2           -1  1     26080  ultralytics.nn.modules.block.C3k2     [64, 128, 1, False, 0.25]
+  3           -1  1    147712  ultralytics.nn.modules.conv.Conv      [128, 128, 3, 2]
+  4           -1  1    103360  ultralytics.nn.modules.block.C3k2     [128, 256, 1, False, 0.25]
+  5           -1  1    590336  ultralytics.nn.modules.conv.Conv      [256, 256, 3, 2]
+  6           -1  1    346112  ultralytics.nn.modules.block.C3k2     [256, 256, 1, True]
+  7           -1  1   1180672  ultralytics.nn.modules.conv.Conv      [256, 512, 3, 2]
+  8           -1  1   1380352  ultralytics.nn.modules.block.C3k2     [512, 512, 1, True]
+  9           -1  1    656896  ultralytics.nn.modules.block.SPPF     [512, 512, 5]
+ 10           -1  1    990976  ultralytics.nn.modules.block.C2PSA    [512, 512, 1]
+ 11           -1  1         0  torch.nn.modules.upsampling.Upsample  [None, 2, 'nearest']
+ 12      [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 13           -1  1    443776  ultralytics.nn.modules.block.C3k2     [768, 256, 1, False]
+ 14           -1  1         0  torch.nn.modules.upsampling.Upsample  [None, 2, 'nearest']
+ 15      [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 16           -1  1    127680  ultralytics.nn.modules.block.C3k2     [512, 128, 1, False]
+ 17           -1  1    147712  ultralytics.nn.modules.conv.Conv      [128, 128, 3, 2]
+ 18     [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 19           -1  1    345472  ultralytics.nn.modules.block.C3k2     [384, 256, 1, False]
+ 20           -1  1    590336  ultralytics.nn.modules.conv.Conv      [256, 256, 3, 2]
+ 21     [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 22           -1  1   1511424  ultralytics.nn.modules.block.C3k2     [768, 512, 1, True]
+ 23 [16, 19, 22]  1    889842  ultralytics.nn.modules.head.Detect    [182, [128, 256, 512]]
 YOLO11s summary: 181 layers, 9,498,226 parameters, 9,498,210 gradients, 21.9 GFLOPs
 
 Transferred 493/499 items from pretrained weights
-ClearML Task: created new task id=994706fd3f00409bbf46569051a5000f
-ClearML results page: https://app.clear.ml/projects/14f0119248fa451f826c387955b212a3/experiments/994706fd3f00409bbf46569051a5000f/output/log
-WARNING ClearML Initialized a new task. If you want to run remotely, please add clearml-init and connect your arguments before initializing YOLO.
 Freezing layer 'model.23.dfl.conv.weight'
 AMP: running Automatic Mixed Precision (AMP) checks...
-AMP: checks passed 
-train: Fast image access  (ping: 0.00.0 ms, read: 203.2142.6 MB/s, size: 416.9 KB)
-train: Scanning C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\dataset\aws\train\labels.cache... 5276 images, 0 backgrounds, 0 corrupt: 100%|██████████| 5276/5276 [00:00<?, ?it/s]
-albumentations: Blur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
-val: Fast image access  (ping: 0.00.0 ms, read: 214.5119.4 MB/s, size: 226.2 KB)
-val: Scanning C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\dataset\aws\valid\labels.cache... 393 images, 0 backgrounds, 0 corrupt: 100%|██████████| 393/393 [00:00<?, ?it/s]
-Plotting labels to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100\labels.jpg... 
-optimizer: AdamW(lr=0.001, momentum=0.937) with parameter groups 81 weight(decay=0.0), 88 weight(decay=0.0005), 87 bias(decay=0.0)
+AMP: checks passed
+train: Fast image access  (ping: 0.10.0 ms, read: 344.2160.3 MB/s, size: 410.9 KB)
+train: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\train\labels.cache... 3457 images, 0 backgrounds, 0 c
+val: Fast image access  (ping: 0.00.0 ms, read: 415.3126.7 MB/s, size: 204.4 KB)
+val: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\valid\labels.cache... 1488 images, 0 backgrounds, 0 cor
+Plotting labels to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100\labels.jpg...
+optimizer: AdamW(lr=0.0005, momentum=0.937) with parameter groups 81 weight(decay=0.0), 88 weight(decay=0.0005), 87 bias(decay=0.0)
 Image sizes 640 train, 640 val
 Using 8 dataloader workers
 Logging results to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100
 Starting training for 100 epochs...
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      1/100      7.43G      1.172      2.474     0.9557        147        352: 100%|██████████| 660/660 [01:58<00:00,  5.58it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  6.84it/s]
-                   all        393       9029       0.59      0.331      0.375       0.27
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      2/100       6.4G      1.073      1.648     0.9296        505        704:  15%|█▌        | 99/660 [00:15<01:17,  7.20it/s]ClearML Monitor: Could not detect iteration reporting, falling back to iterations as seconds-from-start
-      2/100      6.91G      1.051       1.57      0.927        320        640:  44%|████▍     | 292/660 [00:45<00:57,  6.35it/s]ClearML Monitor: Reporting detected, reverting back to iteration based reporting
-      2/100      6.91G      1.025      1.443     0.9223        249        544: 100%|██████████| 660/660 [01:43<00:00,  6.40it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.54it/s]
-                   all        393       9029      0.719      0.656      0.744       0.57
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      3/100      6.03G      0.991      1.171     0.9111        299        416: 100%|██████████| 660/660 [01:40<00:00,  6.58it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.06it/s]
-                   all        393       9029      0.755      0.799      0.862      0.671
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      4/100      6.93G     0.9356     0.9777     0.9004        289        736: 100%|██████████| 660/660 [01:42<00:00,  6.44it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.86it/s]
-                   all        393       9029       0.87      0.855      0.927      0.749
+      1/100      7.99G      1.148      2.744     0.9568         32        864: 100%|██████████| 433/433 [03:05<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:40
+                   all       1488      30084      0.546      0.199       0.18      0.133
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      5/100      8.45G     0.8959     0.8651     0.8877        179        672: 100%|██████████| 660/660 [01:41<00:00,  6.48it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.39it/s]
-                   all        393       9029      0.868      0.922      0.963      0.782
+      2/100      8.17G      1.024      1.643     0.9337        125        320: 100%|██████████| 433/433 [03:56<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:32
+                   all       1488      30084      0.649      0.431       0.49      0.363
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      6/100      7.55G     0.8699      0.801     0.8823        201        704: 100%|██████████| 660/660 [01:42<00:00,  6.41it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.51it/s]
-                   all        393       9029      0.884      0.916       0.96      0.788
+      3/100      6.62G     0.9507      1.235     0.9159         24        480: 100%|██████████| 433/433 [02:24<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:31
+                   all       1488      30084      0.728      0.611      0.703      0.535
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      7/100      7.82G     0.8397     0.7485       0.88        169        512: 100%|██████████| 660/660 [01:53<00:00,  5.84it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.48it/s]
-                   all        393       9029      0.901       0.93      0.961      0.806
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      8/100      7.76G     0.8197     0.7074     0.8721        127        960: 100%|██████████| 660/660 [01:43<00:00,  6.37it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.80it/s]
-                   all        393       9029      0.939      0.947      0.978      0.835
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-      9/100      6.31G     0.8042     0.6743     0.8678        188        960: 100%|██████████| 660/660 [01:42<00:00,  6.46it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.08it/s]
-                   all        393       9029      0.921      0.961       0.98      0.827
+      4/100      6.47G     0.9155      1.038     0.9073         98        608: 100%|██████████| 433/433 [02:24<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:31
+                   all       1488      30084      0.786      0.758      0.848      0.686
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     10/100      7.04G     0.7823     0.6316     0.8643        152        352: 100%|██████████| 660/660 [01:43<00:00,  6.40it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.38it/s]
-                   all        393       9029      0.948       0.97      0.985      0.847
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     11/100      7.59G     0.7675      0.629     0.8619        302        960: 100%|██████████| 660/660 [01:46<00:00,  6.22it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.25it/s]
-                   all        393       9029      0.953      0.966      0.987      0.864
+      5/100      7.34G     0.8713     0.8872     0.8983         78        640: 100%|██████████| 433/433 [02:24<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:31
+                   all       1488      30084       0.87      0.876      0.938      0.767
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     12/100      7.14G     0.7485     0.5976      0.854        208        576: 100%|██████████| 660/660 [01:40<00:00,  6.59it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.90it/s]
-                   all        393       9029      0.952      0.959      0.983       0.85
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     13/100      6.94G     0.7346      0.585     0.8522        131        576: 100%|██████████| 660/660 [01:43<00:00,  6.40it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.90it/s]
-                   all        393       9029      0.934      0.974      0.983      0.864
+      6/100      7.42G     0.8463     0.8025     0.8909         30        896: 100%|██████████| 433/433 [02:42<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:31
+                   all       1488      30084      0.868      0.869      0.938      0.768
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     14/100       7.2G     0.7318     0.5792     0.8506        182        864: 100%|██████████| 660/660 [01:39<00:00,  6.60it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.05it/s]
-                   all        393       9029      0.937      0.985      0.986      0.863
+      7/100      6.64G     0.8276     0.7553     0.8904         35        800: 100%|██████████| 433/433 [02:27<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:31
+                   all       1488      30084      0.896      0.928      0.965      0.801
+
+(...)
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     15/100      8.23G     0.7084     0.5481     0.8485        149        864: 100%|██████████| 660/660 [01:53<00:00,  5.80it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.58it/s]
-                   all        393       9029      0.948      0.978      0.989      0.877
+     48/100      7.63G      0.515       0.37      0.818         23        896: 100%|██████████| 433/433 [02:06<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:24
+                   all       1488      30084      0.967      0.989      0.983      0.925
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     16/100       7.2G     0.7074     0.5415     0.8431        197        544: 100%|██████████| 660/660 [01:37<00:00,  6.76it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.27it/s]
-                   all        393       9029      0.941      0.977      0.989      0.873
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     17/100      7.91G     0.7007     0.5506     0.8451        216        832: 100%|██████████| 660/660 [02:33<00:00,  4.30it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.40it/s]
-                   all        393       9029      0.959      0.964      0.989      0.883
+     49/100      7.17G     0.5161     0.3662     0.8196         43        928: 100%|██████████| 433/433 [02:16<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:19
+                   all       1488      30084      0.962       0.99      0.982       0.92
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     18/100      6.82G      0.684     0.5261     0.8443         76        672: 100%|██████████| 660/660 [01:44<00:00,  6.32it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.25it/s]
-                   all        393       9029      0.954       0.97      0.988      0.883
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     19/100      7.21G     0.6775     0.5169       0.84        175        896: 100%|██████████| 660/660 [01:40<00:00,  6.57it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.92it/s]
-                   all        393       9029      0.953      0.984      0.989       0.88
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     20/100      9.42G     0.6683     0.5078     0.8383        203        928: 100%|██████████| 660/660 [01:48<00:00,  6.07it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.44it/s]
-                   all        393       9029      0.947      0.986      0.991      0.891
+     50/100      5.74G     0.5183     0.3713     0.8174         17        416: 100%|██████████| 433/433 [01:59<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:30
+                   all       1488      30084      0.966      0.992      0.982      0.919
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     21/100      6.76G     0.6594     0.4994     0.8364        142        736: 100%|██████████| 660/660 [01:41<00:00,  6.49it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.17it/s]
-                   all        393       9029      0.953      0.983      0.989      0.887
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     22/100      6.57G     0.6536     0.4927     0.8356        186        640: 100%|██████████| 660/660 [01:42<00:00,  6.46it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.19it/s]
-                   all        393       9029      0.958      0.971      0.989      0.898
+     51/100      6.08G     0.5072     0.3612     0.8181         41        832: 100%|██████████| 433/433 [02:12<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:26
+                   all       1488      30084      0.962      0.995      0.984       0.93
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     23/100       8.7G     0.6418     0.4781     0.8337        235        896: 100%|██████████| 660/660 [01:49<00:00,  6.02it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  7.62it/s]
-                   all        393       9029      0.969      0.966       0.99      0.899
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     24/100      8.11G     0.6363     0.4707     0.8318        281        416: 100%|██████████| 660/660 [01:45<00:00,  6.23it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  8.33it/s]
-                   all        393       9029      0.961      0.978       0.99      0.906
+     52/100      6.55G     0.5098      0.362     0.8175         91        960: 100%|██████████| 433/433 [02:18<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:30
+                   all       1488      30084      0.974      0.985      0.983      0.927
+
+(...)
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     25/100      6.98G     0.6356     0.4757     0.8311        166        896: 100%|██████████| 660/660 [01:42<00:00,  6.46it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.56it/s]
-                   all        393       9029      0.963      0.969      0.988      0.888
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     26/100      8.32G     0.6263     0.4687     0.8288        231        960: 100%|██████████| 660/660 [01:48<00:00,  6.07it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.62it/s]
-                   all        393       9029      0.972      0.975       0.99      0.902
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     27/100      6.88G     0.6232     0.4609     0.8281        221        448: 100%|██████████| 660/660 [01:39<00:00,  6.64it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.42it/s]
-                   all        393       9029      0.961      0.976       0.99      0.899
+     99/100      5.69G     0.2881     0.1915     0.7826         30        896: 100%|██████████| 433/433 [02:17<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:29
+                   all       1488      30084      0.962      0.997      0.981      0.949
 
       Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     28/100      8.26G     0.6145     0.4533      0.827        366        768: 100%|██████████| 660/660 [01:45<00:00,  6.23it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.64it/s]
-                   all        393       9029      0.964      0.979      0.991      0.908
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     29/100      6.58G     0.6115     0.4563     0.8267        219        320: 100%|██████████| 660/660 [01:42<00:00,  6.46it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.32it/s]
-                   all        393       9029      0.964      0.972       0.99      0.908
+    100/100      5.57G     0.2896     0.1916      0.781         22        960: 100%|██████████| 433/433 [02:14<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:31
+                   all       1488      30084      0.962      0.997      0.982      0.949
 
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     30/100      5.97G     0.6097     0.4507     0.8243        130        448: 100%|██████████| 660/660 [01:37<00:00,  6.77it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.26it/s]
-                   all        393       9029      0.964      0.982       0.99      0.912
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     31/100      6.82G     0.5985     0.4399     0.8243        279        320: 100%|██████████| 660/660 [01:41<00:00,  6.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.35it/s]
-                   all        393       9029      0.974      0.965      0.989      0.914
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     32/100      7.26G     0.5926     0.4313     0.8241        183        672: 100%|██████████| 660/660 [01:42<00:00,  6.46it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.35it/s]
-                   all        393       9029      0.975      0.966      0.988      0.914
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     33/100      6.67G     0.5897     0.4314      0.822        176        640: 100%|██████████| 660/660 [01:43<00:00,  6.38it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.27it/s]
-                   all        393       9029      0.966      0.974      0.991      0.913
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     34/100       6.5G     0.5825     0.4221     0.8208        227        768: 100%|██████████| 660/660 [01:41<00:00,  6.50it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.17it/s]
-                   all        393       9029      0.971      0.976       0.99      0.914
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     35/100      7.67G     0.5745     0.4127     0.8197        134        320: 100%|██████████| 660/660 [01:40<00:00,  6.54it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.03it/s]
-                   all        393       9029      0.974      0.971      0.991      0.915
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     36/100      7.38G     0.5768     0.4196     0.8206        125        576: 100%|██████████| 660/660 [01:44<00:00,  6.30it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  8.25it/s]
-                   all        393       9029      0.978      0.965       0.99      0.915
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     37/100      7.79G     0.5732     0.4106     0.8192        196        480: 100%|██████████| 660/660 [03:17<00:00,  3.33it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.82it/s]
-                   all        393       9029      0.968      0.974      0.992      0.917
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     38/100      6.89G     0.5702     0.4113     0.8202        266        352: 100%|██████████| 660/660 [01:44<00:00,  6.33it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.30it/s]
-                   all        393       9029      0.964      0.972       0.99       0.92
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     39/100      7.41G       0.56     0.4013     0.8182        422        736: 100%|██████████| 660/660 [01:43<00:00,  6.40it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.49it/s]
-                   all        393       9029      0.974      0.962       0.99      0.919
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     40/100      7.83G     0.5648     0.4102     0.8172        241        480: 100%|██████████| 660/660 [02:09<00:00,  5.11it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.78it/s]
-                   all        393       9029      0.972      0.982      0.991      0.922
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     41/100      7.04G      0.556     0.3976     0.8154        256        704: 100%|██████████| 660/660 [01:41<00:00,  6.51it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.31it/s]
-                   all        393       9029      0.974      0.971      0.991      0.925
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     42/100      6.51G     0.5588     0.4005     0.8164        250        704: 100%|██████████| 660/660 [01:39<00:00,  6.62it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.34it/s]
-                   all        393       9029      0.977      0.966       0.99      0.925
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     43/100      7.29G     0.5551     0.3996      0.816        227        768: 100%|██████████| 660/660 [01:42<00:00,  6.44it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.18it/s]
-                   all        393       9029       0.98      0.967      0.991      0.925
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     44/100      6.92G     0.5386     0.3807     0.8135        325        320: 100%|██████████| 660/660 [01:41<00:00,  6.47it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.36it/s]
-                   all        393       9029      0.978      0.964       0.99      0.928
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     45/100      6.48G     0.5492     0.3944     0.8153        124        480: 100%|██████████| 660/660 [01:41<00:00,  6.47it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.76it/s]
-                   all        393       9029      0.977      0.967      0.991      0.929
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     46/100      6.04G      0.544     0.3864     0.8129        218        512: 100%|██████████| 660/660 [01:40<00:00,  6.59it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.25it/s]
-                   all        393       9029      0.964      0.976      0.991      0.923
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     47/100      7.16G      0.541     0.3867     0.8141        221        800: 100%|██████████| 660/660 [01:44<00:00,  6.32it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.34it/s]
-                   all        393       9029      0.979      0.966       0.99      0.928
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     48/100      6.77G     0.5342     0.3742     0.8139        143        704: 100%|██████████| 660/660 [01:43<00:00,  6.35it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.04it/s]
-                   all        393       9029      0.977      0.967      0.989      0.928
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     49/100      5.98G     0.5386     0.3832     0.8116        205        736: 100%|██████████| 660/660 [01:36<00:00,  6.86it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.33it/s]
-                   all        393       9029      0.968       0.98      0.991      0.929
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     50/100      6.59G     0.5292     0.3807     0.8103        216        960: 100%|██████████| 660/660 [01:39<00:00,  6.62it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.08it/s]
-                   all        393       9029      0.974      0.976       0.99      0.932
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     51/100      6.91G     0.5253     0.3704     0.8112        172        416: 100%|██████████| 660/660 [01:43<00:00,  6.40it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.05it/s]
-                   all        393       9029       0.95      0.986      0.991      0.933
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     52/100      6.57G     0.5235     0.3697     0.8111        323        576: 100%|██████████| 660/660 [01:40<00:00,  6.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.06it/s]
-                   all        393       9029      0.978      0.967      0.991       0.93
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     53/100      6.71G     0.5172     0.3646     0.8105        188        800: 100%|██████████| 660/660 [01:43<00:00,  6.40it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.34it/s]
-                   all        393       9029      0.982      0.965       0.99      0.931
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     54/100      7.89G     0.5173     0.3657     0.8104        271        896: 100%|██████████| 660/660 [01:43<00:00,  6.36it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.18it/s]
-                   all        393       9029       0.98      0.964       0.99      0.934
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     55/100      6.13G     0.5168     0.3665     0.8099        223        864: 100%|██████████| 660/660 [01:43<00:00,  6.35it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.22it/s]
-                   all        393       9029      0.982      0.967       0.99      0.934
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     56/100      7.28G     0.5153     0.3609     0.8093        192        512: 100%|██████████| 660/660 [01:41<00:00,  6.51it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.28it/s]
-                   all        393       9029      0.977      0.971      0.991      0.936
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     57/100      7.12G     0.5061     0.3566     0.8079        301        832: 100%|██████████| 660/660 [01:43<00:00,  6.37it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.05it/s]
-                   all        393       9029      0.984      0.963      0.991      0.937
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     58/100       6.8G     0.5204     0.3702     0.8089        187        384: 100%|██████████| 660/660 [01:38<00:00,  6.72it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.32it/s]
-                   all        393       9029      0.977      0.968      0.991      0.936
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     59/100      7.28G      0.511     0.3587     0.8092        237        768: 100%|██████████| 660/660 [01:44<00:00,  6.31it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.12it/s]
-                   all        393       9029      0.979      0.967      0.991      0.938
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     60/100       6.9G     0.5076     0.3577     0.8074        280        416: 100%|██████████| 660/660 [01:41<00:00,  6.52it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.33it/s]
-                   all        393       9029      0.971      0.971      0.991      0.937
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     61/100      6.92G     0.5063     0.3553     0.8075        206        512: 100%|██████████| 660/660 [01:41<00:00,  6.51it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.02it/s]
-                   all        393       9029      0.979      0.966      0.992      0.935
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     62/100      7.32G     0.5029     0.3561     0.8056        295        736: 100%|██████████| 660/660 [01:39<00:00,  6.66it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.09it/s]
-                   all        393       9029      0.981      0.966       0.99      0.939
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     63/100      8.65G     0.4914     0.3416     0.8055        146        512: 100%|██████████| 660/660 [01:44<00:00,  6.32it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.32it/s]
-                   all        393       9029      0.971      0.974      0.991       0.94
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     64/100      7.03G     0.4938     0.3407     0.8061        167        320: 100%|██████████| 660/660 [01:44<00:00,  6.31it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.34it/s]
-                   all        393       9029      0.969       0.98      0.991       0.94
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     65/100      7.79G     0.4889     0.3379     0.8058        170        384: 100%|██████████| 660/660 [01:45<00:00,  6.25it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.74it/s]
-                   all        393       9029      0.981      0.966      0.991      0.939
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     66/100      7.84G     0.4872     0.3358     0.8058        237        512: 100%|██████████| 660/660 [01:46<00:00,  6.21it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.97it/s]
-                   all        393       9029      0.955      0.985      0.992      0.939
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     67/100      7.57G     0.4843     0.3374     0.8053        366        832: 100%|██████████| 660/660 [01:41<00:00,  6.48it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.19it/s]
-                   all        393       9029       0.98       0.97      0.991      0.942
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     68/100      8.06G     0.4841     0.3359     0.8048        127        800: 100%|██████████| 660/660 [05:41<00:00,  1.93it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:05<00:00,  4.69it/s]
-                   all        393       9029      0.973      0.971      0.991      0.943
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     69/100      6.84G     0.4828     0.3327     0.8037        227        864: 100%|██████████| 660/660 [01:41<00:00,  6.51it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.31it/s]
-                   all        393       9029      0.982      0.966      0.991       0.94
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     70/100      6.63G     0.4796     0.3284     0.8043        248        928: 100%|██████████| 660/660 [01:45<00:00,  6.28it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  8.19it/s]
-                   all        393       9029      0.979       0.97      0.991      0.942
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     71/100      7.92G     0.4807     0.3294     0.8036        154        800: 100%|██████████| 660/660 [01:42<00:00,  6.41it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.72it/s]
-                   all        393       9029      0.971      0.976      0.991      0.942
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     72/100      6.53G     0.4752      0.325     0.8025        216        576: 100%|██████████| 660/660 [01:40<00:00,  6.56it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.87it/s]
-                   all        393       9029      0.982      0.967      0.991      0.944
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     73/100       6.9G     0.4761     0.3306      0.803        170        736: 100%|██████████| 660/660 [01:40<00:00,  6.54it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.38it/s]
-                   all        393       9029      0.982      0.967      0.992      0.945
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     74/100      6.33G      0.476     0.3279     0.8022        307        544: 100%|██████████| 660/660 [01:39<00:00,  6.63it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.14it/s]
-                   all        393       9029      0.983      0.965      0.992      0.944
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     75/100      5.83G     0.4709     0.3225     0.8028        265        896: 100%|██████████| 660/660 [01:40<00:00,  6.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.49it/s]
-                   all        393       9029       0.98      0.967      0.991      0.944
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     76/100      7.18G     0.4698     0.3204     0.8021        267        736: 100%|██████████| 660/660 [01:41<00:00,  6.51it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.43it/s]
-                   all        393       9029      0.984      0.966      0.991      0.945
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     77/100      6.95G     0.4616     0.3138     0.8015        192        544: 100%|██████████| 660/660 [01:46<00:00,  6.23it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:03<00:00,  8.08it/s]
-                   all        393       9029      0.983      0.966      0.991      0.945
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     78/100      7.95G     0.4614     0.3138     0.8002        207        512: 100%|██████████| 660/660 [01:47<00:00,  6.14it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.29it/s]
-                   all        393       9029      0.983      0.967      0.991      0.945
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     79/100      8.13G     0.4647     0.3195     0.8023        265        864: 100%|██████████| 660/660 [03:27<00:00,  3.18it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.38it/s]
-                   all        393       9029      0.984      0.966      0.991      0.945
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     80/100      6.81G     0.4629     0.3224     0.8011        364        512: 100%|██████████| 660/660 [01:39<00:00,  6.62it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.18it/s]
-                   all        393       9029      0.982      0.966      0.992      0.945
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     81/100      6.67G     0.4595     0.3138     0.8005        194        800: 100%|██████████| 660/660 [01:41<00:00,  6.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.47it/s]
-                   all        393       9029       0.98      0.969      0.991      0.945
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     82/100      6.33G     0.4559     0.3104     0.8001        264        608: 100%|██████████| 660/660 [01:39<00:00,  6.61it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.51it/s]
-                   all        393       9029      0.983      0.964      0.991      0.946
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     83/100      6.36G     0.4598     0.3167     0.8004        172        544: 100%|██████████| 660/660 [01:40<00:00,  6.56it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.66it/s]
-                   all        393       9029      0.955       0.99      0.992      0.946
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     84/100      6.66G      0.452     0.3083     0.7994        246        608: 100%|██████████| 660/660 [01:40<00:00,  6.60it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.29it/s]
-                   all        393       9029      0.954       0.99      0.992      0.946
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     85/100      7.06G     0.4525     0.3081     0.7983        293        768: 100%|██████████| 660/660 [01:38<00:00,  6.67it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.34it/s]
-                   all        393       9029       0.98      0.972      0.991      0.947
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     86/100      6.47G     0.4514     0.3074     0.8002        152        608: 100%|██████████| 660/660 [01:40<00:00,  6.55it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.03it/s]
-                   all        393       9029      0.975      0.972      0.992      0.948
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     87/100      6.82G     0.4485     0.3037     0.7991        296        928: 100%|██████████| 660/660 [01:39<00:00,  6.66it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.15it/s]
-                   all        393       9029      0.984      0.968      0.991      0.947
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     88/100      7.29G     0.4497     0.3061     0.7997        356        672: 100%|██████████| 660/660 [01:41<00:00,  6.47it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.40it/s]
-                   all        393       9029      0.985      0.966      0.992       0.95
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     89/100      6.77G     0.4474      0.305     0.7983        168        640: 100%|██████████| 660/660 [01:39<00:00,  6.61it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.19it/s]
-                   all        393       9029      0.985      0.967      0.991      0.949
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     90/100      6.33G     0.4485     0.3079     0.8007        292        672: 100%|██████████| 660/660 [01:40<00:00,  6.53it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.22it/s]
-                   all        393       9029      0.966      0.983      0.991       0.95
-Closing dataloader mosaic
-albumentations: Blur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     91/100      5.47G     0.3212     0.1997     0.7778         74        832: 100%|██████████| 660/660 [01:37<00:00,  6.76it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.45it/s]
-                   all        393       9029       0.96      0.989      0.992      0.951
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     92/100      5.57G     0.3085     0.1905     0.7764         62        960: 100%|██████████| 660/660 [01:34<00:00,  7.00it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.96it/s]
-                   all        393       9029      0.955      0.989      0.992      0.954
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     93/100      5.65G     0.3023      0.188     0.7752         61        352: 100%|██████████| 660/660 [01:36<00:00,  6.86it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  8.56it/s]
-                   all        393       9029       0.98      0.973      0.992      0.954
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     94/100      5.42G     0.2968      0.184     0.7753         79        672: 100%|██████████| 660/660 [01:34<00:00,  6.98it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.19it/s]
-                   all        393       9029      0.947      0.993      0.992      0.954
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     95/100      5.64G     0.2935     0.1832     0.7744         81        544: 100%|██████████| 660/660 [01:35<00:00,  6.92it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.64it/s]
-                   all        393       9029      0.986      0.969      0.992      0.955
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     96/100       5.5G     0.2928     0.1828     0.7747         86        512: 100%|██████████| 660/660 [01:34<00:00,  6.99it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.40it/s]
-                   all        393       9029      0.948      0.994      0.992      0.955
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     97/100      5.51G     0.2861     0.1782     0.7743         75        416: 100%|██████████| 660/660 [01:35<00:00,  6.89it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.46it/s]
-                   all        393       9029      0.985      0.969      0.992      0.955
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     98/100      5.38G      0.286     0.1772     0.7742         71        672: 100%|██████████| 660/660 [01:36<00:00,  6.84it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.52it/s]
-                   all        393       9029      0.984      0.969      0.991      0.957
-  0%|          | 0/660 [00:00<?, ?it/s]
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-     99/100      5.64G     0.2812     0.1753     0.7739         80        544: 100%|██████████| 660/660 [01:40<00:00,  6.59it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.23it/s]
-                   all        393       9029      0.985      0.967      0.991      0.956
-
-      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
-    100/100      5.92G     0.2805     0.1746     0.7732         75        960: 100%|██████████| 660/660 [01:35<00:00,  6.92it/s]
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:02<00:00,  9.57it/s]
-                   all        393       9029      0.984      0.967      0.991      0.957
-
-100 epochs completed in 3.084 hours.
+100 epochs completed in 4.872 hours.
 Optimizer stripped from C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100\weights\last.pt, 19.3MB
 Optimizer stripped from C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100\weights\best.pt, 19.3MB
 
 Validating C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100\weights\best.pt...
-Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
 YOLO11s summary (fused): 100 layers, 9,483,234 parameters, 0 gradients, 21.7 GFLOPs
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 25/25 [00:05<00:00,  4.78it/s]
-                   all        393       9029      0.984      0.967      0.991      0.935
-                   ACM         40         40      0.996          1      0.995      0.995
-                   ALB         67         83      0.999          1      0.995      0.918
-                   AMI          7         12       0.98          1      0.995      0.995
-           API-Gateway        200        304      0.997      0.985      0.995      0.956
-Active Directory Service         36         36      0.995          1      0.995      0.954
-              Airflow_          3          6      0.976          1      0.995      0.974
-               Amplify         16         16      0.989          1      0.995      0.817
-    Analytics Services          5          5          1          1      0.995      0.995
-               AppFlow         25         25      0.993          1      0.995      0.981
-               Appsync          6          6      0.972          1      0.995      0.678
-                Athena         36         37      0.995          1      0.995      0.925
-                Aurora         44         54      0.996          1      0.995      0.975
-          Auto Scaling         48         73      0.999          1      0.995      0.934
-    Auto Scaling Group          4         10      0.987          1      0.995      0.898
-       Automated Tests         15         20      0.992          1      0.995      0.924
-     Availability Zone         12         24      0.993          1      0.995      0.974
-                Backup          3          6      0.975          1      0.995      0.995
-     Build Environment          7          7      0.983          1      0.995      0.852
-                   CDN          5          5      0.964          1      0.995      0.995
-                   CUR          5          5          1          1      0.995      0.711
-          Call Metrics         25         25      0.995          1      0.995      0.974
-       Call Recordings         25         25      0.995          1      0.995      0.908
-   Certificate Manager         43         43      0.996          1      0.995      0.992
-                Client          3         13          1      0.609      0.995      0.995
-       Cloud Connector         11         22      0.993          1      0.995      0.971
-             Cloud Map          5          5      0.968          1      0.995      0.995
-          Cloud Search         19         19      0.992          1      0.995      0.976
-           Cloud Trail         53         53      0.977      0.981      0.989      0.942
-           Cloud Watch        113        135      0.998          1      0.995      0.939
-  CloudFormation Stack         32         37      0.995          1      0.995      0.988
-              CloudHSM         30         30          1      0.973      0.995      0.941
-      CloudWatch Alarm         18         23      0.994          1      0.995      0.931
-            Cloudfront        102        108      0.996          1      0.995      0.948
-             CodeBuild         30         50      0.997          1      0.995      0.958
-            CodeCommit         17         17       0.99          1      0.995      0.974
-            CodeDeploy          5          5      0.967          1      0.995      0.978
-          CodePipeline         43         43      0.995          1      0.995      0.902
-               Cognito         90        104      0.979      0.962      0.969       0.95
-            Comprehend         25         25      0.993          1      0.995      0.995
-                Config         38        163      0.987          1      0.984       0.86
-               Connect         25         25      0.993          1      0.995      0.986
-  Connect Contact Lens         25         25      0.996          1      0.995      0.936
-             Container         17         66      0.999          1      0.995      0.917
-         Control Tower          5          5      0.967          1      0.995      0.932
-      Customer Gateway          8         11      0.986          1      0.995      0.995
-                   DSI          5         10          1          1      0.995      0.862
-         Data Pipeline          5          5          1      0.846      0.995       0.82
-              DataSync          5          5          1          1      0.995      0.995
-          Deploy Stage         10         10      0.985          1      0.995      0.811
-             Detective         25         25      0.993          1      0.995      0.956
-        Direct Connect         21         21      0.992          1      0.995      0.991
-          Distribution          5          5          1      0.592      0.995      0.995
-          Docker Image         21         72          1          1      0.995      0.837
-             Dynamo DB        169        263      0.999          1      0.995      0.957
-                   EBS         27         37      0.996          1      0.995      0.918
-                   EC2        179        418      0.995       0.96      0.991       0.93
-                   EFS         22         30      0.964      0.967      0.963      0.929
-      EFS Mount Target         52        102      0.971       0.99      0.986      0.907
-                   EKS         53         59       0.98      0.983      0.995      0.972
-                   ELB        111        150      0.999      0.933      0.966      0.933
-                   EMR         10         10      0.983          1      0.995      0.903
-         Edge Location          5          7      0.978          1      0.995      0.995
-           ElastiCache         22         26      0.993          1      0.995      0.969
-Elastic Container Registry         43         43      0.996          1      0.995      0.966
-Elastic Container Service         50         60      0.981      0.983      0.978      0.857
-        Elastic Search         38         38      0.995          1      0.995      0.929
-Elemental MediaConvert         16         18      0.942          1      0.992      0.947
-Elemental MediaPackage          5          5          1      0.845      0.995      0.995
-                 Email          5          5      0.971          1      0.995       0.93
-              Endpoint          5          5      0.971          1      0.995      0.894
-             Event Bus          5          5      0.968          1      0.995      0.995
-           EventBridge         35        135      0.999          1      0.995       0.89
-   Experiment Duration          7          7          1          0      0.995      0.922
-           Experiments          7          7          1          0      0.978      0.977
-               Fargate         29         71      0.999          1      0.995      0.923
-Fault Injection Simulator         15         15      0.989          1      0.995      0.868
-      Firewall Manager         25         25      0.993          1      0.995      0.993
-                 Flask          8         24      0.997          1      0.995      0.834
-             Flow logs         25        100          1          1      0.995       0.85
-              GameLift          5          5       0.97          1      0.995      0.903
-                   Git          8          8       0.98          1      0.995      0.967
-                Github         17         18      0.991          1      0.995      0.966
-               Glacier         10         10      0.983          1      0.995      0.943
-                  Glue         19         38      0.994          1      0.995      0.968
-         Glue DataBrew          7          7      0.977          1      0.995      0.995
-               Grafana         10         10      0.983          1      0.995      0.995
-             GuardDuty         34        134      0.999          1      0.995      0.961
-                   IAM         66        207      0.998      0.981      0.995      0.909
-              IAM Role         41        169      0.988      0.972      0.983        0.8
-              IOT Core         13         17       0.99          1      0.995      0.989
-                 Image         11         11       0.99          1      0.995      0.844
-         Image Builder          5          5      0.968          1      0.995      0.995
-               Ingress          5          5      0.969          1      0.995      0.904
-       Inspector Agent         25         25      0.993          1      0.995      0.986
-             Instances          3          6      0.537      0.395      0.641      0.641
-              Internet         59         82      0.917          1      0.993      0.937
-      Internet Gateway         51         87          1       0.99      0.995      0.887
-               Jenkins          3          6      0.976          1      0.995      0.957
-Key Management Service         47         75      0.996          1      0.995      0.981
-                Kibana          7          7      0.981          1      0.995      0.957
-  Kinesis Data Streams         72         85      0.988       0.99      0.989      0.958
-            Kubernetes          8          8      0.982          1      0.995      0.977
-                Lambda        255        675      0.999      0.994      0.995      0.961
-                   Lex          5          5      0.966          1      0.995      0.995
-                    MQ          6         12      0.993          1      0.995      0.889
-      Machine Learning          9          9      0.959          1      0.995      0.995
-                 Macie         45        110      0.999          1      0.995      0.921
-           Marketplace          5          5      0.989          1      0.995      0.764
-             Memcached          5         10      0.983          1      0.995      0.962
-         Mobile Client         36         41      0.998          1      0.995      0.913
-              Mongo DB         11         23      0.947          1      0.995      0.868
-                 MySQL          7          7      0.983          1      0.995      0.932
-           NAT Gateway         44         85      0.983          1      0.994      0.977
-               Neptune          5          5      0.966          1      0.995       0.59
-       Network Adapter          5          5      0.968          1      0.995      0.995
-      Network Firewall         25         25      0.993          1      0.995       0.95
-              Notebook          5          5       0.97          1      0.995      0.995
-      Order Controller          5          5      0.977          1      0.995       0.88
-    Organization Trail         30        105      0.999          1      0.995      0.877
-       Parameter Store          7          7       0.98          1      0.995       0.95
-              Pinpoint          5          5      0.966          1      0.995      0.974
-            PostgreSQL          7          7      0.979          1      0.995      0.951
-          Private Link         25         25      0.993          1      0.995      0.958
-        Private Subnet        106        263      0.923       0.97      0.984       0.89
-            Prometheus         10         10      0.983          1      0.995      0.995
-         Public Subnet        104        216      0.973      0.989      0.994      0.888
-               Quarkus         10         10      0.983          1      0.995      0.988
-            Quicksight         32         34      0.995          1      0.995      0.995
-                   RDS         93        197          1          1      0.995      0.962
-                 React          3          3      0.964          1      0.995      0.866
-                 Redis         10         21      0.992          1      0.995      0.963
-              Redshift         45         46      0.996      0.978      0.994      0.922
-                Region         36         53      0.997          1      0.995      0.872
-           Rekognition         14         14      0.987          1      0.995      0.948
-               Results          7          7          1          0      0.862      0.862
-              Route 53         40         40      0.996          1      0.995       0.98
-               Route53         87        138      0.989          1      0.995       0.96
-                    S3        260        514      0.996      0.981      0.991      0.938
-                   SAR          5          5          1          1      0.995      0.983
-                   SDK         26         88          1      0.946      0.995      0.928
-                   SES         14         17      0.991          1      0.995      0.949
-                   SNS         62         69          1      0.974      0.989      0.969
-                   SQS         43         44      0.998          1      0.995      0.975
-             SSM Agent         25         25      0.993          1      0.995       0.91
-             Sagemaker         18         61          1      0.558      0.957      0.741
-        Secret Manager         30         30      0.994          1      0.995      0.882
-        Security Group          5          5       0.97          1      0.995      0.995
-          Security Hub         30        130      0.999          1      0.995      0.871
-                Server         27         42      0.997          1      0.995      0.924
-       Service Catalog          8         23      0.993          1      0.995      0.952
-                Shield         31         31      0.994          1      0.995      0.928
-               Sign-On         25         25          1          1      0.995      0.991
-                 Slack         12         12      0.987          1      0.995      0.982
-              Snowball         10         10      0.983          1      0.995      0.995
-                 Stack          5          5       0.97          1      0.995      0.831
-         Step Function          7         21      0.988          1      0.995      0.972
-       Storage Gateway         10         10      0.983          1      0.995      0.985
-            SwaggerHub          3          3      0.952          1      0.995      0.995
-       Systems Manager         39         64      0.993          1      0.995      0.976
-                    TV          5          5      0.971          1      0.995      0.939
-                 Table         20         40      0.995          1      0.995      0.956
-           Task Runner          5          5      0.968          1      0.995      0.927
-             Terraform         13         13       0.99          1      0.995      0.957
-             Text File         14         32          1      0.964      0.994      0.941
-              Textract          3          3       0.95          1      0.995      0.995
-            Transcribe          9          9      0.982          1      0.995      0.995
-       Transfer Family         16         16      0.989          1      0.995      0.991
-       Transit Gateway         10         10      0.983          1      0.995      0.948
-             Translate         19         19      0.991          1      0.995      0.973
-       Trusted Advisor          5          5      0.969          1      0.995      0.924
-                Twilio          7          7      0.976          1      0.995      0.995
-                 Users        152        204          1          1      0.995      0.932
-                   VDA         11         11      0.985          1      0.995      0.969
-            VP Gateway          6          7      0.983          1      0.995       0.98
-            VPC Router          9         16      0.992          1      0.995      0.894
-        VPN Connection          5          8      0.981          1      0.995      0.983
-                   WAF         43         46      0.996          1      0.995      0.979
-           Web Clients         45         62          1      0.763      0.994      0.893
-              Websites          5          5      0.971          1      0.995      0.873
-                 X-Ray         16         20      0.991          1      0.995      0.964
-                   aws        240        322      0.997      0.997      0.995      0.936
-          cache Worker          8          8       0.98          1      0.995       0.98
-Speed: 0.1ms preprocess, 9.0ms inference, 0.0ms loss, 1.8ms postprocess per image
+                       Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 93/93 [00:45
+                         all       1488      30084      0.962      0.995      0.982       0.93
+                         ACM         62         62      0.992          1      0.995      0.994
+                         ALB        228        332      0.999          1      0.995      0.938
+                         AMI         29         44      0.987          1      0.995       0.98
+                 API-Gateway        774       1178      0.974      0.992      0.994      0.952
+    Active Directory Service         31         31      0.983          1      0.995      0.975
+                    Airflow_         15         30      0.984          1      0.995      0.969
+                     Amplify         84         84      0.982          1      0.995      0.852
+          Analytics Services         15         15      0.969          1      0.995      0.905
+                     AppFlow         15         15      0.969          1      0.995      0.995
+                     Appsync         61         61      0.993          1      0.995      0.824
+                      Athena        143        148      0.819          1      0.995      0.942
+                      Aurora         89        126      0.976          1      0.995      0.974
+                Auto Scaling        173        307      0.998          1      0.995      0.929
+          Auto Scaling Group         35         88      0.995          1      0.995      0.847
+             Automated Tests         64         98      0.995          1      0.995      0.945
+           Availability Zone         24         48      0.985          1      0.995      0.979
+                      Backup         15         30      0.984          1      0.995      0.995
+           Build Environment         44         44      0.989          1      0.995      0.863
+                         CDN         20         20       0.89          1      0.913      0.897
+                         CUR         42         42       0.99          1      0.995      0.814
+                Call Metrics         15         15      0.969          1      0.995       0.89
+             Call Recordings         15         15      0.969          1      0.995        0.9
+         Certificate Manager         98         98      0.995          1      0.995      0.969
+                      Client         16         61      0.709       0.52      0.788      0.682
+             Cloud Connector         16         32      0.985          1      0.995      0.933
+                   Cloud Map         15         15      0.968          1      0.995      0.995
+                Cloud Search         56         56      0.991          1      0.995      0.918
+                 Cloud Trail        187        192      0.997          1      0.995      0.979
+                 Cloud Watch        543        644      0.999          1      0.995      0.942
+        CloudFormation Stack        150        168      0.997          1      0.995      0.968
+                    CloudHSM         34         34      0.985          1      0.995      0.982
+            CloudWatch Alarm         87        121      0.996          1      0.995      0.933
+                  Cloudfront        401        427      0.985      0.929      0.993      0.947
+                   CodeBuild        157        245      0.998          1      0.995       0.94
+                  CodeCommit         68         80      0.994          1      0.995      0.989
+                  CodeDeploy         17         17      0.972          1      0.995      0.995
+                CodePipeline        214        220      0.998          1      0.995      0.928
+                     Cognito        346        391      0.964       0.89      0.986      0.939
+                  Comprehend         72         72      0.992          1      0.995      0.995
+                      Config        103        178      0.921      0.978      0.993      0.902
+                     Connect         15         15      0.968          1      0.995       0.98
+        Connect Contact Lens         15         15      0.965          1      0.995      0.921
+                   Container         79        346      0.997          1      0.995      0.916
+               Control Tower         17         17      0.972          1      0.995       0.98
+            Customer Gateway         38         74      0.993          1      0.995      0.967
+                         DSI         34         68      0.993          1      0.995      0.877
+               Data Pipeline         23         23      0.978          1      0.995      0.882
+                    DataSync         32         32      0.985          1      0.995      0.992
+                Deploy Stage         30         30      0.985          1      0.995      0.878
+                   Detective         15         15      0.969          1      0.995      0.963
+              Direct Connect         91        126      0.996          1      0.995       0.95
+                Distribution         15         15      0.615          1       0.92        0.9
+                Docker Image         56        179      0.967          1      0.995      0.826
+                   Dynamo DB        660        979      0.963          1      0.995       0.96
+                         EBS         92        147      0.999          1      0.995      0.925
+                         EC2        707       1935      0.985          1      0.995      0.941
+                         EFS        100        133      0.996          1      0.995      0.977
+            EFS Mount Target         99        129      0.996          1      0.995       0.93
+                         EKS        161        184      0.992          1      0.995      0.975
+                         ELB        425        583      0.999      0.969      0.975      0.944
+                         EMR         15         15      0.968          1      0.995      0.995
+               Edge Location         20         42      0.988          1      0.995       0.97
+                 ElastiCache        138        170      0.991          1      0.995      0.967
+  Elastic Container Registry        235        235      0.998          1      0.995      0.951
+   Elastic Container Service        258        331      0.991      0.993      0.995      0.893
+              Elastic Search        142        147      0.997          1      0.995      0.935
+      Elemental MediaConvert         49         66       0.83      0.962      0.963      0.963
+      Elemental MediaPackage         15         15      0.467          1      0.572      0.572
+                       Email         25         25       0.98          1      0.995      0.969
+                    Endpoint         27         27      0.983          1      0.995       0.98
+                   Event Bus         16         16      0.967          1      0.995      0.995
+                 EventBridge         60        120      0.996          1      0.995        0.9
+         Experiment Duration         17         17      0.566          1      0.588      0.559
+                 Experiments         17         17      0.563          1      0.803      0.782
+                     Fargate        193        427      0.973          1      0.995      0.932
+   Fault Injection Simulator         49         49       0.99          1      0.995      0.916
+            Firewall Manager         15         15      0.969          1      0.995      0.995
+                       Flask         15         45      0.987          1      0.995      0.809
+                   Flow logs         15         60      0.992          1      0.995      0.835
+                    GameLift         17         17      0.973          1      0.995      0.904
+                         Git         15         15      0.969          1      0.995      0.911
+                      Github         81         95      0.995          1      0.995      0.939
+                     Glacier         15         15      0.968          1      0.995      0.987
+                        Glue         58        116      0.995          1      0.995       0.94
+               Glue DataBrew         26         26      0.981          1      0.995      0.981
+                     Grafana         20         20      0.976          1      0.995      0.995
+                   GuardDuty         72        132      0.996          1      0.995      0.956
+                         IAM        201        334      0.992       0.91       0.99      0.906
+                    IAM Role         98        207      0.868          1      0.983      0.845
+                    IOT Core         40         54      0.991          1      0.995      0.984
+                       Image         74         74      0.994          1      0.995      0.854
+               Image Builder         15         15      0.968          1      0.995      0.995
+                     Ingress         15         15      0.969          1      0.995      0.899
+             Inspector Agent         15         15      0.968          1      0.995      0.982
+                   Instances         19         38      0.558          1      0.571      0.479
+                    Internet        240        345      0.953          1      0.994       0.96
+            Internet Gateway        167        247      0.991          1      0.995      0.907
+                     Jenkins         15         30      0.984          1      0.995       0.97
+      Key Management Service        127        155      0.997          1      0.995      0.981
+                      Kibana         15         15      0.969          1      0.995      0.995
+        Kinesis Data Streams        150        198      0.997          1      0.995      0.969
+                  Kubernetes         15         15      0.968          1      0.995      0.985
+                      Lambda        945       2489      0.987      0.991      0.995      0.962
+                         Lex         16         16       0.97          1      0.995      0.995
+                          MQ         25         57      0.992          1      0.995      0.866
+            Machine Learning         56         56      0.835          1      0.982      0.946
+                       Macie         65        146      0.997          1      0.995      0.917
+                 Marketplace         21         21       0.98          1      0.995      0.695
+                   Memcached         18         36      0.986          1      0.995      0.991
+               Mobile Client        198        249      0.988      0.997      0.995      0.914
+                    Mongo DB         26         70      0.873          1      0.995      0.874
+                       MySQL         15         15       0.97          1      0.995      0.911
+                 NAT Gateway        187        375      0.999          1      0.995      0.955
+                     Neptune         42         42      0.985          1      0.995        0.7
+             Network Adapter         15         15      0.968          1      0.995      0.995
+            Network Firewall         15         15      0.969          1      0.995      0.901
+                    Notebook         18         18      0.973          1      0.995      0.995
+            Order Controller         18         18      0.974          1      0.995      0.905
+          Organization Trail         32         77      0.994          1      0.995      0.849
+             Parameter Store         26         26      0.982          1      0.995      0.987
+                    Pinpoint         16         16       0.97          1      0.995      0.915
+                  PostgreSQL         15         15       0.97          1      0.995      0.948
+                Private Link         89         89      0.994          1      0.995      0.941
+              Private Subnet        368        930      0.975      0.981      0.987      0.869
+                  Prometheus         20         20      0.976          1      0.995      0.995
+               Public Subnet        338        841      0.998          1      0.995      0.869
+                     Quarkus         20         20      0.974          1      0.995      0.982
+                  Quicksight         41         51       0.99          1      0.995      0.963
+                         RDS        345        685      0.998          1      0.995      0.939
+                       React         15         15      0.969          1      0.995      0.867
+                       Redis         49        100      0.997          1      0.995      0.965
+                    Redshift         73         80      0.994          1      0.995      0.966
+                      Region        183        269      0.996          1      0.995      0.902
+                 Rekognition         33         33      0.985          1      0.995      0.995
+                     Results         17         17      0.565          1      0.626      0.611
+                    Route 53         53         53      0.991          1      0.995      0.979
+                     Route53        428        611      0.998          1      0.995      0.959
+                          S3        977       2096      0.979       0.99      0.995      0.943
+                         SAR         18         18      0.974          1      0.995      0.995
+                         SDK        123        403      0.978      0.999      0.995      0.954
+                         SES         72         87      0.994          1      0.995      0.944
+                         SNS        258        279      0.998          1      0.995      0.965
+                         SQS        189        199      0.998          1      0.995      0.969
+                   SSM Agent         15         15      0.968          1      0.995      0.986
+                   Sagemaker         81        267      0.922      0.981      0.987      0.816
+              Secret Manager         46         46      0.988          1      0.995      0.892
+              Security Group         15         15      0.969          1      0.995      0.995
+                Security Hub         31         91      0.995          1      0.995      0.844
+                      Server        101        193      0.997          1      0.995      0.953
+             Service Catalog         40         91      0.995          1      0.995      0.911
+                      Shield         58         58      0.992          1      0.995      0.993
+                     Sign-On         15         15      0.968          1      0.995      0.979
+                       Slack         37         37      0.987          1      0.995      0.979
+                    Snowball         15         15      0.969          1      0.995      0.995
+                       Stack         22         22      0.978          1      0.995      0.938
+               Step Function         32         96      0.995          1      0.995      0.935
+             Storage Gateway         15         15      0.968          1      0.995      0.995
+                  SwaggerHub         15         15      0.968          1      0.995      0.995
+             Systems Manager         61         76      0.994          1      0.995      0.983
+                          TV         22         22      0.978          1      0.995      0.961
+                       Table         88        196      0.997          1      0.995      0.942
+                 Task Runner         18         18      0.973          1      0.995      0.995
+                   Terraform         32         32      0.985          1      0.995      0.945
+                   Text File         54        122      0.943          1      0.994      0.931
+                    Textract         17         17      0.972          1      0.995      0.995
+                  Transcribe         17         17      0.972          1      0.995      0.995
+             Transfer Family         68         68      0.993          1      0.995      0.984
+             Transit Gateway         35         35      0.986          1      0.995      0.953
+                   Translate         49         49       0.99          1      0.995      0.979
+             Trusted Advisor         36         36      0.986          1      0.995      0.983
+                      Twilio         15         15      0.968          1      0.995      0.972
+                       Users        574        790      0.976      0.989      0.995      0.928
+                         VDA         16         16      0.971          1      0.995      0.962
+                  VP Gateway         30         36      0.987          1      0.995      0.913
+                  VPC Router         50        102      0.991          1      0.995       0.95
+              VPN Connection         21         57      0.991          1      0.995      0.946
+                         WAF        112        131      0.996          1      0.995      0.956
+                 Web Clients        213        248      0.821          1      0.984       0.89
+                    Websites         31         31      0.984          1      0.995      0.959
+                       X-Ray         83         95      0.995          1      0.995       0.99
+                         aws        971       1219      0.996      0.999      0.995      0.912
+                cache Worker         36         36      0.986          1      0.995      0.968
+Speed: 0.2ms preprocess, 13.9ms inference, 0.0ms loss, 4.2ms postprocess per image
 Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100
 🚀 Save dir: C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100
 ✅ best.pt:  C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11s_custom_100\weights\best.pt
-Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
 YOLO11s summary (fused): 100 layers, 9,483,234 parameters, 0 gradients, 21.7 GFLOPs
-val: Fast image access  (ping: 0.00.0 ms, read: 91.124.6 MB/s, size: 343.9 KB)
-val: Scanning C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels.cache... 386 images, 0 backgrounds, 0 corrupt: 100%|██████████| 386/386 [00:00<?, ?it/s]
-                                           0% | 0.00/18.42 MB [00:00<?, ?MB/s]: 
-                                            0% | 0.00/0.46 MB [00:00<?, ?MB/s]: 
-
-                                            0% | 0.00/0.44 MB [00:00<?, ?MB/s]: 
-
-
-                                            0% | 0.00/0.43 MB [00:00<?, ?MB/s]: 
-
-
-████████████████████████████████▍  98% | 0.42/0.43 MB [00:00<00:00,  2.26s/MB]: 
-
-█████████████████████████████████ 100% | 0.44/0.44 MB [00:00<00:00,  2.23s/MB]: 
-████████████████████████████████▌  99% | 0.45/0.46 MB [00:01<00:00,  2.42s/MB]: 
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):   0%|          | 0/49 [00:00<?, ?it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):   2%|▏         | 1/49 [00:00<00:15,  3.03it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):   4%|▍         | 2/49 [00:00<00:10,  4.44it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):   6%|▌         | 3/49 [00:00<00:08,  5.50it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):   8%|▊         | 4/49 [00:00<00:07,  5.86it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  12%|█▏        | 6/49 [00:00<00:05,  8.56it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  18%|█▊        | 9/49 [00:01<00:03, 12.27it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  24%|██▍       | 12/49 [00:01<00:02, 14.01it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  29%|██▊       | 14/49 [00:01<00:02, 14.77it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  35%|███▍      | 17/49 [00:01<00:01, 16.18it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  39%|███▉      | 19/49 [00:01<00:01, 16.90it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  43%|████▎     | 21/49 [00:01<00:01, 17.57it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  47%|████▋     | 23/49 [00:01<00:01, 17.56it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  51%|█████     | 25/49 [00:01<00:01, 15.34it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  55%|█████▌    | 27/49 [00:02<00:01, 16.01it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  59%|█████▉    | 29/49 [00:02<00:01, 15.71it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  63%|██████▎   | 31/49 [00:02<00:01, 14.35it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  67%|██████▋   | 33/49 [00:02<00:01, 14.52it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  71%|███████▏  | 35/49 [00:02<00:00, 15.06it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  76%|███████▌  | 37/49 [00:02<00:00, 14.59it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  80%|███████▉  | 39/49 [00:02<00:00, 14.37it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  84%|████████▎ | 41/49 [00:03<00:00, 14.00it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  88%|████████▊ | 43/49 [00:03<00:00, 14.07it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  92%|█████████▏| 45/49 [00:03<00:00, 14.05it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):  96%|█████████▌| 47/49 [00:03<00:00, 13.38it/s]
-
-
-
-                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 49/49 [00:03<00:00, 13.29it/s]
-█████████████▏                    41% | 7.59/18.42 MB [00:10<00:14,  1.33s/MB]:                    all        386       7672      0.981      0.955      0.986      0.957
-                   ACM         22         22      0.991          1      0.995      0.995
-                   ALB         58         74          1      0.951      0.994      0.956
-                   AMI          8         13      0.957          1      0.995      0.995
-           API-Gateway        201        304      0.993      0.985      0.994      0.983
-Active Directory Service         15         15      0.987          1      0.995      0.995
-              Airflow_          3          6      0.971          1      0.995      0.995
-               Amplify         18         18      0.988          1      0.995      0.972
-    Analytics Services          5          5          1          1      0.995      0.968
-               AppFlow         12         12      0.984          1      0.995      0.995
-               Appsync          8          8      0.976          1      0.995      0.926
-                Athena         32         33      0.993          1      0.995      0.984
-                Aurora         27         36      0.993      0.889       0.93      0.921
-          Auto Scaling         45         75          1      0.966      0.994       0.93
-    Auto Scaling Group          3          8      0.979          1      0.995      0.914
-       Automated Tests         12         17      0.989          1      0.995      0.942
-     Availability Zone         10         20      0.991          1      0.995      0.995
-                Backup          3          6      0.969          1      0.995      0.995
-     Build Environment          6          6      0.975          1      0.995      0.834
-                   CDN          7          7      0.973          1      0.995      0.951
-                   CUR          6          6      0.968          1      0.995      0.961
-          Call Metrics         12         12      0.985          1      0.995       0.98
-       Call Recordings         12         12          1          1      0.995      0.941
-   Certificate Manager         28         28      0.992          1      0.995      0.995
-                Client          3          8          1      0.359      0.778      0.772
-       Cloud Connector          7         14      0.986          1      0.995      0.984
-             Cloud Map          5          5      0.959          1      0.995      0.995
-          Cloud Search         14         14      0.987          1      0.995      0.987
-           Cloud Trail         39         41       0.96      0.976      0.984      0.965
-           Cloud Watch        126        151      0.999          1      0.995      0.955
-  CloudFormation Stack         38         45      0.995          1      0.995      0.989
-              CloudHSM         13         13          1      0.941      0.995      0.991
-      CloudWatch Alarm         18         23      0.992          1      0.995      0.944
-            Cloudfront         97        101      0.996       0.98      0.995      0.969
-             CodeBuild         33         53      0.997          1      0.995      0.982
-            CodeCommit         15         15      0.987          1      0.995      0.986
-            CodeDeploy          5          5       0.96          1      0.995      0.947
-          CodePipeline         43         43      0.973          1      0.993      0.954
-               Cognito         85        100      0.998       0.98      0.986      0.982
-            Comprehend         27         27      0.992          1      0.995      0.995
-                Config         25         65      0.967          1      0.972      0.972
-               Connect         12         12      0.982          1      0.995      0.995
-  Connect Contact Lens         12         12          1          1      0.995      0.987
-             Container         18         81      0.995          1      0.995      0.941
-         Control Tower          7          7          1          1      0.995      0.995
-      Customer Gateway          5         11      0.982          1      0.995      0.971
-                   DSI          5         10      0.986          1      0.995       0.85
-         Data Pipeline          5          5          1      0.852      0.995      0.995
-              DataSync          5          5      0.962          1      0.995      0.995
-          Deploy Stage          7          7      0.975          1      0.995       0.81
-             Detective          8          8      0.975          1      0.995      0.995
-        Direct Connect         19         26      0.992      0.962      0.976      0.895
-          Distribution          5          5          1      0.708      0.962      0.962
-          Docker Image         18         61          1      0.954      0.975       0.88
-             Dynamo DB        174        270      0.999       0.97      0.989      0.963
-                   EBS         24         36          1      0.979      0.995      0.958
-                   EC2        166        406       0.99      0.948      0.989      0.932
-                   EFS         28         36      0.943      0.923      0.941      0.914
-      EFS Mount Target         35         54       0.98      0.897      0.936      0.928
-                   EKS         51         58      0.983      0.987      0.995      0.989
-                   ELB        104        149      0.999       0.94      0.973       0.95
-                   EMR          5          5      0.965          1      0.995      0.995
-         Edge Location          3          5      0.967          1      0.995      0.773
-           ElastiCache         25         31          1      0.879       0.96      0.942
-Elastic Container Registry         51         51      0.996          1      0.995      0.994
-Elastic Container Service         50         62      0.981      0.952      0.984      0.899
-        Elastic Search         32         33      0.995          1      0.995      0.962
-Elemental MediaConvert         17         20      0.829          1      0.979      0.977
-Elemental MediaPackage          5          5          1      0.261      0.858      0.858
-                 Email          5          5          1      0.842      0.995      0.948
-              Endpoint          6          6      0.915          1      0.995      0.928
-             Event Bus          5          5      0.962          1      0.995      0.995
-           EventBridge         21         53      0.996          1      0.995      0.993
-   Experiment Duration          5          5          1          0      0.879      0.765
-           Experiments          5          5          1          0      0.928      0.892
-               Fargate         30         72      0.998          1      0.995      0.957
-Fault Injection Simulator         12         12          1          1      0.995      0.884
-      Firewall Manager          8          8          1          1      0.995      0.995
-                 Flask          6         18      0.996          1      0.995      0.937
-             Flow logs          8         32      0.995          1      0.995      0.953
-              GameLift          5          5      0.962          1      0.995      0.928
-                   Git          6          6      0.968          1      0.995      0.984
-                Github         20         25      0.992          1      0.995       0.98
-               Glacier          5          5      0.963          1      0.995      0.995
-                  Glue         15         30      0.994          1      0.995      0.971
-         Glue DataBrew          7          7      0.971          1      0.995      0.995
-               Grafana          8          8      0.975          1      0.995      0.995
-             GuardDuty         17         49      0.996          1      0.995      0.993
-                   IAM         51        104          1      0.954      0.989      0.958
-              IAM Role         25         68      0.966      0.941      0.979       0.89
-              IOT Core         12         14      0.996          1      0.995      0.991
-                 Image         13         13      0.989          1      0.995      0.953
-         Image Builder          5          5      0.956          1      0.995      0.995
-               Ingress          5          5      0.959          1      0.995      0.995
-       Inspector Agent          8          8      0.975          1      0.995      0.995
-             Instances          3          6      0.552      0.421      0.701      0.676
-              Internet         63         86      0.922      0.966      0.988      0.961
-      Internet Gateway         32         50      0.991          1      0.995      0.938
-               Jenkins          3          6      0.971          1      0.995      0.966
-Key Management Service         29         40      0.996          1      0.995      0.995
-                Kibana          7          7      0.977          1      0.995      0.995
-  Kinesis Data Streams         50         66      0.984      0.946      0.993      0.988
-            Kubernetes          6          6      0.972          1      0.995      0.995
-                Lambda        243        673          1      0.995      0.995      0.985
-                   Lex          5          5      0.961          1      0.995      0.995
-                    MQ          5         11      0.991          1      0.995      0.884
-      Machine Learning         11         11          1      0.773      0.995      0.975
-                 Macie         27         70      0.997          1      0.995      0.979
-           Marketplace          5          5          1          1      0.995      0.709
-             Memcached          6         12      0.982          1      0.995      0.935
-         Mobile Client         40         49      0.998          1      0.995      0.935
-              Mongo DB          9         21      0.996          1      0.995      0.892
-                 MySQL          7          7      0.979          1      0.995      0.959
-           NAT Gateway         46         88      0.966      0.943      0.979      0.957
-               Neptune          6          6          1          1      0.995      0.897
-       Network Adapter          5          5       0.96          1      0.995      0.995
-      Network Firewall          8          8      0.976          1      0.995      0.995
-              Notebook          5          5      0.963          1      0.995      0.995
-      Order Controller          5          5       0.95          1      0.995      0.934
-    Organization Trail         17         41      0.995          1      0.995      0.989
-       Parameter Store          7          7      0.976          1      0.995      0.995
-              Pinpoint          5          5      0.959          1      0.995      0.995
-            PostgreSQL          7          7      0.975          1      0.995      0.973
-          Private Link         24         24      0.991          1      0.995      0.995
-        Private Subnet         89        208      0.995      0.957      0.978      0.918
-            Prometheus          8          8      0.975          1      0.995      0.995
-         Public Subnet         90        203      0.985      0.958      0.981        0.9
-               Quarkus          8          8          1          1      0.995      0.995
-            Quicksight         19         21       0.99          1      0.995      0.995
-                   RDS         83        163      0.953      0.945      0.949      0.928
-                 React          4          4      0.968          1      0.995      0.962
-                 Redis         10         25       0.99       0.96      0.968      0.964
-              Redshift         27         29          1      0.973      0.995      0.991
-                Region         36         52      0.998          1      0.995      0.925
-           Rekognition         14         14      0.986          1      0.995      0.995
-               Results          5          5          1          0      0.879      0.863
-              Route 53         21         21      0.946          1       0.95       0.95
-               Route53         98        167      0.987      0.994      0.994      0.974
-                    S3        256        520      0.998      0.981      0.995      0.969
-                   SAR          5          5          1          1      0.995      0.995
-                   SDK         24         80      0.987      0.979      0.991       0.95
-                   SES         17         20          1      0.994      0.995      0.978
-                   SNS         63         69          1      0.974      0.995      0.982
-                   SQS         49         50      0.997          1      0.995      0.977
-             SSM Agent          8          8          1          1      0.995      0.995
-             Sagemaker         16         59          1      0.457      0.972      0.837
-        Secret Manager         14         14      0.985          1      0.995      0.995
-        Security Group          5          5       0.96          1      0.995      0.899
-          Security Hub         13         45      0.996          1      0.995      0.993
-                Server         20         32      0.994          1      0.995      0.899
-       Service Catalog         10         31      0.994          1      0.995      0.956
-                Shield         15         15      0.986          1      0.995      0.995
-               Sign-On          8          8          1          1      0.995      0.995
-                 Slack         13         13      0.986          1      0.995      0.995
-              Snowball          5          5      0.963          1      0.995      0.995
-                 Stack          5          5      0.969          1      0.995      0.995
-         Step Function          8         24      0.986          1      0.995      0.924
-       Storage Gateway          5          5          1          1      0.995      0.995
-            SwaggerHub          5          5          1          1      0.995      0.995
-       Systems Manager         20         28      0.992          1      0.995      0.993
-                    TV          6          6      0.977          1      0.995      0.982
-                 Table         23         46      0.995          1      0.995      0.978
-           Task Runner          5          5       0.96          1      0.995      0.995
-             Terraform         11         11      0.984          1      0.995      0.982
-             Text File         11         28      0.844      0.966      0.921       0.89
-              Textract          5          5          1          1      0.995      0.995
-            Transcribe          9          9      0.977          1      0.995      0.995
-       Transfer Family         15         15      0.987          1      0.995      0.992
-       Transit Gateway         12         12      0.983          1      0.995      0.995
-             Translate         19         19      0.989          1      0.995      0.995
-       Trusted Advisor          6          6          1          1      0.995      0.968
-                Twilio          7          7       0.97          1      0.995      0.995
-                 Users        144        196          1      0.997      0.995       0.96
-                   VDA          7          7      0.973          1      0.995      0.995
-            VP Gateway          5          6      0.982      0.833      0.972      0.947
-            VPC Router          8         16      0.984          1      0.995      0.902
-        VPN Connection          3          9      0.993          1      0.995       0.96
-                   WAF         25         28      0.992          1      0.995      0.982
-           Web Clients         50         62          1      0.794      0.989      0.916
-              Websites          9          9      0.961          1      0.995      0.937
-                 X-Ray         19         21       0.99          1      0.995      0.991
-                   aws        243        326      0.994      0.988      0.995      0.956
-          cache Worker          7          7      0.972          1      0.995      0.995
-Speed: 0.2ms preprocess, 5.2ms inference, 0.0ms loss, 1.2ms postprocess per image
+val: Fast image access  (ping: 0.10.0 ms, read: 217.8131.8 MB/s, size: 365.8 KB)
+val: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels... 1327 images, 0 backgrounds, 0 corrupt: 1
+val: New cache created: D:\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels.cache
+                     Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 166/166 [00:
+                       all       1327      26828       0.96      0.996       0.98       0.95
+                       ACM         42         42      0.987          1      0.995      0.995
+                       ALB        206        292      0.999          1      0.995      0.961
+                       AMI         24         39      0.986          1      0.995      0.995
+               API-Gateway        707       1063      0.973      0.997      0.995      0.973
+  Active Directory Service         29         29      0.981          1      0.995      0.995
+                  Airflow_         15         30      0.983          1      0.995      0.976
+                   Amplify         76         76      0.983          1      0.989      0.868
+        Analytics Services         15         15      0.966          1      0.995      0.979
+                   AppFlow         15         15      0.965          1      0.995      0.995
+                   Appsync         50         50      0.994          1      0.995      0.842
+                    Athena        133        141      0.844          1      0.995      0.956
+                    Aurora         79        112      0.993      0.964      0.979      0.976
+              Auto Scaling        126        211      0.998          1      0.995      0.942
+        Auto Scaling Group         25         58      0.992          1      0.995      0.957
+           Automated Tests         58         89      0.994          1      0.995      0.962
+         Availability Zone         23         46      0.989          1      0.995      0.993
+                    Backup         16         32      0.983          1      0.995      0.995
+         Build Environment         34         34      0.986          1      0.995       0.84
+                       CDN         21         21      0.975          1      0.995      0.983
+                       CUR         35         35      0.987          1      0.995      0.779
+              Call Metrics         15         15      0.966          1      0.995      0.995
+           Call Recordings         15         15      0.966          1      0.995      0.862
+       Certificate Manager        103        103      0.995          1      0.995      0.995
+                    Client         16         61      0.534      0.984      0.663      0.587
+           Cloud Connector         14         28      0.982          1      0.995      0.993
+                 Cloud Map         15         15      0.965          1      0.995      0.995
+              Cloud Search         48         48      0.989          1      0.995      0.984
+               Cloud Trail        140        142      0.995          1      0.995      0.991
+               Cloud Watch        468        566      0.999          1      0.995       0.97
+      CloudFormation Stack        124        138      0.996          1      0.995      0.994
+                  CloudHSM         33         33      0.984          1      0.995      0.995
+          CloudWatch Alarm         75        106      0.995          1      0.995      0.951
+                Cloudfront        346        366      0.988      0.929      0.992      0.964
+                 CodeBuild        140        208      0.997          1      0.995      0.965
+                CodeCommit         52         66      0.992          1      0.995      0.994
+                CodeDeploy         13         13      0.959          1      0.995      0.983
+              CodePipeline        183        190      0.993          1      0.992      0.955
+                   Cognito        310        354      0.935      0.887      0.984      0.962
+                Comprehend         73         73      0.992          1      0.995      0.995
+                    Config         72        147      0.946       0.98      0.993      0.957
+                   Connect         15         15      0.965          1      0.995      0.995
+      Connect Contact Lens         15         15      0.965          1      0.995       0.99
+                 Container         86        403      0.999          1      0.995      0.944
+             Control Tower         14         14      0.963          1      0.995      0.995
+          Customer Gateway         35         62      0.991          1      0.995      0.977
+                       DSI         31         62      0.992          1      0.995      0.872
+             Data Pipeline         22         22      0.976          1      0.995      0.995
+                  DataSync         30         30          1          1      0.995      0.995
+              Deploy Stage         27         27      0.981          1      0.995      0.873
+                 Detective         15         15      0.965          1      0.995      0.995
+            Direct Connect         77        112      0.995      0.991      0.995      0.959
+              Distribution         15         15      0.619          1      0.816      0.816
+              Docker Image         44        174       0.99      0.989       0.99      0.838
+                 Dynamo DB        619        958      0.967      0.992      0.995      0.969
+                       EBS         65        107          1      0.996      0.995      0.938
+                       EC2        609       1692      0.983      0.991      0.994      0.965
+                       EFS         90        116      0.987      0.983      0.986      0.977
+          EFS Mount Target         95        128      0.998      0.977      0.982      0.964
+                       EKS        147        164      0.996          1      0.995       0.98
+                       ELB        379        521      0.994      0.964      0.975      0.958
+                       EMR         15         15      0.965          1      0.995      0.995
+             Edge Location         15         27      0.982          1      0.995      0.928
+               ElastiCache        101        121      0.995      0.967      0.985      0.968
+Elastic Container Registry        212        212      0.998          1      0.995      0.972
+ Elastic Container Service        236        302      0.976      0.937      0.992      0.923
+            Elastic Search        116        117      0.996          1      0.995      0.943
+    Elemental MediaConvert         49         64      0.816          1       0.98      0.978
+    Elemental MediaPackage         15         15      0.497          1       0.53       0.53
+                     Email         29         29          1      0.966      0.982      0.976
+                  Endpoint         22         22      0.978          1      0.995      0.982
+                 Event Bus         15         15      0.964          1      0.995      0.995
+               EventBridge         41        101      0.995          1      0.995      0.984
+       Experiment Duration         14         14      0.516          1      0.572      0.553
+               Experiments         14         14      0.515          1      0.621      0.621
+                   Fargate        180        423      0.935          1      0.994      0.958
+ Fault Injection Simulator         45         45      0.988          1      0.995      0.963
+          Firewall Manager         15         15      0.965          1      0.995      0.995
+                     Flask         17         51      0.989          1      0.995      0.791
+                 Flow logs         15         60      0.995          1      0.995      0.915
+                  GameLift         15         15      0.967          1      0.995      0.939
+                       Git         17         17      0.969          1      0.995       0.96
+                    Github         73         90      0.994          1      0.995       0.96
+                   Glacier         15         15      0.965          1      0.995      0.995
+                      Glue         59        118      0.995          1      0.995      0.965
+             Glue DataBrew         22         22      0.975          1      0.995      0.995
+                   Grafana         14         14       0.96          1      0.995      0.995
+                 GuardDuty         57        117      0.995          1      0.995      0.978
+                       IAM        180        335       0.96      0.934       0.99      0.951
+                  IAM Role         78        185      0.855      0.989      0.978      0.895
+                  IOT Core         46         52      0.994          1      0.995      0.992
+                     Image         63         63      0.992          1      0.995       0.89
+             Image Builder         15         15      0.962          1      0.995      0.995
+                   Ingress         17         17      0.969          1      0.995      0.995
+           Inspector Agent         15         15      0.965          1      0.995      0.995
+                 Instances         16         32      0.515          1      0.637      0.622
+                  Internet        201        272      0.951      0.994      0.994       0.98
+          Internet Gateway        133        200          1      0.999      0.995      0.926
+                   Jenkins         15         30      0.982          1      0.995      0.995
+    Key Management Service        111        139      0.996          1      0.995      0.995
+                    Kibana         18         18      0.971          1      0.995      0.983
+      Kinesis Data Streams        156        207          1      0.988      0.995      0.991
+                Kubernetes         17         17      0.971          1      0.995      0.995
+                    Lambda        830       2220      0.988      0.996      0.995      0.978
+                       Lex         18         18       0.97          1      0.995      0.995
+                        MQ         34         86      0.994          1      0.995      0.963
+          Machine Learning         47         47      0.809          1      0.974      0.969
+                     Macie         56        119      0.994          1      0.995      0.966
+               Marketplace         19         19      0.981          1      0.995      0.726
+                 Memcached         11         22      0.976          1      0.995      0.983
+             Mobile Client        150        196          1      0.989      0.995      0.921
+                  Mongo DB         26         62      0.992          1      0.995       0.92
+                     MySQL         15         15      0.967          1      0.995      0.911
+               NAT Gateway        147        293      0.993      0.989      0.995      0.985
+                   Neptune         35         35      0.982          1      0.995        0.7
+           Network Adapter         15         15      0.965          1      0.995      0.995
+          Network Firewall         15         15      0.967          1      0.995      0.995
+                  Notebook         15         15      0.965          1      0.995      0.995
+          Order Controller         17         17      0.969          1      0.995      0.889
+        Organization Trail         26         71      0.994          1      0.995      0.981
+           Parameter Store         27         27       0.98          1      0.995      0.985
+                  Pinpoint         16         16      0.967          1      0.995      0.995
+                PostgreSQL         15         15      0.967          1      0.995      0.987
+              Private Link         87         87      0.994          1      0.995      0.989
+            Private Subnet        335        936      0.994      0.981      0.987      0.927
+                Prometheus         14         14      0.963          1      0.995      0.995
+             Public Subnet        299        715      0.997      0.992      0.995      0.918
+                   Quarkus         14         14      0.962          1      0.995      0.995
+                Quicksight         40         50      0.989          1      0.995      0.995
+                       RDS        266        551      0.982      0.982      0.982      0.961
+                     React         15         15      0.968          1      0.995      0.911
+                     Redis         47         98       0.98          1      0.995      0.987
+                  Redshift         65         72      0.993          1      0.995      0.993
+                    Region        161        243      0.997          1      0.995      0.928
+               Rekognition         37         37      0.985          1      0.995      0.988
+                   Results         14         14      0.523          1      0.685      0.685
+                  Route 53         39         39      0.962          1      0.989      0.989
+                   Route53        376        532      0.995      0.996      0.995      0.974
+                        S3        867       1862      0.969      0.982      0.994      0.963
+                       SAR         14         14      0.964          1      0.995      0.995
+                       SDK         98        301      0.971          1      0.992      0.969
+                       SES         69         84      0.994          1      0.995      0.978
+                       SNS        232        254      0.998          1      0.995      0.988
+                       SQS        184        197      0.997          1      0.995      0.979
+                 SSM Agent         15         15      0.965          1      0.995      0.995
+                 Sagemaker         76        241      0.991      0.992      0.993      0.823
+            Secret Manager         44         44      0.983          1      0.995      0.995
+            Security Group         16         16      0.967          1      0.995       0.97
+              Security Hub         25         85      0.995          1      0.995      0.953
+                    Server         88        165      0.996          1      0.995       0.95
+           Service Catalog         30         72      0.992          1      0.995      0.965
+                    Shield         52         52       0.99          1      0.995      0.995
+                   Sign-On         15         15      0.965          1      0.995      0.995
+                     Slack         30         30      0.982          1      0.995      0.973
+                  Snowball         15         15      0.963          1      0.995      0.995
+                     Stack         14         14      0.964          1      0.995      0.973
+             Step Function         30         90      0.994          1      0.995      0.922
+           Storage Gateway         15         15      0.965          1      0.995      0.995
+                SwaggerHub         15         15      0.965          1      0.995      0.995
+           Systems Manager         53         68      0.992          1      0.995      0.995
+                        TV         12         12      0.959          1      0.995      0.967
+                     Table         72        154       0.99          1      0.995      0.954
+               Task Runner         17         17      0.969          1      0.995       0.99
+                 Terraform         38         38      0.986          1      0.995       0.97
+                 Text File         49         99      0.914          1       0.98      0.955
+                  Textract         14         14      0.962          1      0.995      0.995
+                Transcribe         19         19      0.972          1      0.995      0.995
+           Transfer Family         67         67      0.992          1      0.995      0.989
+           Transit Gateway         31         31      0.983          1      0.995      0.962
+                 Translate         53         53       0.99          1      0.995      0.995
+           Trusted Advisor         13         13       0.96          1      0.995      0.986
+                    Twilio         18         18      0.971          1      0.995      0.995
+                     Users        486        656      0.999      0.985      0.995      0.959
+                       VDA         14         14      0.964          1      0.995      0.983
+                VP Gateway         27         39      0.987      0.974      0.979      0.934
+                VPC Router         39         80          1      0.994      0.995      0.938
+            VPN Connection         21         48      0.992          1      0.995      0.989
+                       WAF         99        109      0.995          1      0.995       0.99
+               Web Clients        202        268      0.831      0.994      0.971      0.909
+                  Websites         34         34      0.985          1      0.995      0.993
+                     X-Ray         88        112      0.996          1      0.995      0.991
+                       aws        845       1067      0.993      0.993      0.995      0.945
+              cache Worker         26         26      0.979          1      0.995      0.995
+Speed: 0.4ms preprocess, 10.0ms inference, 0.0ms loss, 4.4ms postprocess per image
 Saving C:\acmattos\dev\tools\Python\ia4devs\runs\detect\val\predictions.json...
 Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\val
 
 🎯 Test Metrics (mean per class):
-  Precision:    0.981
-  Recall:       0.955
-  mAP@0.5:      0.986
-  mAP@0.5:0.95: 0.957
+  Precision:    0.960
+  Recall:       0.996
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.950
 
-image 1/1 C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\sample\aws_02.png: 576x640 2 Cloud Watchs, 1 Cloudfront, 4 EC2s, 1 ElastiCache, 1 Key Management Service, 1 NAT Gateway, 3 Private Subnets, 3 Public Subnets, 2 RDSs, 1 Region, 2 S3s, 1 SES, 1 Users, 2 WAFs, 1 aws, 84.3ms
-Speed: 4.9ms preprocess, 84.3ms inference, 8.0ms postprocess per image at shape (1, 3, 576, 640)
+image 1/1 D:\ia4devs\module_05\05_hackaton\data\sample\aws_02.png: 576x640 2 ALBs, 
+2 Auto Scalings, 2 Cloud Watchs, 1 Cloudfront, 1 Dynamo DB, 4 EC2s, 1 IAM, 1 NAT Gateway, 
+3 Private Subnets, 3 Public Subnets, 2 RDSs, 1 Region, 1 S3, 1 Users, 2 WAFs, 1 aws, 209.5ms
+Speed: 8.4ms preprocess, 209.5ms inference, 4.7ms postprocess per image at shape (1, 3, 576, 640)
 Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict
 1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict\labels
 ✅ Detailed JSON saved to data\reports\yolo11s_custom_100\results.json
 ✅ Summary JSON saved to data\reports\yolo11s_custom_100\report.json
-([ultralytics.engine.results.Results object with attributes:
+[ultralytics.engine.results.Results object with attributes:
 
 boxes: ultralytics.engine.results.Boxes object
 keypoints: None
 masks: None
-names: {0: 'ACM', 1: 'ALB', 2: 'AMI', 3: 'API-Gateway', 4: 'Active Directory Service', 5: 'Airflow_', 6: 'Amplify', 7: 'Analytics Services', 8: 'AppFlow', 9: 'Appsync', 10: 'Athena', 11: 'Aurora', 12: 'Auto Scaling', 13: 'Auto Scaling Group', 14: 'Automated Tests', 15: 'Availability Zone', 16: 'Backup', 17: 'Build Environment', 18: 'CDN', 19: 'CUR', 20: 'Call Metrics', 21: 'Call Recordings', 22: 'Certificate Manager', 23: 'Client', 24: 'Cloud Connector', 25: 'Cloud Map', 26: 'Cloud Search', 27: 'Cloud Trail', 28: 'Cloud Watch', 29: 'CloudFormation Stack', 30: 'CloudHSM', 31: 'CloudWatch Alarm', 32: 'Cloudfront', 33: 'CodeBuild', 34: 'CodeCommit', 35: 'CodeDeploy', 36: 'CodePipeline', 37: 'Cognito', 38: 'Comprehend', 39: 'Config', 40: 'Connect', 41: 'Connect Contact Lens', 42: 'Container', 43: 'Control Tower', 44: 'Customer Gateway', 45: 'DSI', 46: 'Data Pipeline', 47: 'DataSync', 48: 'Deploy Stage', 49: 'Detective', 50: 'Direct Connect', 51: 'Distribution', 52: 'Docker Image', 53: 'Dynamo DB', 54: 'EBS', 55: 'EC2', 56: 'EFS', 57: 'EFS Mount Target', 58: 'EKS', 59: 'ELB', 60: 'EMR', 61: 'Edge Location', 62: 'ElastiCache', 63: 'Elastic Container Registry', 64: 'Elastic Container Service', 65: 'Elastic Search', 66: 'Elemental MediaConvert', 67: 'Elemental MediaPackage', 68: 'Email', 69: 'Endpoint', 70: 'Event Bus', 71: 'EventBridge', 72: 'Experiment Duration', 73: 'Experiments', 74: 'Fargate', 75: 'Fault Injection Simulator', 76: 'Firewall Manager', 77: 'Flask', 78: 'Flow logs', 79: 'GameLift', 80: 'Git', 81: 'Github', 82: 'Glacier', 83: 'Glue', 84: 'Glue DataBrew', 85: 'Grafana', 86: 'GuardDuty', 87: 'IAM', 88: 'IAM Role', 89: 'IOT Core', 90: 'Image', 91: 'Image Builder', 92: 'Ingress', 93: 'Inspector Agent', 94: 'Instances', 95: 'Internet', 96: 'Internet Gateway', 97: 'Jenkins', 98: 'Key Management Service', 99: 'Kibana', 100: 'Kinesis Data Streams', 101: 'Kubernetes', 102: 'Lambda', 103: 'Lex', 104: 'MQ', 105: 'Machine Learning', 106: 'Macie', 107: 'Marketplace', 108: 'Memcached', 109: 'Mobile Client', 110: 'Mongo DB', 111: 'MySQL', 112: 'NAT Gateway', 113: 'Neptune', 114: 'Network Adapter', 115: 'Network Firewall', 116: 'Notebook', 117: 'Order Controller', 118: 'Organization Trail', 119: 'Parameter Store', 120: 'Pinpoint', 121: 'PostgreSQL', 122: 'Private Link', 123: 'Private Subnet', 124: 'Prometheus', 125: 'Public Subnet', 126: 'Quarkus', 127: 'Quicksight', 128: 'RDS', 129: 'React', 130: 'Redis', 131: 'Redshift', 132: 'Region', 133: 'Rekognition', 134: 'Results', 135: 'Route 53', 136: 'Route53', 137: 'S3', 138: 'SAR', 139: 'SDK', 140: 'SES', 141: 'SNS', 142: 'SQS', 143: 'SSM Agent', 144: 'Sagemaker', 145: 'Secret Manager', 146: 'Security Group', 147: 'Security Hub', 148: 'Server', 149: 'Service Catalog', 150: 'Shield', 151: 'Sign-On', 152: 'Slack', 153: 'Snowball', 154: 'Stack', 155: 'Step Function', 156: 'Storage Gateway', 157: 'SwaggerHub', 158: 'Systems Manager', 159: 'TV', 160: 'Table', 161: 'Task Runner', 162: 'Terraform', 163: 'Text File', 164: 'Textract', 165: 'Transcribe', 166: 'Transfer Family', 167: 'Transit Gateway', 168: 'Translate', 169: 'Trusted Advisor', 170: 'Twilio', 171: 'Users', 172: 'VDA', 173: 'VP Gateway', 174: 'VPC Router', 175: 'VPN Connection', 176: 'WAF', 177: 'Web Clients', 178: 'Websites', 179: 'X-Ray', 180: 'aws', 181: 'cache Worker'}
+(...)
 obb: None
-orig_img: array([[[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       ...,
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]],
-
-       [[255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255],
-        ...,
-        [255, 255, 255],
-        [255, 255, 255],
-        [255, 255, 255]]], dtype=uint8)
+(...)
 orig_shape: (993, 1167)
-path: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\module_05\\05_hackaton\\data\\sample\\aws_02.png'
+path: 'D:\\ia4devs\\module_05\\05_hackaton\\data\\sample\\aws_02.png'
 probs: None
 save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
-speed: {'preprocess': 4.903499997453764, 'inference': 84.32300001732074, 'postprocess': 8.02300000214018}],
- [{'boxes': [{'class': 176,
-              'confidence': 0.9682163596153259,
-              'coordinates': [650.6542358398438,
-                              39.00212860107422,
-                              741.3566284179688,
-                              130.7328338623047],
-              'name': 'WAF'},
-             {'class': 176,
-              'confidence': 0.9589774012565613,
-              'coordinates': [384.0617370605469,
-                              38.26711654663086,
-                              475.09271240234375,
-                              130.67282104492188],
-              'name': 'WAF'},
-             {'class': 128,
-              'confidence': 0.9556941390037537,
-              'coordinates': [411.3981628417969,
-                              755.106689453125,
-                              500.1042175292969,
-                              843.8895263671875],
-              'name': 'RDS'},
-             {'class': 128,
-              'confidence': 0.954138457775116,
-              'coordinates': [255.6346893310547,
-                              755.2382202148438,
-                              341.19244384765625,
-                              843.5369262695312],
-              'name': 'RDS'},
-             {'class': 28,
-              'confidence': 0.9537869691848755,
-              'coordinates': [969.572998046875,
-                              213.7010498046875,
-                              1058.7939453125,
-                              300.9198913574219],
-              'name': 'Cloud Watch'},
-             {'class': 55,
-              'confidence': 0.9502649307250977,
-              'coordinates': [759.7893676757812,
-                              758.8599243164062,
-                              849.4012451171875,
-                              848.4196166992188],
-              'name': 'EC2'},
-             {'class': 125,
-              'confidence': 0.9459349513053894,
-              'coordinates': [401.08795166015625,
-                              313.547607421875,
-                              446.44818115234375,
-                              359.7774963378906],
-              'name': 'Public Subnet'},
-             {'class': 125,
-              'confidence': 0.9452306032180786,
-              'coordinates': [691.8026123046875,
-                              313.68572998046875,
-                              736.2325439453125,
-                              360.0868835449219],
-              'name': 'Public Subnet'},
-             {'class': 98,
-              'confidence': 0.944023072719574,
-              'coordinates': [971.7753295898438,
-                              345.1828308105469,
-                              1054.2257080078125,
-                              429.4676208496094],
-              'name': 'Key Management Service'},
-             {'class': 125,
-              'confidence': 0.9350648522377014,
-              'coordinates': [134.20179748535156,
-                              319.6605529785156,
-                              179.7294464111328,
-                              363.8770751953125],
-              'name': 'Public Subnet'},
-             {'class': 180,
-              'confidence': 0.9262549877166748,
-              'coordinates': [71.30086517333984,
-                              148.70989990234375,
-                              109.833251953125,
-                              189.8184356689453],
-              'name': 'aws'},
-             {'class': 171,
-              'confidence': 0.925313413143158,
-              'coordinates': [131.13597106933594,
-                              50.710933685302734,
-                              197.52468872070312,
-                              115.77574157714844],
-              'name': 'Users'},
-             {'class': 123,
-              'confidence': 0.9230290651321411,
-              'coordinates': [135.34707641601562,
-                              453.436279296875,
-                              178.2580108642578,
-                              495.12359619140625],
-              'name': 'Private Subnet'},
-             {'class': 32,
-              'confidence': 0.9200432896614075,
-              'coordinates': [505.1424865722656,
-                              39.99667739868164,
-                              594.0325927734375,
-                              128.9741668701172],
-              'name': 'Cloudfront'},
-             {'class': 123,
-              'confidence': 0.9194516539573669,
-              'coordinates': [402.79022216796875,
-                              452.7129821777344,
-                              445.880615234375,
-                              496.31976318359375],
-              'name': 'Private Subnet'},
-             {'class': 28,
-              'confidence': 0.9188613891601562,
-              'coordinates': [971.1754150390625,
-                              624.3637084960938,
-                              1057.3280029296875,
-                              710.41943359375],
-              'name': 'Cloud Watch'},
-             {'class': 132,
-              'confidence': 0.9078757166862488,
-              'coordinates': [83.54353332519531,
-                              188.06658935546875,
-                              123.3695297241211,
-                              230.6660614013672],
-              'name': 'Region'},
-             {'class': 123,
-              'confidence': 0.9032012224197388,
-              'coordinates': [692.4966430664062,
-                              452.13916015625,
-                              736.358642578125,
-                              495.6383361816406],
-              'name': 'Private Subnet'},
-             {'class': 140,
-              'confidence': 0.8645418286323547,
-              'coordinates': [970.8497924804688,
-                              768.8991088867188,
-                              1057.1756591796875,
-                              855.9013061523438],
-              'name': 'SES'},
-             {'class': 62,
-              'confidence': 0.8421372771263123,
-              'coordinates': [545.809814453125,
-                              753.7843627929688,
-                              634.9067993164062,
-                              843.88134765625],
-              'name': 'ElastiCache'},
-             {'class': 55,
-              'confidence': 0.7935768961906433,
-              'coordinates': [195.204833984375,
-                              558.6671142578125,
-                              286.7924499511719,
-                              649.4301147460938],
-              'name': 'EC2'},
-             {'class': 137,
-              'confidence': 0.7892306447029114,
-              'coordinates': [972.9020385742188,
-                              500.4378662109375,
-                              1056.5308837890625,
-                              582.798828125],
-              'name': 'S3'},
-             {'class': 55,
-              'confidence': 0.7836862802505493,
-              'coordinates': [482.8027038574219,
-                              562.4357299804688,
-                              574.3709716796875,
-                              653.0350952148438],
-              'name': 'EC2'},
-             {'class': 112,
-              'confidence': 0.7727504372596741,
-              'coordinates': [776.01123046875,
-                              357.0038757324219,
-                              838.7301025390625,
-                              416.0096130371094],
-              'name': 'NAT Gateway'},
-             {'class': 55,
-              'confidence': 0.7596423625946045,
-              'coordinates': [761.4385375976562,
-                              561.9155883789062,
-                              851.9475708007812,
-                              653.5723876953125],
-              'name': 'EC2'},
-             {'class': 137,
-              'confidence': 0.7572213411331177,
-              'coordinates': [146.35353088378906,
-                              757.0053100585938,
-                              232.7991485595703,
-                              842.3672485351562],
-              'name': 'S3'}],
-   'path': 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\module_05\\05_hackaton\\data\\sample\\aws_02.png'}])
-███████████████████████████████ 100% | 18.42/18.42 MB [00:37<00:00,  2.04s/MB]: 
-Skipping upload, could not find object file 'C:\Users\acmattos\AppData\Local\Temp\tmpvdulyi2c.png'
-Skipping upload, could not find object file 'C:\Users\acmattos\AppData\Local\Temp\tmpbvmejhr1.png'
-Skipping upload, could not find object file 'C:\Users\acmattos\AppData\Local\Temp\tmpcngu7t7_.png'
-████████████████████████████████ 100% | 0.46/0.46 MB [05:04<00:00, 662.03s/MB]: 
-████████████████████████████████ 100% | 0.44/0.44 MB [05:04<00:00, 692.12s/MB]: 
-████████████████████████████████ 100% | 0.43/0.43 MB [05:04<00:00, 708.22s/MB]: 
+speed: {'preprocess': 8.365600020624697, 'inference': 209.4717000145465, 'postprocess': 4.683099978137761}]
 ```
-Report
+### Predição do Modelo `S`
+
+![Detecção do Modelo S](data/model/trained/yolo11s_custom_100/predict/aws_02.jpg)
+
+####################################################################
+
+## Treinamento do Yolo 11 Modelo `M`
+
+O treinamento utilizou 82 épocas para treino, gastando 5.280 horas no processo. 
+O mecanismo de `Early Stop` foi acionado, após 10 épocas passarem sem nenhum 
+progresso no treinamento do modelo.
+
+N
+🎯 Test Metrics (mean per class):
+  Precision:    0.957
+  Recall:       0.992
+  mAP@0.5:      0.979
+  mAP@0.5:0.95: 0.911
+S
+🎯 Test Metrics (mean per class):
+  Precision:    0.960
+  Recall:       0.996
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.950
+M
+🎯 Test Metrics (mean per class):
+  Precision:    0.958
+  Recall:       0.989
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.957
 ```bash
-C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\.venv\Scripts\python.exe C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\report.py 
+New https://pypi.org/project/ultralytics/8.3.162 available  Update with 'pip install -U ultralytics'
+Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+engine\trainer: agnostic_nms=False, amp=True, augment=True, auto_augment=randaugment, batch=6, 
+bgr=0.0, box=7.5, cache=False, cfg=None, classes=None, close_mosaic=10, cls=0.5, conf=None, 
+copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=./data/dataset/aws/data.yaml, 
+degrees=0.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, 
+embed=None, epochs=100, erasing=0.4, exist_ok=False, fliplr=0.5, flipud=0.0, format=torchscript, 
+fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, 
+iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.0005, lrf=0.05, mask_ratio=4, max_det=300, 
+mixup=0.5, mode=train, model=./data/model/yolo11m.pt, momentum=0.937, mosaic=1.0, multi_scale=True, 
+name=yolo11m_custom_100, nbs=64, nms=False, opset=None, optimize=False, optimizer=AdamW, 
+overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, 
+profile=False, project=None, rect=False, resume=False, retina_masks=False, save=True, 
+save_conf=False, save_crop=False, 
+save_dir=C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100, save_frames=False, 
+save_json=False, save_period=-1, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, 
+show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, 
+split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, 
+val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3, 
+warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
+Overriding model.yaml nc=80 with nc=182
 
-image 1/1 C:\acmattos\dev\tools\Python\ia4devs\module_05\05_hackaton\data\sample\aws_01.jpg: 544x640 1 Dynamo DB, 5 Lambdas, 1 S3, 1 SNS, 2 Userss, 1 aws, 55.0ms
-Speed: 2.3ms preprocess, 55.0ms inference, 67.7ms postprocess per image at shape (1, 3, 544, 640)
-Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict2
-1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict2\labels
-✅ Detailed JSON saved to data\reports\yolo11s_custom_200\results.json
-✅ Summary JSON saved to data\reports\yolo11s_custom_200\report.json
-Reports generated: data/reports/yolo11s_custom_200
+                   from  n    params  module                         arguments
+  0           -1  1      1856  ultralytics.nn.modules.conv.Conv      [3, 64, 3, 2]
+  1           -1  1     73984  ultralytics.nn.modules.conv.Conv      [64, 128, 3, 2]
+  2           -1  1    111872  ultralytics.nn.modules.block.C3k2     [128, 256, 1, True, 0.25]
+  3           -1  1    590336  ultralytics.nn.modules.conv.Conv      [256, 256, 3, 2]
+  4           -1  1    444928  ultralytics.nn.modules.block.C3k2     [256, 512, 1, True, 0.25]
+  5           -1  1   2360320  ultralytics.nn.modules.conv.Conv      [512, 512, 3, 2]
+  6           -1  1   1380352  ultralytics.nn.modules.block.C3k2     [512, 512, 1, True]
+  7           -1  1   2360320  ultralytics.nn.modules.conv.Conv      [512, 512, 3, 2]
+  8           -1  1   1380352  ultralytics.nn.modules.block.C3k2     [512, 512, 1, True]
+  9           -1  1    656896  ultralytics.nn.modules.block.SPPF     [512, 512, 5]
+ 10           -1  1    990976  ultralytics.nn.modules.block.C2PSA    [512, 512, 1]
+ 11           -1  1         0  torch.nn.modules.upsampling.Upsample  [None, 2, 'nearest']
+ 12      [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 13           -1  1   1642496  ultralytics.nn.modules.block.C3k2     [1024, 512, 1, True]
+ 14           -1  1         0  torch.nn.modules.upsampling.Upsample  [None, 2, 'nearest']
+ 15      [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 16           -1  1    542720  ultralytics.nn.modules.block.C3k2     [1024, 256, 1, True]
+ 17           -1  1    590336  ultralytics.nn.modules.conv.Conv      [256, 256, 3, 2]
+ 18     [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 19           -1  1   1511424  ultralytics.nn.modules.block.C3k2     [768, 512, 1, True]
+ 20           -1  1   2360320  ultralytics.nn.modules.conv.Conv      [512, 512, 3, 2]
+ 21     [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat    [1]
+ 22           -1  1   1642496  ultralytics.nn.modules.block.C3k2     [1024, 512, 1, True]
+ 23 [16, 19, 22]  1   1551346  ultralytics.nn.modules.head.Detect    [182, [256, 512, 512]]
+YOLO11m summary: 231 layers, 20,193,330 parameters, 20,193,314 gradients, 69.0 GFLOPs
+
+Transferred 643/649 items from pretrained weights
+ClearML Task: created new task id=4d88d8495b224537b71cc9f78d532fad
+ClearML results page: https://app.clear.ml/projects/14f0119248fa451f826c387955b212a3/experiments/4d88d8495b224537b71cc9f78d532fad/output/log
+WARNING ClearML Initialized a new task. If you want to run remotely, please add clearml-init and connect your arguments before initializing YOLO.
+Freezing layer 'model.23.dfl.conv.weight'
+AMP: running Automatic Mixed Precision (AMP) checks...
+AMP: checks passed
+train: Fast image access  (ping: 0.20.1 ms, read: 900.8340.6 MB/s, size: 1118.3 KB)
+train: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\train\labels.cache... 3457 images, 0 backgrounds, 0 c
+albumentations: Blur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
+val: Fast image access  (ping: 0.10.1 ms, read: 432.2297.8 MB/s, size: 607.4 KB)
+val: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\valid\labels.cache... 1488 images, 0 backgrounds, 0 cor
+Plotting labels to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100\labels.jpg...
+optimizer: AdamW(lr=0.0005, momentum=0.937) with parameter groups 106 weight(decay=0.0), 113 weight(decay=0.000515625), 112 bias(decay=0.0)
+Image sizes 640 train, 640 val
+Using 8 dataloader workers
+Logging results to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100
+Starting training for 100 epochs...
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      1/100      7.37G      1.421      5.513      1.155        253        384:   2%|▏         | 10/577 [00:04<03:27,  
+      1/100      7.55G      1.108      2.564     0.9695        242        576:  67%|██████▋   | 388/577 [02:18<00:49, 
+      1/100      7.55G      1.071      2.245     0.9587         29        544: 100%|██████████| 577/577 [03:18<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95):   7%|▋         | 9/124 [00:01
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.695      0.418      0.493      0.376
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      2/100      7.54G     0.9569      1.188     0.9321         25        672: 100%|██████████| 577/577 [02:54<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.754      0.715      0.794      0.612
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      3/100      7.86G     0.9032     0.9137     0.9158          9        672: 100%|██████████| 577/577 [02:38<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.842      0.836      0.915      0.727
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      4/100      7.69G     0.8737     0.8256     0.9097         12        736: 100%|██████████| 577/577 [03:48<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.863      0.886      0.939      0.764
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      5/100      7.72G     0.8313     0.7116     0.9021         24        896: 100%|██████████| 577/577 [04:20<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.899      0.929      0.969      0.803
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      6/100      7.78G     0.7875     0.6362     0.8858         80        768: 100%|██████████| 577/577 [04:44<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.945      0.962      0.978      0.836
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      7/100      7.69G     0.7651     0.6092     0.8865         27        960: 100%|██████████| 577/577 [03:57<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.928      0.977       0.98      0.853
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      8/100      7.64G       0.73      0.556     0.8752         16        864: 100%|██████████| 577/577 [02:39<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.932       0.98       0.98       0.85
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+      9/100      7.76G     0.7183     0.5498     0.8703         29        640: 100%|██████████| 577/577 [02:51<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.955      0.976      0.982      0.872
+
+(...)
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     49/100      7.66G     0.4436     0.3047     0.8118         52        608: 100%|██████████| 577/577 [03:15<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.951      0.999      0.984      0.948
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     50/100      7.56G     0.4367     0.3027     0.8113         32        928: 100%|██████████| 577/577 [04:10<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.971       0.99      0.982      0.947
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     51/100      7.54G      0.438      0.303     0.8122         54        736: 100%|██████████| 577/577 [03:39<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.959      0.993      0.983      0.948
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     52/100      7.87G     0.4401     0.3049     0.8098         48        864: 100%|██████████| 577/577 [02:46<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.958      0.994      0.984      0.949
+
+(...)
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     81/100       7.8G     0.3734     0.2554      0.799         68        320: 100%|██████████| 577/577 [04:41<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.959      0.997      0.982      0.956
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+     82/100      8.03G     0.3781     0.2593     0.7981         21        320: 100%|██████████| 577/577 [02:51<00:00,
+                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                   all       1488      30084      0.955      0.998      0.982      0.957
+EarlyStopping: Training stopped early as no improvement observed in last 10 epochs. Best results observed at epoch 72, best model saved as best.pt.
+To update EarlyStopping(patience=10) pass a new patience value, i.e. `patience=300` or use `patience=0` to disable EarlyStopping.
+
+82 epochs completed in 5.280 hours.
+Optimizer stripped from C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100\weights\last.pt, 40.8MB
+Optimizer stripped from C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100\weights\best.pt, 40.8MB
+
+Validating C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100\weights\best.pt...
+Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+YOLO11m summary (fused): 125 layers, 20,170,354 parameters, 0 gradients, 68.4 GFLOPs
+                     Class  Images Instances  Box(P      R  mAP50  mAP50-95): 100%|██████████| 124/124 [00:
+                       all    1488     30084  0.955  0.995  0.984      0.936
+                       ACM      62        62   0.99      1  0.995      0.953
+                       ALB     228       332  0.998      1  0.995      0.947
+                       AMI      29        44  0.986      1  0.995      0.979
+               API-Gateway     774      1178  0.968      1  0.995      0.958
+  Active Directory Service      31        31  0.981      1  0.995      0.978
+                  Airflow_      15        30   0.98      1  0.995      0.984
+                   Amplify      84        84  0.993      1  0.995      0.895
+        Analytics Services      15        15  0.962      1  0.995      0.988
+                   AppFlow      15        15  0.961      1  0.995      0.995
+                   Appsync      61        61  0.991      1  0.995      0.826
+                    Athena     143       148   0.84      1   0.99      0.965
+                    Aurora      89       126  0.995      1  0.995      0.982
+              Auto Scaling     173       307  0.995      1  0.995      0.929
+        Auto Scaling Group      35        88  0.993      1  0.995      0.841
+           Automated Tests      64        98  0.994      1  0.995      0.974
+         Availability Zone      24        48  0.987      1  0.995      0.956
+                    Backup      15        30   0.98      1  0.995      0.995
+         Build Environment      44        44  0.975      1  0.995      0.868
+                       CDN      20        20  0.884      1  0.995      0.975
+                       CUR      42        42  0.987      1  0.995      0.801
+              Call Metrics      15        15  0.961      1  0.995      0.963
+           Call Recordings      15        15  0.961      1  0.995       0.91
+       Certificate Manager      98        98  0.994      1  0.995      0.988
+                    Client      16        61  0.669      1  0.742      0.667
+           Cloud Connector      16        32  0.981      1  0.995       0.94
+                 Cloud Map      15        15  0.961      1  0.995      0.995
+              Cloud Search      56        56  0.989      1  0.995       0.96
+               Cloud Trail     187       192  0.996      1  0.995      0.972
+               Cloud Watch     543       644  0.999      1  0.995      0.949
+      CloudFormation Stack     150       168  0.994      1  0.995      0.961
+                  CloudHSM      34        34  0.982      1  0.995      0.916
+          CloudWatch Alarm      87       121  0.995      1  0.995      0.942
+                Cloudfront     401       427  0.926  0.995  0.995      0.962
+                 CodeBuild     157       245  0.998      1  0.995      0.961
+                CodeCommit      68        80  0.992      1  0.995      0.979
+                CodeDeploy      17        17  0.965      1  0.995      0.995
+              CodePipeline     214       220  0.861      1  0.995      0.934
+                   Cognito     346       391  0.846      1  0.984      0.952
+                Comprehend      72        72  0.991      1  0.995      0.994
+                    Config     103       178  0.982   0.92  0.991      0.903
+                   Connect      15        15      1      1  0.995      0.995
+      Connect Contact Lens      15        15  0.961      1  0.995      0.987
+                 Container      79       346  0.984      1  0.995      0.903
+             Control Tower      17        17  0.965      1  0.995      0.995
+          Customer Gateway      38        74  0.992      1  0.995      0.965
+                       DSI      34        68  0.991      1  0.995      0.884
+             Data Pipeline      23        23  0.973      1  0.995      0.928
+                  DataSync      32        32  0.981      1  0.995      0.991
+              Deploy Stage      30        30   0.98      1  0.995      0.924
+                 Detective      15        15  0.961      1  0.995      0.915
+            Direct Connect      91       126  0.995      1  0.995      0.958
+              Distribution      15        15  0.609      1  0.895      0.887
+              Docker Image      56       179  0.912      1  0.995      0.836
+                 Dynamo DB     660       979  0.957      1  0.995      0.964
+                       EBS      92       147  0.996      1  0.995      0.953
+                       EC2     707      1935  0.986      1  0.995      0.936
+                       EFS     100       133  0.995      1  0.995      0.945
+          EFS Mount Target      99       129  0.995      1  0.995      0.958
+                       EKS     161       184  0.997      1  0.995      0.977
+                       ELB     425       583  0.994  0.969  0.975      0.944
+                       EMR      15        15  0.961      1  0.995      0.895
+             Edge Location      20        42  0.985      1  0.995      0.982
+               ElastiCache     138       170  0.996      1  0.995      0.954
+Elastic Container Registry     235       235  0.997      1  0.995      0.958
+ Elastic Container Service     258       331  0.909      1  0.994      0.901
+            Elastic Search     142       147  0.996      1  0.995      0.948
+    Elemental MediaConvert      49        66  0.952  0.788  0.965      0.951
+    Elemental MediaPackage      15        15  0.462      1  0.605      0.605
+                     Email      25        25  0.977      1  0.995      0.987
+                  Endpoint      27        27  0.979      1  0.995      0.927
+                 Event Bus      16        16  0.963      1  0.995      0.995
+               EventBridge      60       120  0.971      1  0.995      0.881
+       Experiment Duration      17        17   0.56      1  0.612      0.588
+               Experiments      17        17  0.559      1  0.675      0.675
+                   Fargate     193       427  0.981      1  0.995      0.925
+ Fault Injection Simulator      49        49  0.988      1  0.995      0.919
+          Firewall Manager      15        15      1      1  0.995      0.914
+                     Flask      15        45  0.964      1  0.995      0.868
+                 Flow logs      15        60   0.99      1  0.995      0.848
+                  GameLift      17        17  0.966      1  0.995      0.924
+                       Git      15        15  0.961      1  0.995      0.968
+                    Github      81        95  0.993      1  0.995      0.962
+                   Glacier      15        15      1      1  0.995      0.978
+                      Glue      58       116  0.993      1  0.995      0.933
+             Glue DataBrew      26        26  0.977      1  0.995      0.995
+                   Grafana      20        20      1      1  0.995      0.995
+                 GuardDuty      72       132  0.995      1  0.995      0.928
+                       IAM     201       334  0.894      1  0.991        0.9
+                  IAM Role      98       207  0.872      1   0.98      0.836
+                  IOT Core      40        54  0.989      1  0.995      0.978
+                     Image      74        74  0.992      1  0.995      0.876
+             Image Builder      15        15  0.961      1  0.995      0.995
+                   Ingress      15        15  0.961      1  0.995      0.985
+           Inspector Agent      15        15  0.961      1  0.995      0.878
+                 Instances      19        38   0.57  0.488  0.651      0.561
+                  Internet     240       345      1  0.965  0.994      0.963
+          Internet Gateway     167       247  0.998      1  0.995      0.936
+                   Jenkins      15        30   0.98      1  0.995      0.945
+    Key Management Service     127       155  0.996      1  0.995       0.99
+                    Kibana      15        15  0.962      1  0.995      0.923
+      Kinesis Data Streams     150       198  0.996      1  0.995      0.968
+                Kubernetes      15        15  0.962      1  0.995       0.96
+                    Lambda     945      2489  0.948      1  0.995      0.954
+                       Lex      16        16  0.963      1  0.995      0.995
+                        MQ      25        57   0.99      1  0.995      0.916
+          Machine Learning      56        56  0.829      1  0.982      0.923
+                     Macie      65       146  0.996      1  0.995       0.95
+               Marketplace      21        21  0.974      1  0.995      0.634
+                 Memcached      18        36  0.983      1  0.995       0.98
+             Mobile Client     198       249  0.985      1  0.995       0.93
+                  Mongo DB      26        70  0.929      1  0.995      0.904
+                     MySQL      15        15  0.961      1  0.995       0.99
+               NAT Gateway     187       375  0.998      1  0.995      0.962
+                   Neptune      42        42    0.6      1  0.995      0.764
+           Network Adapter      15        15  0.961      1  0.995      0.995
+          Network Firewall      15        15  0.961      1  0.995      0.961
+                  Notebook      18        18  0.967      1  0.995      0.995
+          Order Controller      18        18  0.967      1  0.995      0.989
+        Organization Trail      32        77  0.992      1  0.995      0.854
+           Parameter Store      26        26  0.977      1  0.995      0.995
+                  Pinpoint      16        16  0.963      1  0.995      0.995
+                PostgreSQL      15        15  0.961      1  0.995      0.986
+              Private Link      89        89  0.985      1  0.995      0.949
+            Private Subnet     368       930  0.973  0.982  0.986      0.864
+                Prometheus      20        20  0.969      1  0.995      0.995
+             Public Subnet     338       841  0.995      1  0.995      0.865
+                   Quarkus      20        20   0.97      1  0.995      0.984
+                Quicksight      41        51  0.988      1  0.995      0.986
+                       RDS     345       685  0.999      1  0.995       0.95
+                     React      15        15  0.961      1  0.995      0.814
+                     Redis      49       100  0.994      1  0.995      0.975
+                  Redshift      73        80  0.992      1  0.995      0.951
+                    Region     183       269  0.997      1  0.995      0.879
+               Rekognition      33        33  0.982      1  0.995      0.992
+                   Results      17        17  0.558      1  0.901      0.901
+                  Route 53      53        53  0.989      1  0.995      0.995
+                   Route53     428       611  0.999      1  0.995      0.957
+                        S3     977      2096   0.94      1  0.995      0.943
+                       SAR      18        18      1      1  0.995      0.995
+                       SDK     123       403      1  0.975  0.995      0.965
+                       SES      72        87  0.992      1  0.995      0.951
+                       SNS     258       279  0.998      1  0.995      0.977
+                       SQS     189       199  0.997      1  0.995      0.968
+                 SSM Agent      15        15  0.961      1  0.995      0.865
+                 Sagemaker      81       267  0.718      1  0.968      0.809
+            Secret Manager      46        46  0.987      1  0.995      0.926
+            Security Group      15        15      1      1  0.995      0.995
+              Security Hub      31        91  0.994      1  0.995      0.895
+                    Server     101       193  0.997      1  0.995      0.953
+           Service Catalog      40        91  0.993      1  0.995      0.936
+                    Shield      58        58   0.99      1  0.995      0.994
+                   Sign-On      15        15   0.96      1  0.995      0.995
+                     Slack      37        37  0.984      1  0.995      0.979
+                  Snowball      15        15  0.961      1  0.995      0.995
+                     Stack      22        22  0.973      1  0.995      0.901
+             Step Function      32        96  0.994      1  0.995      0.914
+           Storage Gateway      15        15  0.961      1  0.995      0.995
+                SwaggerHub      15        15  0.961      1  0.995      0.995
+           Systems Manager      61        76  0.992      1  0.995      0.956
+                        TV      22        22  0.974      1  0.995      0.936
+                     Table      88       196  0.997      1  0.995      0.957
+               Task Runner      18        18  0.968      1  0.995      0.986
+                 Terraform      32        32  0.981      1  0.995      0.935
+                 Text File      54       122  0.943      1  0.994      0.964
+                  Textract      17        17  0.965      1  0.995      0.995
+                Transcribe      17        17  0.965      1  0.995      0.995
+           Transfer Family      68        68  0.991      1  0.995      0.976
+           Transit Gateway      35        35  0.983      1  0.995      0.978
+                 Translate      49        49  0.987      1  0.995       0.99
+           Trusted Advisor      36        36  0.983      1  0.995      0.995
+                    Twilio      15        15  0.961      1  0.995      0.995
+                     Users     574       790  0.994  0.996  0.995      0.922
+                       VDA      16        16  0.964      1  0.995      0.964
+                VP Gateway      30        36  0.984      1  0.995      0.959
+                VPC Router      50       102  0.994      1  0.995      0.962
+            VPN Connection      21        57  0.989      1  0.995      0.984
+                       WAF     112       131  0.995      1  0.995      0.962
+               Web Clients     213       248   0.82      1  0.984      0.904
+                  Websites      31        31   0.98      1  0.995      0.956
+                     X-Ray      83        95  0.972      1  0.995      0.968
+                       aws     971      1219  0.997      1  0.995      0.899
+              cache Worker      36        36  0.983      1  0.995      0.995
+Speed: 0.2ms preprocess, 12.1ms inference, 0.0ms loss, 1.0ms postprocess per image
+Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100
+🚀 Save dir: C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100
+✅ best.pt:  C:\acmattos\dev\tools\Python\ia4devs\runs\detect\yolo11m_custom_100\weights\best.pt
+Ultralytics 8.3.161  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
+YOLO11m summary (fused): 125 layers, 20,170,354 parameters, 0 gradients, 68.4 GFLOPs
+val: Fast image access  (ping: 0.00.0 ms, read: 713.9422.1 MB/s, size: 628.8 KB)
+val: Scanning D:\ia4devs\module_05\05_hackaton\data\dataset\aws\test\labels.cache... 1327 images, 0 backgrounds, 0 corr
+                     Class Images Instances   Box(P      R   mAP50  mAP50-95): 100%|██████████| 166/166 [00:
+                       all   1327     26828   0.958  0.989    0.98      0.957: 100%|██████████| 166/166 [00:
+                       ACM     42        42   0.985      1   0.995      0.995
+                       ALB    206       292       1  0.989   0.995       0.96
+                       AMI     24        39   0.984      1   0.995      0.995
+               API-Gateway    707      1063   0.973      1   0.995       0.98
+  Active Directory Service     29        29    0.98      1   0.995      0.995
+                  Airflow_     15        30    0.98      1   0.995      0.988
+                   Amplify     76        76   0.994      1   0.995      0.925
+        Analytics Services     15        15   0.961      1   0.995      0.995
+                   AppFlow     15        15    0.96      1   0.995      0.995
+                   Appsync     50        50   0.989      1   0.995      0.857
+                    Athena    133       141   0.914      1   0.995      0.979
+                    Aurora     79       112   0.994  0.964   0.978      0.975
+              Auto Scaling    126       211   0.999      1   0.995      0.949
+        Auto Scaling Group     25        58    0.99      1   0.995      0.931
+           Automated Tests     58        89   0.993      1   0.995      0.974
+         Availability Zone     23        46   0.987      1   0.995      0.995
+                    Backup     16        32   0.981      1   0.995      0.995
+         Build Environment     34        34   0.979      1   0.995      0.852
+                       CDN     21        21   0.971      1   0.995      0.983
+                       CUR     35        35   0.984      1   0.995      0.865
+              Call Metrics     15        15   0.961      1   0.995      0.995
+           Call Recordings     15        15   0.961      1   0.995      0.921
+       Certificate Manager    103       103   0.994      1   0.995      0.995
+                    Client     16        61     0.5      1   0.616      0.562
+           Cloud Connector     14        28   0.978      1   0.995      0.974
+                 Cloud Map     15        15   0.908      1   0.995      0.995
+              Cloud Search     48        48   0.987      1   0.995      0.993
+               Cloud Trail    140       142   0.995      1   0.995      0.988
+               Cloud Watch    468       566   0.999      1   0.995      0.972
+      CloudFormation Stack    124       138   0.995      1   0.995      0.994
+                  CloudHSM     33        33   0.981      1   0.995      0.995
+          CloudWatch Alarm     75       106   0.994      1   0.995      0.954
+                Cloudfront    346       366   0.941      1   0.995      0.975
+                 CodeBuild    140       208   0.997      1   0.995      0.978
+                CodeCommit     52        66   0.991      1   0.995      0.994
+                CodeDeploy     13        13   0.949      1   0.995       0.99
+              CodePipeline    183       190   0.851      1   0.992      0.956
+                   Cognito    310       354   0.893  0.992   0.989      0.977
+                Comprehend     73        73   0.992      1   0.995      0.995
+                    Config     72       147   0.995  0.898    0.99      0.966
+                   Connect     15        15       1      1   0.995      0.995
+      Connect Contact Lens     15        15   0.961      1   0.995      0.995
+                 Container     86       403   0.994      1   0.995       0.95
+             Control Tower     14        14   0.958      1   0.995      0.995
+          Customer Gateway     35        62    0.99      1   0.995      0.974
+                       DSI     31        62   0.991      1   0.995      0.888
+             Data Pipeline     22        22   0.972      1   0.995      0.995
+                  DataSync     30        30       1      1   0.995      0.995
+              Deploy Stage     27        27   0.978      1   0.995      0.873
+                 Detective     15        15   0.961      1   0.995      0.995
+            Direct Connect     77       112   0.994  0.991   0.995      0.972
+              Distribution     15        15   0.855  0.333   0.888      0.888
+              Docker Image     44       174   0.977  0.983   0.989      0.891
+                 Dynamo DB    619       958   0.976  0.992   0.995      0.971
+                       EBS     65       107   0.995  0.991   0.995       0.95
+                       EC2    609      1692   0.982  0.994   0.994      0.967
+                       EFS     90       116   0.991  0.971   0.988      0.983
+          EFS Mount Target     95       128       1  0.974   0.984      0.971
+                       EKS    147       164   0.995      1   0.995      0.981
+                       ELB    379       521   0.981  0.964   0.975       0.96
+                       EMR     15        15       1      1   0.995      0.995
+             Edge Location     15        27   0.977      1   0.995      0.967
+               ElastiCache    101       121   0.993  0.983    0.99      0.978
+Elastic Container Registry    212       212   0.998      1   0.995       0.98
+ Elastic Container Service    236       302   0.918      1   0.995      0.937
+            Elastic Search    116       117   0.995      1   0.995      0.962
+    Elemental MediaConvert     49        64   0.965  0.797   0.965      0.965
+    Elemental MediaPackage     15        15   0.493      1   0.568      0.568
+                     Email     29        29       1  0.987   0.995      0.986
+                  Endpoint     22        22   0.974      1   0.995      0.942
+                 Event Bus     15        15    0.96      1   0.995      0.995
+               EventBridge     41       101   0.994      1   0.995      0.992
+       Experiment Duration     14        14   0.512      1   0.642      0.634
+               Experiments     14        14   0.511      1   0.647      0.647
+                   Fargate    180       423   0.992      1   0.995      0.964
+ Fault Injection Simulator     45        45   0.987      1   0.995      0.957
+          Firewall Manager     15        15   0.962      1   0.995      0.995
+                     Flask     17        51   0.985      1   0.995      0.882
+                 Flow logs     15        60    0.99      1   0.995      0.946
+                  GameLift     15        15   0.959      1   0.995      0.941
+                       Git     17        17   0.965      1   0.995      0.939
+                    Github     73        90   0.993      1   0.995       0.98
+                   Glacier     15        15       1      1   0.995      0.995
+                      Glue     59       118   0.995      1   0.995      0.967
+             Glue DataBrew     22        22   0.973      1   0.995      0.995
+                   Grafana     14        14   0.958      1   0.995      0.995
+                 GuardDuty     57       117   0.995      1   0.995      0.984
+                       IAM    180       335   0.911  0.997   0.991      0.967
+                  IAM Role     78       185    0.86      1   0.984      0.903
+                  IOT Core     46        52       1  0.994   0.995      0.995
+                     Image     63        63   0.991      1   0.995      0.914
+             Image Builder     15        15   0.956      1   0.995      0.995
+                   Ingress     17        17   0.965      1   0.995      0.995
+           Inspector Agent     15        15   0.961      1   0.995      0.995
+                 Instances     16        32   0.515  0.438   0.589      0.584
+                  Internet    201       272   0.992  0.945   0.993      0.975
+          Internet Gateway    133       200   0.992      1   0.995      0.942
+                   Jenkins     15        30   0.979      1   0.995      0.995
+    Key Management Service    111       139   0.995      1   0.995      0.994
+                    Kibana     18        18   0.967      1   0.995      0.932
+      Kinesis Data Streams    156       207       1  0.989   0.995       0.99
+                Kubernetes     17        17   0.967      1   0.995      0.995
+                    Lambda    830      2220   0.974      1   0.995      0.982
+                       Lex     18        18   0.967      1   0.995      0.995
+                        MQ     34        86   0.993      1   0.995      0.974
+          Machine Learning     47        47   0.803      1   0.979      0.976
+                     Macie     56       119   0.995      1   0.995      0.985
+               Marketplace     19        19   0.972      1   0.995      0.689
+                 Memcached     11        22   0.973      1   0.995      0.967
+             Mobile Client    150       196   0.995  0.996   0.995      0.942
+                  Mongo DB     26        62    0.99      1   0.995      0.903
+                     MySQL     15        15   0.961      1   0.995      0.986
+               NAT Gateway    147       293   0.999   0.99   0.995      0.988
+                   Neptune     35        35   0.973      1   0.995      0.755
+           Network Adapter     15        15    0.96      1   0.995      0.995
+          Network Firewall     15        15       1      1   0.995      0.995
+                  Notebook     15        15   0.961      1   0.995      0.995
+          Order Controller     17        17   0.924      1   0.995      0.995
+        Organization Trail     26        71   0.992      1   0.995      0.977
+           Parameter Store     27        27   0.978      1   0.995      0.995
+                  Pinpoint     16        16   0.963      1   0.995      0.995
+                PostgreSQL     15        15   0.961      1   0.995      0.957
+              Private Link     87        87   0.983      1   0.995      0.995
+            Private Subnet    335       936   0.983  0.981   0.987      0.926
+                Prometheus     14        14   0.958      1   0.995      0.995
+             Public Subnet    299       715   0.999  0.992   0.995      0.925
+                   Quarkus     14        14   0.958      1   0.995      0.995
+                Quicksight     40        50   0.988      1   0.995      0.995
+                       RDS    266       551   0.984  0.985   0.984      0.967
+                     React     15        15   0.961      1   0.995       0.96
+                     Redis     47        98       1  0.996   0.995      0.989
+                  Redshift     65        72   0.991      1   0.995      0.995
+                    Region    161       243   0.997      1   0.995      0.931
+               Rekognition     37        37   0.984      1   0.995      0.995
+                   Results     14        14   0.509      1   0.572      0.572
+                  Route 53     39        39    0.96      1   0.995      0.995
+                   Route53    376       532   0.997  0.998   0.995      0.979
+                        S3    867      1862   0.957  0.991   0.994      0.971
+                       SAR     14        14   0.957      1   0.995      0.995
+                       SDK     98       301   0.991  0.963   0.993      0.976
+                       SES     69        84   0.993  0.988   0.994      0.988
+                       SNS    232       254   0.999      1   0.995       0.99
+                       SQS    184       197   0.997      1   0.995      0.981
+                 SSM Agent     15        15   0.961      1   0.995      0.995
+                 Sagemaker     76       241   0.746  0.986   0.951      0.819
+            Secret Manager     44        44   0.986      1   0.995      0.995
+            Security Group     16        16   0.963      1   0.995      0.985
+              Security Hub     25        85   0.994      1   0.995      0.989
+                    Server     88       165   0.996      1   0.995      0.952
+           Service Catalog     30        72   0.992      1   0.995      0.977
+                    Shield     52        52   0.988      1   0.995      0.995
+                   Sign-On     15        15    0.96      1   0.995      0.995
+                     Slack     30        30    0.98      1   0.995      0.995
+                  Snowball     15        15   0.961      1   0.995      0.995
+                     Stack     14        14       1      1   0.995      0.991
+             Step Function     30        90   0.993      1   0.995      0.926
+           Storage Gateway     15        15    0.96      1   0.995      0.995
+                SwaggerHub     15        15    0.96      1   0.995      0.995
+           Systems Manager     53        68   0.991      1   0.995      0.995
+                        TV     12        12   0.957      1   0.995       0.97
+                     Table     72       154   0.993      1   0.995      0.952
+               Task Runner     17        17       1      1   0.995      0.995
+                 Terraform     38        38   0.984      1   0.995      0.994
+                 Text File     49        99   0.913      1   0.975      0.965
+                  Textract     14        14   0.957      1   0.995      0.995
+                Transcribe     19        19   0.968      1   0.995      0.995
+           Transfer Family     67        67   0.991      1   0.995      0.988
+           Transit Gateway     31        31    0.96      1   0.995      0.992
+                 Translate     53        53   0.988      1   0.995      0.995
+           Trusted Advisor     13        13   0.956      1   0.995       0.99
+                    Twilio     18        18   0.967      1   0.995      0.995
+                     Users    486       656   0.999  0.991   0.995       0.96
+                       VDA     14        14   0.958      1   0.995      0.995
+                VP Gateway     27        39       1  0.992   0.995      0.957
+                VPC Router     39        80   0.992      1   0.995      0.962
+            VPN Connection     21        48   0.989      1   0.995      0.993
+                       WAF     99       109   0.994      1   0.995      0.992
+               Web Clients    202       268    0.83      1   0.973      0.917
+                  Websites     34        34   0.981      1   0.995      0.995
+                     X-Ray     88       112   0.992      1   0.995      0.994
+                       aws    845      1067   0.991  0.998   0.994       0.94
+              cache Worker     26        26   0.977      1   0.995      0.995
+Speed: 0.2ms preprocess, 8.5ms inference, 0.0ms loss, 0.8ms postprocess per image
+Saving C:\acmattos\dev\tools\Python\ia4devs\runs\detect\val\predictions.json...
+Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\val
+
+🎯 Test Metrics (mean per class):
+  Precision:    0.958
+  Recall:       0.989
+  mAP@0.5:      0.980
+  mAP@0.5:0.95: 0.957
+
+image 1/1 D:\ia4devs\module_05\05_hackaton\data\sample\aws_02.png: 576x640 
+3 ALBs, 1 Auto Scaling, 1 Cloud Trail, 1 Cloud Watch, 1 Cloudfront, 4 EC2s, 
+3 Private Subnets, 3 Public Subnets, 2 RDSs, 1 Region, 1 S3, 1 SES, 1 Users, 
+2 WAFs, 1 aws, 50.6ms
+Speed: 3.2ms preprocess, 50.6ms inference, 3.6ms postprocess per image at shape (1, 3, 576, 640)
+Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict
+1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict\labels
+✅ Detailed JSON saved to data\reports\yolo11m_custom_100\results.json
+✅ Summary JSON saved to data\reports\yolo11m_custom_100\report.json
+[ultralytics.engine.results.Results object with attributes:
+
+boxes: ultralytics.engine.results.Boxes object
+keypoints: None
+masks: None
+(...)
+obb: None
+(...)
+orig_shape: (993, 1167)
+path: 'D:\\ia4devs\\module_05\\05_hackaton\\data\\sample\\aws_02.png'
+probs: None
+save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
+speed: {'preprocess': 3.1897000153549016, 'inference': 50.62539997743443, 'postprocess': 3.644100041128695}]
+████████████████████████████████ 100% | 38.90/38.9 MB [01:27<00:00,  2.24s/MB]:
 ```
 
+### Predição do Modelo `M`
+![Detecção do Modelo M](data/model/trained/yolo11m_custom_100/predict/aws_02.jpg)
+
+## 🎯 Métricas Médias de Teste por Classe
+
+| Métrica      | Modelo N |  Modelo S | Modelo M |
+|--------------|----------|-----------|----------|
+|  Precision   |    0.957 |     0.960 |    0.958 |
+| Recall       |    0.992 |     0.996 |    0.989 |
+| mAP@0.5      |    0.979 |     0.980 |    0.980 |
+| mAP@0.5:0.95 |    0.911 |     0.950 |    0.957 |
+
+- **Nano (N)**: Extremamente leve, mantém Precision/Recall/mAP@0.5 quase iguais 
+                aos demais, mas tem mAP@0.5:0.95 mais baixo (0.911), ou seja, 
+                caixas um pouco menos precisas.
+- **Small (S)**: Bom equilíbrio: maior Precision/Recall, mAP@0.5 e um 
+                 mAP@0.5:0.95 sólido (0.950). Ótima escolha geral para baixa 
+                 latência com boa exatidão.
+- **Medium (M)**: Caixa mais refinada (mAP@0.5:0.95 de 0.957), com 
+                  Precision/Recall/mAP@0.5 no mesmo patamar de S, mas exige mais 
+                  recursos.
+  
+Com base nos testes, decidimos utilizar o modelo `S` em nosso projeto, visando o 
+melhor desempenho com o menor gasto em recursos (disco e tempo de processamento).
+
+## Geração de Relatórios de Ameaças STRIDE
+
+A geração de relatórios de ameaças STRIDE é feita pelo script responsável por 
+esta etapa, `report_generator.py`, e pode ser testada da seguinte forma:
+
+```bash 
+py report.py 
+```
+
+Os relatórios podem ser encontrados [aqui](data/reports/yolo11s_custom_100). E o 
+resultado da execução do script pode ser visto abaixo:
+
+```bash
+image 1/1 D:\ia4devs\module_05\05_hackaton\data\sample\aws_01.jpg: 544x640 
+1 Cloud Watch, 1 Dynamo DB, 1 Event Bus, 5 Lambdas, 1 S3, 3 SNSs, 1 Users, 1 aws, 46.0ms
+Speed: 6.2ms preprocess, 46.0ms inference, 154.7ms postprocess per image at shape (1, 3, 544, 640)
+Results saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict
+1 label saved to C:\acmattos\dev\tools\Python\ia4devs\runs\detect\predict\labels
+✅ Detailed JSON saved to data\reports\yolo11s_custom_100\results.json
+✅ Summary JSON saved to data\reports\yolo11s_custom_100\report.json
+Reports generated: data/reports/yolo11s_custom_100
+```
+
+Nosso gerador cria duas versões de relatório por análise: uma em Markdown e 
+outra em HTML.
+
+As ameaças STRIDE estão definidas [aqui](data/stride). Baseado nestas definições,
+nosso script é capaz de categorizar e gerar o relatório para um diagrama de 
+arquitetura AWS informado.
+
+## Aplicação Demo
+
+Uma aplicação simples foi elaborada para demonstrar as funcionalidades desejadas 
+para a realização deste trabalho. Ela é baseado no [Streamlit](https://streamlit.io/)
+e funciona da seguinte maneira:
+
+```bash
+ streamlit run app.py 
+```
+
+Após executar a chamada acima, o browser deve abrir expondo a aplicação exemplo:
+
+![Imagem Inicial](data/image/app_01.png)
+
+Vamos utilizar [este arquivo exemplo](data/sample/aws_09.png) de arquitetura AWS.
+Após submetermos o arquivo exemplo para análise, vemos que a aplicação permite 
+executar a detecção de componentes:
+
+![Imagem Detecção](data/image/app_02.png)
+
+Ao clicar no botão `Executar detecção`, os componentes da arquitetura são 
+detectados pelo modelo treinado, conforme vista abaixo:
+
+![Imagem Detectado](data/image/app_03.png)
+
+Rolando a página mais para o final, podemos ver o relatório gerado pela 
+aplicação exemplo:
+
+![Imagem Relatório](data/image/app_04.png)
+
+O relatório apresentado reporta os componentes da arquitetura detectados, as 
+ameaças STRIDE correspondentes e suas respectivas contramedidas. 
+
+## Aplicação Proposta
+
+TODO DOCUMENTAR AQUI.

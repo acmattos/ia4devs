@@ -5,9 +5,11 @@ test: ./test/images
 nc: 182
 names: [
   'ACM',
-  'ALB', 'AMI', 'API-Gateway',
+  'ALB',
+  'AMI',
+  'API-Gateway',
   'Active Directory Service',
-  'Airflow_',
+  'Airflow',
   'Amplify',
   'Analytics Services',
   'AppFlow',
