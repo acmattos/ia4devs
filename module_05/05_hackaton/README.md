@@ -1,7 +1,7 @@
 # 🎓 Hackaton (Tech Challenge) - Pós-Tech - IA For Devs - FIAP
 # 📹 Fase 5 - Modelagem de ameaças utilizando IA
 
-## 👥 1. Alunos
+## 👥 Alunos
 
 - André Mattos - RM358905
 - Aurelio Thomasi Jr - RM358104
@@ -9,93 +9,32 @@
 - Lucas Arruda - RM358628
 - Pedro Marins - RM356883
 
-## 📋 2. Evidências do projeto TODO
+## 📋 Evidências do projeto TODO
 
-- Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_04/04_Tech_Challenge)
-- Link para o vídeo de apresentação: [Video Apresentação]
+- Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_05/05_hackaton)
+- Link para o vídeo de apresentação: [Video Apresentação]() TODO
 
-## 📚 3. Bibliotecas utilizadas TODO
+## 📚 Bibliotecas utilizadas 
 
 - Principais bibliotecas:
-  - **OpenCV (cv2)**: Biblioteca utilizada para processamento de vídeo, detecção de rostos e manipulação de imagens.
-  - **DeepFace**: Biblioteca utilizada para análise de emoções faciais (feliz, triste, etc).
-  - **MediaPipe**: Biblioteca utilizada para detecção de movimentos(pose corporal, movimentos das mãos, etc).
-  - **ultralytics**: Biblioteca alternativa que foi utilizada para detectar faces e classificar emoções, utilizando o modelo Yolo11.
-  
+  - **OpenCV (cv2)**: Biblioteca utilizada para manipulação de imagens.
+  - **ultralytics**: Biblioteca utilizada para treinamento e manipulação do 
+                     modelo Yolo11.
+  - **Markdown**: Biblioteca para geração de relatórios basicos em formato 
+                  Markdown e HTML.
+
 - Bibliotecas de suporte:
-  - **Dlib**: Biblioteca base para o face_recognition, utilizada para detecção e codificação de rostos.
-  - **Tensorflow**: Dependência do DeepFace para análise de emoções.
-  - **Pandas**: Biblioteca utilizada para geração de relatórios e análise dos dados coletados.
-  - **NumPy**: Biblioteca utilizada para operações matemáticas e manipulação de arrays.
-  - **tqdm**: Biblioteca utilizada para exibir barras de progresso durante o processamento do vídeo que está sendo analisado.
-  - **Vosk**: Modelo utilizada para transcrição de áudio do vídeo para texto [Vosk Model](https://alphacephei.com/vosk/models).
-  - **Yolo**: Modelo utilizado pelo ultralytics na deteção de emoções: [yolov11l-face.pt](https://github.com/akanametov/yolo-face/releases/download/v0.0.0/yolov11l-face.pt).
-
-## 💻 4. Instalar Dlib e Tensorflow (Windows) (TODO PYTORCH)
-
-Durante o desenvolvimento do projeto, foi necessário instalar o Dlib e o 
-Tensorflow para a utilização de CUDA, para processar os vídeos com GPU e 
-consequentemente melhorar o desempenho do processamento.
-No final desta documentação, será apresentado o passo a passo para instalar o 
-Dlib e o Tensorflow para o ambiente Windows (ambiente de desenvolvimento utilizado).
-
-**CUDA**: É uma biblioteca de software utilizada em hardware de computação 
-gráfica da empresa NVIDIA, que permite a utilização de GPUs para acelerar o 
-processamento de cálculos matemáticos (Por exemplo, matrizes, cálculos de IA, etc).
-
-## 5. Como executar TODO
-
-Para executar o projeto, basta:
-````commandline
-py tech_chalenge.py
-````
-Isto permite executar, em sequencia, as análises realizadas nos arquivos a seguir:
-
-- face_detection_recognition.py: Deteção de Faces e Reconhecimento destas.
-- face_expression.py: Detecção de Emoções de Faces reconhecidas pelo código. 
-- pose_activity.py: Detecção de Poses e Gestos.
-- video_transcription.py: Transcrição do Áudio do vídeo.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  - **Pytorch**: Biblioteca base manipulação do modelo: 
+                 [https://pytorch.org/get-started/locally/]
+  - **Yolo**: Modelo utilizado pelo ultralytics na deteção de ícones AWS: 
+              [yolov11s.pt](data/model/yolo11s.pt).
 
 ## Preparação do Modelo de IA 
 
 Para realizar a detecção de diagramas de arquitetura, precisamos preparar um 
 modelo para isto. A primeira etapa foi encontrar um dataset que nos ajudasse a 
 treinar o modelo. Nossa busca levou ao dataset 
-[AWS_icon_detector](https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset), 
+[AWS Icon Detector](https://universe.roboflow.com/aws-icons/aws-icon-detector/dataset), 
 que parecia promissor, mas necessitava de alguns ajustes. 
 
 O principal problema com este dataset é não possuir nenhum exemplo para 
