@@ -542,7 +542,7 @@ diretórios de trabalho. Executando o script abaixo novamente:
 py dataset_report_samples_per_split.py 
 ```
 
-podemos ver o trabalho efetuado na geração de um dataset util para o treinamento 
+Podemos ver o trabalho efetuado na geração de um dataset util para o treinamento 
 do modelo e execução deste trabalho. O resultado pode ser comparado com o que 
 foi obtido anteriormente, antes das mudanças que foram aplicadas, visando 
 melhorar o treinamento: 
@@ -757,13 +757,13 @@ treinamento de um modelo:
   mAP@0.5:0.95: 0.950
 ```
 
-Como contexto, os números iniciais foram obtidos pelo modelo `S`, após 200 
-épocas de treinamento. Comparativamente, o mesmo modelo, utilizando o dataset 
+Apresentando o contexto, os números iniciais foram obtidos pelo modelo `S`, após  
+200 épocas de treinamento. Comparativamente, o mesmo modelo, utilizando o dataset 
 aprimorado, precisou de apenas 100 épocas para obter um resultado (precisão) 
 muito superior.
 
 Com isto, demos por encerrado o aprimoramento do [dataset](data/dataset/aws). O
-mesmo datset também pode ser encontrado em 
+mesmo dataset também pode ser encontrado em 
 [AWS Icon Detector Improved](https://app.roboflow.com/acmattos/aws-icon-detector-improved/1).
 
 Partimos então para o treinamento dos modelos `N`ano, `S`mall e `M`edium.
@@ -785,7 +785,7 @@ py model.py
 
 Aguardar a conclusão do processo. O treinamento utilizou 100 épocas para treino, 
 gastando 1,622 horas no processo.
-Um exempplo de log de execução pode ser visto abaixo: 
+Um exemplo de log de execução pode ser visto abaixo: 
 
 ```bash
 Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
@@ -1347,10 +1347,10 @@ save_dir: 'C:\\acmattos\\dev\\tools\\Python\\ia4devs\\runs\\detect\\predict'
 speed: {'preprocess': 3.2868999987840652, 'inference': 47.22200002288446, 'postprocess': 5.245600012131035}]
 ```
 
-### Predição do do Yolo 11 - Modelo `N`
+### Predição do Yolo 11 - Modelo `N`
 ![Detecção do Modelo N](data/model/trained/yolo11n_custom_100/predict/aws_01.jpg)
 
-## Treinamento do Yolo 11 Modelo `S`
+## Treinamento do Yolo 11 - Modelo `S`
 
 Para treinar o modelo, basta ajustar a variável abaixo:
 
@@ -1366,7 +1366,7 @@ py model.py
 
 Aguardar a conclusão do processo. O treinamento utilizou 100 épocas para treino, 
 gastando 4.872 horas no processo.
-Um exempplo de log de execução pode ser visto abaixo: 
+Um exemplo de log de execução pode ser visto abaixo: 
 
 ```bash
 Ultralytics 8.3.162  Python-3.12.6 torch-2.7.1+cu128 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8188MiB)
@@ -1930,7 +1930,7 @@ speed: {'preprocess': 8.365600020624697, 'inference': 209.4717000145465, 'postpr
 
 ![Detecção do Modelo S](data/model/trained/yolo11s_custom_100/predict/aws_02.jpg)
 
-## Treinamento do Yolo 11 Modelo `M`
+## Treinamento do Yolo 11 - Modelo `M`
 
 Para treinar o modelo, basta ajustar a variável abaixo:
 
@@ -1946,9 +1946,9 @@ py model.py
 
 Aguardar a conclusão do processo. O treinamento utilizou 82 épocas para treino, 
 gastando 5.280 horas no processo.
-O mecanismo de `Early Stop` foi acionado, após 10 épocas passarem sem nenhum 
+O mecanismo de `Early Stop` foi acionado após 10 épocas que passarem sem nenhum 
 progresso no treinamento do modelo.
-Um exempplo de log de execução pode ser visto abaixo: 
+Um exemplo de log de execução pode ser visto abaixo: 
 
 ```bash
 New https://pypi.org/project/ultralytics/8.3.162 available  Update with 'pip install -U ultralytics'
@@ -2521,7 +2521,7 @@ speed: {'preprocess': 3.1897000153549016, 'inference': 50.62539997743443, 'postp
 ████████████████████████████████ 100% | 38.90/38.9 MB [01:27<00:00,  2.24s/MB]:
 ```
 
-### Predição do do Yolo 11 - Modelo `M`
+### Predição do Yolo 11 - Modelo `M`
 ![Detecção do Modelo M](data/model/trained/yolo11m_custom_100/predict/aws_02.jpg)
 
 ## 🎯 Métricas Médias de Teste por Classe
