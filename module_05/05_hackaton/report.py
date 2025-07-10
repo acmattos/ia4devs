@@ -1,5 +1,5 @@
-from utils.architecture_detection_service import ArchitectureDetectionService
-from utils.config import DEFAULT_SOURCE_FILE_PATH
+from arch_wise.architecture_detection_service import ArchitectureDetectionService
+from arch_wise.config import DEFAULT_SOURCE_FILE_PATH
 
 if __name__ == '__main__':
     # Initialize detection service with default parameters

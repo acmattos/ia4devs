@@ -2,8 +2,8 @@ import os
 from typing import Tuple, List, Any
 from model_predict import predict
 from report_generator import generate_report
-from utils.config import (
-    DEFAULT_TRAINED_DIR_NAME, 
+from arch_wise.config import (
+    DEFAULT_TRAINED_DIR_NAME,
     DEFAULT_CONFIDENCE_THRESHOLD,
     DEFAULT_REPORT_CONF_THRESHOLD,
     STRIDE_YAML_PATH,

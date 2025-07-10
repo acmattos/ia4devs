@@ -3,9 +3,9 @@ Example usage of the modular architecture detection components.
 This demonstrates how the modular design makes the code reusable.
 """
 
-from utils.architecture_detection_service import ArchitectureDetectionService
-from utils.temp_file_handler import TempFileHandler
-from utils.config import DEFAULT_SOURCE_FILE_PATH
+from arch_wise.architecture_detection_service import ArchitectureDetectionService
+from arch_wise.temp_file_handler import TempFileHandler
+from arch_wise.config import DEFAULT_SOURCE_FILE_PATH
 
 def example_1_basic_usage():
     """Example 1: Basic usage with default parameters."""

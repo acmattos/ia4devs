@@ -4,9 +4,9 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils.temp_file_handler import TempFileHandler
-from utils.architecture_detection_service import ArchitectureDetectionService
-from utils.auth import require_api_key
+from arch_wise.temp_file_handler import TempFileHandler
+from arch_wise.architecture_detection_service import ArchitectureDetectionService
+from arch_wise.auth import require_api_key
 
 app = Flask(__name__)
 
@@ -74,4 +74,6 @@ def architecture_detect():
         TempFileHandler.cleanup_temp_file(temp_image_path)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    # Using Flask's built-in development server
+    # For production, use: gunicorn -w 4 -b 0.0.0.0:8000 server:app
+    app.run(host='0.0.0.0', port=8000, debug=True)
