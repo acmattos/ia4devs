@@ -1,7 +1,7 @@
 import os, json, yaml
 from typing import Dict, List, Any, Union
 
-from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
+from jinja2 import Template
 import markdown
 
 def generate_report(
