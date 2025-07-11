@@ -22,14 +22,19 @@
                      modelo Yolo11.
   - **Markdown**: Biblioteca para geração de relatórios básicos em formato 
                   Markdown e HTML.
+  - **N8N**: Biblioteca utilizada para criação de workflows de automação.
+  - **Flask**: Biblioteca utilizada para criação de API.
 
-- Bibliotecas de suporte:
+- Bibliotecas/ferramentas de suporte:
   - **Pytorch**: Biblioteca base para manipulação do modelo: 
                  [https://pytorch.org/get-started/locally/]
   - **Yolo**: Modelo utilizado pelo ultralytics na detecção de ícones AWS: 
               [yolov11s.pt](data/model/yolo11s.pt).
   - **Ollama**: Biblioteca para uso dos modelos de LLM do Ollama
               [https://ollama.com/download/windows]
+  - **Telegram**: Plataforma de mensagens instantâneas, utilizada para interação com o usuário.
+  - **Digital Ocean**: Plataforma de hospedagem de aplicações, utilizada para hospedar a API.
+  - **N8N**: Plataforma de automação de workflows, utilizada para orquestrar as etapas do agente.
 
 ## Preparação do Modelo de IA 
 
@@ -2671,6 +2676,132 @@ Para que o modelo funcione corretamente:
 Obs.: A aplicação demo funcionará sem o RAG caso o Ollama não seja instalado.
 
 
-## Aplicação Proposta
+## Estratégia de RAG Para Aplicação Demo
 
-TODO DOCUMENTAR AQUI.
+Para tornar a análise de ameaças STRIDE mais contextual e precisa, foi implementado um pipeline de **RAG (Retrieval-Augmented Generation)**. A ideia é combinar um modelo de linguagem local (LLM) com uma base vetorial de conhecimento sobre segurança e STRIDE.
+
+Essa estratégia foi considerada apenas na aplicação Demo como mais um estudo de caso de possível solução para o report.
+
+### Como funciona:
+
+### 1. **Indexação**
+
+O script [`create-stride-rag-faiss.py`](./create-stride-rag-faiss.py) é responsável por preparar a base de conhecimento que será usada pelo sistema RAG (Retrieval-Augmented Generation). Ele realiza as seguintes etapas:
+
+- 📂 **Leitura dos documentos PDF**  
+  Todos os arquivos na pasta [`./STRIDE-PDF/`](./STRIDE-PDF/) são carregados. Esses arquivos contêm informações técnicas sobre modelagem de ameaças com STRIDE, recomendações da OWASP, boas práticas da AWS, entre outros temas relacionados à segurança de arquiteturas em nuvem.
+
+- ✂️ **Divisão em chunks**  
+  Cada documento é segmentado em trechos menores (também chamados de *chunks*), usando uma estratégia de separação por número de tokens com sobreposição (`RecursiveCharacterTextSplitter`). Isso melhora a granularidade na busca e evita perda de contexto em trechos longos.
+
+- 🔡 **Geração de embeddings**  
+  Cada chunk de texto é convertido em um vetor numérico (embedding) usando o modelo `"all-MiniLM-L6-v2"` da `SentenceTransformers`. Esse modelo é leve, rápido e fornece boa qualidade para recuperação semântica de textos técnicos.
+
+- 🧠 **Criação do índice FAISS**  
+  Os embeddings são armazenados localmente utilizando o **FAISS**, uma biblioteca de indexação vetorial otimizada para busca rápida por similaridade. O índice permite que, mais tarde, quando o usuário envie um conjunto de componentes (ex: "S3", "Lambda", "IAM"), o sistema recupere os trechos mais relevantes desses documentos que tratam dos riscos associados a esses serviços.
+
+- 💾 **Armazenamento local**  
+  O índice final é salvo no diretório `./FAISS/`, e pode ser recarregado dinamicamente pela aplicação durante o uso. Esse processo garante que o sistema tenha uma **base vetorial eficiente e contextual** para embasar a geração dos pareceres técnicos via LLM, mesmo em ambiente local e offline.
+
+
+2. **Consulta com LLM local**  
+   Durante a execução da aplicação, o script [`stride_rag_runner.py`](./stride_rag_runner.py) recebe a lista de componentes detectados no diagrama e utiliza um modelo LLM local, conectado via **[Ollama](https://ollama.com/download/windows)**, para elaborar um relatório técnico contextualizado com base nos dados recuperados do índice FAISS.
+
+![Imagem Relatório](data/image/app_05.png)
+
+3. **Relatório Técnico com STRIDE**  
+   O modelo gera automaticamente um relatório com os possíveis riscos categorizados por tipo de ameaça STRIDE (Spoofing, Tampering, Repudiation, etc.), explicando cada caso e sugerindo formas de mitigação.
+
+![Imagem Relatório](data/image/app_06.png)
+
+4. Ao final é exibido a fonte consultada:
+
+![Imagem Relatório](data/image/app_07.png)
+
+### Requisitos
+
+Para que o modelo funcione corretamente:
+
+- Instale o **Ollama** em sua máquina:  
+  👉 [Download Ollama para Windows](https://ollama.com/download/windows)
+- Execute o servidor com o modelo desejado, por exemplo:  
+  ```bash
+  ollama run mistral
+
+Obs.: A aplicação demo funcionará sem o RAG caso o Ollama não seja instalado.
+
+
+## Arch Wise - Agente de feedback de arquitetura
+
+![Agente de Arch Wise](data/image/arch_wise.png)
+
+Um agente de feedback foi desenvolvido para utilização do modelo YOLO 11 (small) treinado para avaliar diagramas de arquitetura AWS.
+Este agente é capaz de receber um diagrama por meio do Telegram, enviar para o modelo treinado e por fim, enviar o resultado de volta para o usuário do Telegram. Esta solução foi desenvolvida utilizando uma API escrita em Flask e hospedada num Droplet da Digital Ocean.
+
+### Arquitetura
+
+![Arquitetura do workflow do N8N](data/image/n8n.png)
+
+A arquitetura do agente de feedback é composta por quatro componentes principais:
+
+- **API**: API escrita em Flask que recebe o diagrama do usuário e envia para o modelo treinado.
+- **Modelo**: Modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS.
+- **Telegram**: Interface com o usuário via Telegram.
+- **N8N**: Workflow de automação, responsável por orquestrar todas as etapas deste agente.
+
+### API
+
+A API é responsável por receber o diagrama do usuário e enviar para o modelo treinado, que está sendo chamado através da API Flask. Este endpoint é chamado como um dos passos do workflow de automação do N8N.
+
+Definições da API:
+
+- **Endpoint**: `/architecture-detect`
+- **Método**: `POST`
+- **Body**: `image` (base64), `chat_details` (json)
+- **Response**: `json`
+
+O body da requisição é composto por:
+
+- `image`: base64 da imagem do diagrama de arquitetura AWS.
+- `chat_details`: detalhes do chat do usuário, incluindo o ID do chat e o ID do usuário.
+
+O response da requisição é composto por:
+
+- `status`: status da requisição:
+  - `201`: sucesso.
+  - `400`: erro de requisição.
+  - `500`: erro interno do servidor.
+- `message`: mensagem de resposta.
+- `markdown_report`: relatório de ameaças STRIDE em formato Markdown.
+
+### Modelo
+
+O modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS é responsável por receber o diagrama do usuário e enviar e gerar um relatório de ameaças STRIDE em formato Markdown.
+
+### Agent Reviewer
+
+Este agente faz parte de um dos passos do workflow do N8N. Ele é responsável por receber o relatório de ameaças STRIDE, realizar uma análise que incluí os seguintes pontos do relatório gerado pelo modelo YOLO 11:
+
+- **Ameaças**: Ameaças STRIDE encontradas no diagrama.
+- **Overview de Arquitetura**: Overview de arquitetura AWS, com os componentes detectados e suas respectivas ameaças STRIDE.
+- **Matrix de Ameaças**: Matrix de ameaças, com uma lista de ameaças divididas por impacto, risco e categoria.
+- **Recomendações de priorização**: Recomendações para melhoria da arquitetura, baseadas no nível do risco que cada ameaça representa.
+- **Possível roadmap de melhoria**: Possível roadmap de melhoria da arquitetura, criando um planejamento e plano de ação de acordo com as recomendações de priorização.
+- **Próximos passos**: Com as ameçadas identificadas, o agente deve sugerir os próximos passos para desenvolvimento da estratégia de mitigação.
+
+### Telegram
+
+Um bot foi criado para permitir a interação entre o agente e o usuário. Este bot é responsável por receber as mensagens do usuário, imagens de diagramas de arquitetura AWS e enviar para o agente de feedback.
+
+### N8N
+
+O N8N é responsável por orquestrar todas as etapas deste agente. As etapas são:
+
+- **Receber mensagem do usuário enviada no Telegram**: O N8N recebe a mensagem do usuário e verifica se é uma imagem de diagrama de arquitetura AWS.
+- **Enviar imagem para o modelo**: O N8N envia a imagem para o modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS, via endpoint da API.
+- **Receber relatório do modelo**: O N8N recebe o relatório de ameaças STRIDE em formato Markdown do modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS.
+- **Enviar relatório para o agente de review**: O N8N envia o relatório de ameaças STRIDE em formato Markdown para o agente de review.
+- **Relatório melhorado**: O agente de review realiza uma análise do relatório gerado pelo modelo YOLO 11 (small) e gera um relatório melhorado, com base nos pontos mencionados anteriormente.
+- **Enviar relatório para o usuário**: O N8N envia final, gerado pelo agente de review, para o usuário.
+
+**Testar o agente**: Caso queira testar o agente, basta enviar uma mensagem para o bot do Telegram **bot_arch_wise** com o comando `/start`.
