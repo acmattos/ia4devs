@@ -6,7 +6,7 @@ from PIL import Image
 
 from model_predict import predict
 from report_generator import generate_report  # importa sua função atualizada
-
+from stride_rag_runner import run_stride_rag
 
 def predict_image(img: Image.Image) -> Image.Image:
     """
@@ -70,3 +70,16 @@ if uploaded_file is not None:
             mime="text/html"
         )
 
+        # ———————————————— CONSULTA RAG ————————————————
+        st.header("🔍 Consulta RAG para Componentes Detectados")
+        names = set()
+        for image_info in detections_json:
+            for box in image_info.get("boxes", []):
+                names.add(box.get("name"))
+
+        with st.spinner("Consultando RAG para componentes detectados..."):
+            rag_results = run_stride_rag(list(names))
+            st.subheader("📘 Resumo das Ameaças STRIDE por Componente")
+            for comp, texto in rag_results.items():
+                st.markdown(f"### 🔹 {comp}")
+                st.markdown(f"```\n{texto}\n```")
