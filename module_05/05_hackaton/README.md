@@ -20,13 +20,13 @@
   - **OpenCV (cv2)**: Biblioteca utilizada para manipulação de imagens.
   - **ultralytics**: Biblioteca utilizada para treinamento e manipulação do 
                      modelo Yolo11.
-  - **Markdown**: Biblioteca para geração de relatórios basicos em formato 
+  - **Markdown**: Biblioteca para geração de relatórios básicos em formato 
                   Markdown e HTML.
 
 - Bibliotecas de suporte:
-  - **Pytorch**: Biblioteca base manipulação do modelo: 
+  - **Pytorch**: Biblioteca base para manipulação do modelo: 
                  [https://pytorch.org/get-started/locally/]
-  - **Yolo**: Modelo utilizado pelo ultralytics na deteção de ícones AWS: 
+  - **Yolo**: Modelo utilizado pelo ultralytics na detecção de ícones AWS: 
               [yolov11s.pt](data/model/yolo11s.pt).
 
 ## Preparação do Modelo de IA 
@@ -240,7 +240,7 @@ cache Worker               |   181 |     2 |     0 |    0
 ```
 
 Como pode ser notado, muitas classes não possuem testes e outras apenas 1 ou 
-dois exemplos para treinos.   
+dois exemplos para treinamento.   
 Mas será que estes são os únicos problemas do dataset? O script abaixo faz 
 algumas análises úteis:
 
@@ -542,7 +542,7 @@ diretórios de trabalho. Executando o script abaixo novamente:
 py dataset_report_samples_per_split.py 
 ```
 
-Podemos ver o trabalho efetuado na geração de um dataset util para o treinamento 
+Podemos ver o trabalho efetuado na geração de um dataset útil para o treinamento 
 do modelo e execução deste trabalho. O resultado pode ser comparado com o que 
 foi obtido anteriormente, antes das mudanças que foram aplicadas, visando 
 melhorar o treinamento: 
@@ -2585,7 +2585,7 @@ arquitetura AWS informado.
 ## Aplicação Demo
 
 Uma aplicação simples foi elaborada para demonstrar as funcionalidades desejadas 
-para a realização deste trabalho. Ela é baseado no [Streamlit](https://streamlit.io/)
+para a realização deste trabalho. Ela é baseada no [Streamlit](https://streamlit.io/)
 e funciona da seguinte maneira:
 
 ```bash
@@ -2603,11 +2603,11 @@ executar a detecção de componentes:
 ![Imagem Detecção](data/image/app_02.png)
 
 Ao clicar no botão `Executar detecção`, os componentes da arquitetura são 
-detectados pelo modelo treinado, conforme vista abaixo:
+detectados pelo modelo treinado, conforme visto abaixo:
 
 ![Imagem Detectado](data/image/app_03.png)
 
-Rolando a página mais para o final, podemos ver o relatório gerado pela 
+Rolando a página até o final, podemos ver o relatório gerado pela 
 aplicação exemplo:
 
 ![Imagem Relatório](data/image/app_04.png)
