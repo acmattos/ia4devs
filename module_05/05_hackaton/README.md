@@ -2624,9 +2624,27 @@ Essa estratégia foi considerada apenas na aplicação Demo como mais um estudo 
 
 ### Como funciona:
 
-1. **Indexação**  
-   O script [`create-stride-rag-faiss.py`](./create-stride-rag-faiss.py) realiza o carregamento de arquivos PDF com informações técnicas sobre STRIDE. Os documentos utilizados para demonstração estão dispoíveis [aqui](./STRIDE-PDF/). Os documentos são divididos em trechos (chunks) e convertidos em embeddings utilizando o modelo `"all-MiniLM-L6-v2"`.  
-   Esses embeddings são armazenados com FAISS para buscas vetoriais rápidas.
+### 1. **Indexação**
+
+O script [`create-stride-rag-faiss.py`](./create-stride-rag-faiss.py) é responsável por preparar a base de conhecimento que será usada pelo sistema RAG (Retrieval-Augmented Generation). Ele realiza as seguintes etapas:
+
+- 📂 **Leitura dos documentos PDF**  
+  Todos os arquivos na pasta [`./STRIDE-PDF/`](./STRIDE-PDF/) são carregados. Esses arquivos contêm informações técnicas sobre modelagem de ameaças com STRIDE, recomendações da OWASP, boas práticas da AWS, entre outros temas relacionados à segurança de arquiteturas em nuvem.
+
+- ✂️ **Divisão em chunks**  
+  Cada documento é segmentado em trechos menores (também chamados de *chunks*), usando uma estratégia de separação por número de tokens com sobreposição (`RecursiveCharacterTextSplitter`). Isso melhora a granularidade na busca e evita perda de contexto em trechos longos.
+
+- 🔡 **Geração de embeddings**  
+  Cada chunk de texto é convertido em um vetor numérico (embedding) usando o modelo `"all-MiniLM-L6-v2"` da `SentenceTransformers`. Esse modelo é leve, rápido e fornece boa qualidade para recuperação semântica de textos técnicos.
+
+- 🧠 **Criação do índice FAISS**  
+  Os embeddings são armazenados localmente utilizando o **FAISS**, uma biblioteca de indexação vetorial otimizada para busca rápida por similaridade. O índice permite que, mais tarde, quando o usuário envie um conjunto de componentes (ex: "S3", "Lambda", "IAM"), o sistema recupere os trechos mais relevantes desses documentos que tratam dos riscos associados a esses serviços.
+
+- 💾 **Armazenamento local**  
+  O índice final é salvo no diretório `./FAISS/`, e pode ser recarregado dinamicamente pela aplicação durante o uso.
+
+Esse processo garante que o sistema tenha uma **base vetorial eficiente e contextual** para embasar a geração dos pareceres técnicos via LLM, mesmo em ambiente local e offline.
+
 
 2. **Consulta com LLM local**  
    Durante a execução da aplicação, o script [`stride_rag_runner.py`](./stride_rag_runner.py) recebe a lista de componentes detectados no diagrama e utiliza um modelo LLM local, conectado via **[Ollama](https://ollama.com/download/windows)**, para elaborar um relatório técnico contextualizado com base nos dados recuperados do índice FAISS.
