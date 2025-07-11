@@ -30,6 +30,8 @@
                  [https://pytorch.org/get-started/locally/]
   - **Yolo**: Modelo utilizado pelo ultralytics na detecção de ícones AWS: 
               [yolov11s.pt](data/model/yolo11s.pt).
+  - **Ollama**: Biblioteca para uso dos modelos de LLM do Ollama
+              [https://ollama.com/download/windows]
   - **Telegram**: Plataforma de mensagens instantâneas, utilizada para interação com o usuário.
   - **Digital Ocean**: Plataforma de hospedagem de aplicações, utilizada para hospedar a API.
   - **N8N**: Plataforma de automação de workflows, utilizada para orquestrar as etapas do agente.
@@ -2612,13 +2614,122 @@ detectados pelo modelo treinado, conforme visto abaixo:
 
 ![Imagem Detectado](data/image/app_03.png)
 
-Rolando a página até o final, podemos ver o relatório gerado pela 
-aplicação exemplo:
+Rolando a página, podemos ver o relatório gerado pela aplicação exemplo:
 
 ![Imagem Relatório](data/image/app_04.png)
 
 O relatório apresentado reporta os componentes da arquitetura detectados, as 
 ameaças STRIDE correspondentes e suas respectivas contramedidas. 
+
+## Estratégia de RAG Para Aplicação Demo
+
+Para tornar a análise de ameaças STRIDE mais contextual e precisa, foi implementado um pipeline de **RAG (Retrieval-Augmented Generation)**. A ideia é combinar um modelo de linguagem local (LLM) com uma base vetorial de conhecimento sobre segurança e STRIDE.
+
+Essa estratégia foi considerada apenas na aplicação Demo como mais um estudo de caso de possível solução para o report.
+
+### Como funciona:
+
+### 1. **Indexação**
+
+O script [`create-stride-rag-faiss.py`](./create-stride-rag-faiss.py) é responsável por preparar a base de conhecimento que será usada pelo sistema RAG (Retrieval-Augmented Generation). Ele realiza as seguintes etapas:
+
+- 📂 **Leitura dos documentos PDF**  
+  Todos os arquivos na pasta [`./STRIDE-PDF/`](./STRIDE-PDF/) são carregados. Esses arquivos contêm informações técnicas sobre modelagem de ameaças com STRIDE, recomendações da OWASP, boas práticas da AWS, entre outros temas relacionados à segurança de arquiteturas em nuvem.
+
+- ✂️ **Divisão em chunks**  
+  Cada documento é segmentado em trechos menores (também chamados de *chunks*), usando uma estratégia de separação por número de tokens com sobreposição (`RecursiveCharacterTextSplitter`). Isso melhora a granularidade na busca e evita perda de contexto em trechos longos.
+
+- 🔡 **Geração de embeddings**  
+  Cada chunk de texto é convertido em um vetor numérico (embedding) usando o modelo `"all-MiniLM-L6-v2"` da `SentenceTransformers`. Esse modelo é leve, rápido e fornece boa qualidade para recuperação semântica de textos técnicos.
+
+- 🧠 **Criação do índice FAISS**  
+  Os embeddings são armazenados localmente utilizando o **FAISS**, uma biblioteca de indexação vetorial otimizada para busca rápida por similaridade. O índice permite que, mais tarde, quando o usuário envie um conjunto de componentes (ex: "S3", "Lambda", "IAM"), o sistema recupere os trechos mais relevantes desses documentos que tratam dos riscos associados a esses serviços.
+
+- 💾 **Armazenamento local**  
+  O índice final é salvo no diretório `./FAISS/`, e pode ser recarregado dinamicamente pela aplicação durante o uso. Esse processo garante que o sistema tenha uma **base vetorial eficiente e contextual** para embasar a geração dos pareceres técnicos via LLM, mesmo em ambiente local e offline.
+
+
+2. **Consulta com LLM local**  
+   Durante a execução da aplicação, o script [`stride_rag_runner.py`](./stride_rag_runner.py) recebe a lista de componentes detectados no diagrama e utiliza um modelo LLM local, conectado via **[Ollama](https://ollama.com/download/windows)**, para elaborar um relatório técnico contextualizado com base nos dados recuperados do índice FAISS.
+
+![Imagem Relatório](data/image/app_05.png)
+
+3. **Relatório Técnico com STRIDE**  
+   O modelo gera automaticamente um relatório com os possíveis riscos categorizados por tipo de ameaça STRIDE (Spoofing, Tampering, Repudiation, etc.), explicando cada caso e sugerindo formas de mitigação.
+
+![Imagem Relatório](data/image/app_06.png)
+
+4. Ao final é exibido a fonte consultada:
+
+![Imagem Relatório](data/image/app_07.png)
+
+### Requisitos
+
+Para que o modelo funcione corretamente:
+
+- Instale o **Ollama** em sua máquina:  
+  👉 [Download Ollama para Windows](https://ollama.com/download/windows)
+- Execute o servidor com o modelo desejado, por exemplo:  
+  ```bash
+  ollama run mistral
+
+Obs.: A aplicação demo funcionará sem o RAG caso o Ollama não seja instalado.
+
+
+## Estratégia de RAG Para Aplicação Demo
+
+Para tornar a análise de ameaças STRIDE mais contextual e precisa, foi implementado um pipeline de **RAG (Retrieval-Augmented Generation)**. A ideia é combinar um modelo de linguagem local (LLM) com uma base vetorial de conhecimento sobre segurança e STRIDE.
+
+Essa estratégia foi considerada apenas na aplicação Demo como mais um estudo de caso de possível solução para o report.
+
+### Como funciona:
+
+### 1. **Indexação**
+
+O script [`create-stride-rag-faiss.py`](./create-stride-rag-faiss.py) é responsável por preparar a base de conhecimento que será usada pelo sistema RAG (Retrieval-Augmented Generation). Ele realiza as seguintes etapas:
+
+- 📂 **Leitura dos documentos PDF**  
+  Todos os arquivos na pasta [`./STRIDE-PDF/`](./STRIDE-PDF/) são carregados. Esses arquivos contêm informações técnicas sobre modelagem de ameaças com STRIDE, recomendações da OWASP, boas práticas da AWS, entre outros temas relacionados à segurança de arquiteturas em nuvem.
+
+- ✂️ **Divisão em chunks**  
+  Cada documento é segmentado em trechos menores (também chamados de *chunks*), usando uma estratégia de separação por número de tokens com sobreposição (`RecursiveCharacterTextSplitter`). Isso melhora a granularidade na busca e evita perda de contexto em trechos longos.
+
+- 🔡 **Geração de embeddings**  
+  Cada chunk de texto é convertido em um vetor numérico (embedding) usando o modelo `"all-MiniLM-L6-v2"` da `SentenceTransformers`. Esse modelo é leve, rápido e fornece boa qualidade para recuperação semântica de textos técnicos.
+
+- 🧠 **Criação do índice FAISS**  
+  Os embeddings são armazenados localmente utilizando o **FAISS**, uma biblioteca de indexação vetorial otimizada para busca rápida por similaridade. O índice permite que, mais tarde, quando o usuário envie um conjunto de componentes (ex: "S3", "Lambda", "IAM"), o sistema recupere os trechos mais relevantes desses documentos que tratam dos riscos associados a esses serviços.
+
+- 💾 **Armazenamento local**  
+  O índice final é salvo no diretório `./FAISS/`, e pode ser recarregado dinamicamente pela aplicação durante o uso. Esse processo garante que o sistema tenha uma **base vetorial eficiente e contextual** para embasar a geração dos pareceres técnicos via LLM, mesmo em ambiente local e offline.
+
+
+2. **Consulta com LLM local**  
+   Durante a execução da aplicação, o script [`stride_rag_runner.py`](./stride_rag_runner.py) recebe a lista de componentes detectados no diagrama e utiliza um modelo LLM local, conectado via **[Ollama](https://ollama.com/download/windows)**, para elaborar um relatório técnico contextualizado com base nos dados recuperados do índice FAISS.
+
+![Imagem Relatório](data/image/app_05.png)
+
+3. **Relatório Técnico com STRIDE**  
+   O modelo gera automaticamente um relatório com os possíveis riscos categorizados por tipo de ameaça STRIDE (Spoofing, Tampering, Repudiation, etc.), explicando cada caso e sugerindo formas de mitigação.
+
+![Imagem Relatório](data/image/app_06.png)
+
+4. Ao final é exibido a fonte consultada:
+
+![Imagem Relatório](data/image/app_07.png)
+
+### Requisitos
+
+Para que o modelo funcione corretamente:
+
+- Instale o **Ollama** em sua máquina:  
+  👉 [Download Ollama para Windows](https://ollama.com/download/windows)
+- Execute o servidor com o modelo desejado, por exemplo:  
+  ```bash
+  ollama run mistral
+
+Obs.: A aplicação demo funcionará sem o RAG caso o Ollama não seja instalado.
+
 
 ## Arch Wise - Agente de feedback de arquitetura
 
