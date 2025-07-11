@@ -1,5 +1,5 @@
 # 🎓 Hackaton (Tech Challenge) - Pós-Tech - IA For Devs - FIAP
-# 📹 Fase 5 - Modelagem de ameaças utilizando IA
+# 📹 Fase 5 - Modelagem de Ameaças Utilizando IA
 
 ## 👥 Alunos
 
@@ -9,10 +9,10 @@
 - Lucas Arruda - RM358628
 - Pedro Marins - RM356883
 
-## 📋 Evidências do projeto TODO
+## 📋 Evidências do projeto 
 
 - Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_05/05_hackaton)
-- Link para o vídeo de apresentação: [Video Apresentação]() TODO
+- Link para o vídeo de apresentação: [Video Apresentação]() TODO 
 
 ## 📚 Bibliotecas utilizadas 
 
@@ -2731,12 +2731,16 @@ Para que o modelo funcione corretamente:
 Obs.: A aplicação demo funcionará sem o RAG caso o Ollama não seja instalado.
 
 
-## Arch Wise - Agente de feedback de arquitetura
+## Solução Arch Wise - Agente de feedback de arquitetura
 
 ![Agente de Arch Wise](data/image/arch_wise.png)
 
-Um agente de feedback foi desenvolvido para utilização do modelo YOLO 11 (small) treinado para avaliar diagramas de arquitetura AWS.
-Este agente é capaz de receber um diagrama por meio do Telegram, enviar para o modelo treinado e por fim, enviar o resultado de volta para o usuário do Telegram. Esta solução foi desenvolvida utilizando uma API escrita em Flask e hospedada num Droplet da Digital Ocean.
+Um agente de feedback foi desenvolvido para utilização do modelo YOLO 11 (small) 
+treinado para avaliar diagramas de arquitetura AWS.
+Este agente é capaz de receber um diagrama por meio do Telegram, enviar para o 
+modelo treinado e por fim, enviar o resultado de volta para o usuário do 
+Telegram. Esta solução foi desenvolvida utilizando uma API escrita em Flask e 
+hospedada num Droplet da Digital Ocean.
 
 ### Arquitetura
 
@@ -2751,7 +2755,9 @@ A arquitetura do agente de feedback é composta por quatro componentes principai
 
 ### API
 
-A API é responsável por receber o diagrama do usuário e enviar para o modelo treinado, que está sendo chamado através da API Flask. Este endpoint é chamado como um dos passos do workflow de automação do N8N.
+A API é responsável por receber o diagrama do usuário e enviar para o modelo 
+treinado, que está sendo chamado através da API Flask. Este endpoint é chamado 
+como um dos passos do workflow de automação do N8N.
 
 Definições da API:
 
@@ -2776,11 +2782,15 @@ O response da requisição é composto por:
 
 ### Modelo
 
-O modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS é responsável por receber o diagrama do usuário e enviar e gerar um relatório de ameaças STRIDE em formato Markdown.
+O modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura 
+AWS é responsável por receber o diagrama do usuário e enviar e gerar um 
+relatório de ameaças STRIDE em formato Markdown.
 
 ### Agent Reviewer
 
-Este agente faz parte de um dos passos do workflow do N8N. Ele é responsável por receber o relatório de ameaças STRIDE, realizar uma análise que incluí os seguintes pontos do relatório gerado pelo modelo YOLO 11:
+Este agente faz parte de um dos passos do workflow do N8N. Ele é responsável por 
+receber o relatório de ameaças STRIDE, realizar uma análise que incluí os 
+seguintes pontos do relatório gerado pelo modelo YOLO 11:
 
 - **Ameaças**: Ameaças STRIDE encontradas no diagrama.
 - **Overview de Arquitetura**: Overview de arquitetura AWS, com os componentes detectados e suas respectivas ameaças STRIDE.
@@ -2791,7 +2801,9 @@ Este agente faz parte de um dos passos do workflow do N8N. Ele é responsável p
 
 ### Telegram
 
-Um bot foi criado para permitir a interação entre o agente e o usuário. Este bot é responsável por receber as mensagens do usuário, imagens de diagramas de arquitetura AWS e enviar para o agente de feedback.
+Um bot foi criado para permitir a interação entre o agente e o usuário. Este bot 
+é responsável por receber as mensagens do usuário, imagens de diagramas de 
+arquitetura AWS e enviar para o agente de feedback.
 
 ### N8N
 
@@ -2805,3 +2817,94 @@ O N8N é responsável por orquestrar todas as etapas deste agente. As etapas sã
 - **Enviar relatório para o usuário**: O N8N envia final, gerado pelo agente de review, para o usuário.
 
 **Testar o agente**: Caso queira testar o agente, basta enviar uma mensagem para o bot do Telegram **bot_arch_wise** com o comando `/start`.
+
+### Passo a Passo para Uso do Arch Wise
+
+Acesso o Telegram em seu celular ou computador. A seguir, busque por 
+`bot arch wise`. A figura abaixo mostra como fica o resultado.
+
+![Busca por Arch Wise](data/image/arch_wise_01.jpg)
+
+Clique no bot. Acessando ele, basta enviar uma imagem contendo o 
+diagrama da arquitetura AWS que deseja analisar. O bot irá enviar o diagrama 
+para o agente responsável por consultas ao modelo, trazendo como resposta o 
+relatório de ameaças STRIDE gerado durante a consulta.
+
+![Agente de Arch Wise](data/image/arch_wise_02.jpg)
+
+A seguir, o conteúdo completo do relatório gerado pelo envio da imagem para o 
+modelo treinado:  
+
+```markdown
+# STRIDE Report: Security Assessment for AWS Architecture
+
+## 1. Executive Summary
+This report provides a comprehensive security assessment of the current AWS 
+architecture using the STRIDE threat modeling framework. The objective is to 
+identify potential vulnerabilities within the system that could be exploited, 
+outline associated risks, and deliver actionable recommendations to enhance 
+the security posture of the organization.
+
+## 2. Architecture Overview
+The architecture under review includes the following key AWS components:
+- EC2 Instances: Hosting applications and services.
+- S3 Buckets: Storage for sensitive data.
+- RDS: Database services for data management.
+- IAM Roles: User management and permissions.
+- VPC: Network isolation.
+- API Gateway: Entry point for services.
+
+## 3. STRIDE Threat Analysis
+We evaluated each component against the STRIDE categories:
+
+- Spoofing: Uncontrolled access to EC2 instances and IAM roles due to 
+  weak authentication.
+- Tampering: Inadvertent or malicious modification of data in S3 buckets 
+  and RDS.
+- Repudiation: Lack of logging mechanisms in place for API Gateway and 
+  EC2 actions.
+- Information Disclosure: Publicly exposed S3 buckets containing 
+  sensitive information.
+- Denial of Service: Vulnerabilities in API Gateway configuration 
+  allowing for potential service disruption.
+- Elevation of Privilege: Overly permissive IAM roles granting excessive 
+  access to users.
+
+## 4. Risk Assessment Matrix
+| Threat                     | Impact | Likelihood | Risk Level         |
+|----------------------------|--------|------------|--------------------|
+| Spoofing                   | High   | Medium     | High               |
+| Tampering                  | High   | Medium     | High               |
+| Repudiation                | Medium | High       | High               |
+| Information Disclosure     | High   | High       | Critical           |
+| Denial of Service          | Medium | Low        | Moderate           |
+| Elevation of Privilege     | High   | High       | Critical           |
+
+## 5. Prioritized Recommendations
+1. Implement Multi-Factor Authentication (MFA) for all IAM roles to mitigate 
+   spoofing risks.
+2. Secure S3 Buckets: Audit and set appropriate permissions, ensuring no 
+   publicly accessible buckets contain sensitive data.
+3. Establish comprehensive logging: Utilize AWS CloudTrail and enable 
+   detailed logging on API Gateway and EC2 to address repudiation concerns.
+4. Conduct regular security audits on IAM roles and policies to prevent 
+   elevation of privilege incidents.
+5. Employ AWS Shield for DDoS protection, coupled with rate limiting on API 
+   Gateway to address denial of service vulnerabilities.
+
+## 6. Implementation Roadmap
+- Q1: Audit and secure S3 permissions, implement MFA.
+- Q2: Enable logging services and review IAM policies.
+- Q3: Conduct security training for developers and operations teams.
+- Q4: Evaluate security effectiveness and refine strategies as necessary.
+
+## 7. Next Steps
+1. Schedule a workshop to discuss the findings and recommended actions.
+2. Develop a timeline for implementation and assign responsibilities.
+3. Continue to monitor AWS security best practices and adjust the architecture 
+   as needed to mitigate emerging threats.
+
+By addressing these identified threats and implementing the recommended measures, 
+the organization will significantly enhance its security posture within its 
+AWS architecture.
+```
