@@ -28,6 +28,8 @@
                  [https://pytorch.org/get-started/locally/]
   - **Yolo**: Modelo utilizado pelo ultralytics na detecção de ícones AWS: 
               [yolov11s.pt](data/model/yolo11s.pt).
+  - **Ollama**: Biblioteca para uso dos modelos de LLM do Ollama
+              [https://ollama.com/download/windows]
 
 ## Preparação do Modelo de IA 
 
@@ -2607,13 +2609,51 @@ detectados pelo modelo treinado, conforme visto abaixo:
 
 ![Imagem Detectado](data/image/app_03.png)
 
-Rolando a página até o final, podemos ver o relatório gerado pela 
-aplicação exemplo:
+Rolando a página, podemos ver o relatório gerado pela aplicação exemplo:
 
 ![Imagem Relatório](data/image/app_04.png)
 
 O relatório apresentado reporta os componentes da arquitetura detectados, as 
 ameaças STRIDE correspondentes e suas respectivas contramedidas. 
+
+## Estratégia de RAG Para Aplicação Demo
+
+Para tornar a análise de ameaças STRIDE mais contextual e precisa, foi implementado um pipeline de **RAG (Retrieval-Augmented Generation)**. A ideia é combinar um modelo de linguagem local (LLM) com uma base vetorial de conhecimento sobre segurança e STRIDE.
+
+Essa estratégia foi considerada apenas na aplicação Demo como mais um estudo de caso de possível solução para o report.
+
+### Como funciona:
+
+1. **Indexação**  
+   O script [`create-stride-rag-faiss.py`](./create-stride-rag-faiss.py) realiza o carregamento de arquivos PDF com informações técnicas sobre STRIDE. Os documentos utilizados para demonstração estão dispoíveis [aqui](./STRIDE-PDF/). Os documentos são divididos em trechos (chunks) e convertidos em embeddings utilizando o modelo `"all-MiniLM-L6-v2"`.  
+   Esses embeddings são armazenados com FAISS para buscas vetoriais rápidas.
+
+2. **Consulta com LLM local**  
+   Durante a execução da aplicação, o script [`stride_rag_runner.py`](./stride_rag_runner.py) recebe a lista de componentes detectados no diagrama e utiliza um modelo LLM local, conectado via **[Ollama](https://ollama.com/download/windows)**, para elaborar um relatório técnico contextualizado com base nos dados recuperados do índice FAISS.
+
+![Imagem Relatório](data/image/app_05.png)
+
+3. **Relatório Técnico com STRIDE**  
+   O modelo gera automaticamente um relatório com os possíveis riscos categorizados por tipo de ameaça STRIDE (Spoofing, Tampering, Repudiation, etc.), explicando cada caso e sugerindo formas de mitigação.
+
+![Imagem Relatório](data/image/app_06.png)
+
+4. Ao final é exibido a fonte consultada:
+
+![Imagem Relatório](data/image/app_07.png)
+
+### Requisitos
+
+Para que o modelo funcione corretamente:
+
+- Instale o **Ollama** em sua máquina:  
+  👉 [Download Ollama para Windows](https://ollama.com/download/windows)
+- Execute o servidor com o modelo desejado, por exemplo:  
+  ```bash
+  ollama run mistral
+
+Obs.: A aplicação demo funcionará sem o RAG caso o Ollama não seja instalado.
+
 
 ## Aplicação Proposta
 
