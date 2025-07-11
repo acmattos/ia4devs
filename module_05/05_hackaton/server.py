@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import sys
 import os
+import json
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,6 +48,14 @@ def architecture_detect():
     
     # Get the uploaded image
     image_file = request.files['image']
+
+    #Get the chat details
+    chat_details = request.form.get('chat_details')
+    if not chat_details:
+        return jsonify({'error': 'Chat details are required'}), 400
+    
+    #Parse the chat details
+    chat_details = json.loads(chat_details)
     
     # Save the uploaded image to a temporary file
     temp_image_path = TempFileHandler.save_uploaded_file(image_file)
@@ -62,7 +71,8 @@ def architecture_detect():
             'success': 'Architecture detection completed successfully!',
             'detections': len(results),
             'report_generated': True,
-            'markdown_report': markdown_report
+            'markdown_report': markdown_report,
+            'chat_details': chat_details
         }), 201
         
     except Exception as detection_error:
