@@ -2641,9 +2641,7 @@ O script [`create-stride-rag-faiss.py`](./create-stride-rag-faiss.py) é respons
   Os embeddings são armazenados localmente utilizando o **FAISS**, uma biblioteca de indexação vetorial otimizada para busca rápida por similaridade. O índice permite que, mais tarde, quando o usuário envie um conjunto de componentes (ex: "S3", "Lambda", "IAM"), o sistema recupere os trechos mais relevantes desses documentos que tratam dos riscos associados a esses serviços.
 
 - 💾 **Armazenamento local**  
-  O índice final é salvo no diretório `./FAISS/`, e pode ser recarregado dinamicamente pela aplicação durante o uso.
-
-Esse processo garante que o sistema tenha uma **base vetorial eficiente e contextual** para embasar a geração dos pareceres técnicos via LLM, mesmo em ambiente local e offline.
+  O índice final é salvo no diretório `./FAISS/`, e pode ser recarregado dinamicamente pela aplicação durante o uso. Esse processo garante que o sistema tenha uma **base vetorial eficiente e contextual** para embasar a geração dos pareceres técnicos via LLM, mesmo em ambiente local e offline.
 
 
 2. **Consulta com LLM local**  
