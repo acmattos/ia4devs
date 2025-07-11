@@ -22,12 +22,17 @@
                      modelo Yolo11.
   - **Markdown**: Biblioteca para geração de relatórios básicos em formato 
                   Markdown e HTML.
+  - **N8N**: Biblioteca utilizada para criação de workflows de automação.
+  - **Flask**: Biblioteca utilizada para criação de API.
 
-- Bibliotecas de suporte:
+- Bibliotecas/ferramentas de suporte:
   - **Pytorch**: Biblioteca base para manipulação do modelo: 
                  [https://pytorch.org/get-started/locally/]
   - **Yolo**: Modelo utilizado pelo ultralytics na detecção de ícones AWS: 
               [yolov11s.pt](data/model/yolo11s.pt).
+  - **Telegram**: Plataforma de mensagens instantâneas, utilizada para interação com o usuário.
+  - **Digital Ocean**: Plataforma de hospedagem de aplicações, utilizada para hospedar a API.
+  - **N8N**: Plataforma de automação de workflows, utilizada para orquestrar as etapas do agente.
 
 ## Preparação do Modelo de IA 
 
@@ -2615,6 +2620,77 @@ aplicação exemplo:
 O relatório apresentado reporta os componentes da arquitetura detectados, as 
 ameaças STRIDE correspondentes e suas respectivas contramedidas. 
 
-## Aplicação Proposta
+## Arch Wise - Agente de feedback de arquitetura
 
-TODO DOCUMENTAR AQUI.
+![Agente de Arch Wise](data/image/arch_wise.png)
+
+Um agente de feedback foi desenvolvido para utilização do modelo YOLO 11 (small) treinado para avaliar diagramas de arquitetura AWS.
+Este agente é capaz de receber um diagrama por meio do Telegram, enviar para o modelo treinado e por fim, enviar o resultado de volta para o usuário do Telegram. Esta solução foi desenvolvida utilizando uma API escrita em Flask e hospedada num Droplet da Digital Ocean.
+
+### Arquitetura
+
+![Arquitetura do workflow do N8N](data/image/n8n.png)
+
+A arquitetura do agente de feedback é composta por quatro componentes principais:
+
+- **API**: API escrita em Flask que recebe o diagrama do usuário e envia para o modelo treinado.
+- **Modelo**: Modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS.
+- **Telegram**: Interface com o usuário via Telegram.
+- **N8N**: Workflow de automação, responsável por orquestrar todas as etapas deste agente.
+
+### API
+
+A API é responsável por receber o diagrama do usuário e enviar para o modelo treinado, que está sendo chamado através da API Flask. Este endpoint é chamado como um dos passos do workflow de automação do N8N.
+
+Definições da API:
+
+- **Endpoint**: `/architecture-detect`
+- **Método**: `POST`
+- **Body**: `image` (base64), `chat_details` (json)
+- **Response**: `json`
+
+O body da requisição é composto por:
+
+- `image`: base64 da imagem do diagrama de arquitetura AWS.
+- `chat_details`: detalhes do chat do usuário, incluindo o ID do chat e o ID do usuário.
+
+O response da requisição é composto por:
+
+- `status`: status da requisição:
+  - `201`: sucesso.
+  - `400`: erro de requisição.
+  - `500`: erro interno do servidor.
+- `message`: mensagem de resposta.
+- `markdown_report`: relatório de ameaças STRIDE em formato Markdown.
+
+### Modelo
+
+O modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS é responsável por receber o diagrama do usuário e enviar e gerar um relatório de ameaças STRIDE em formato Markdown.
+
+### Agent Reviewer
+
+Este agente faz parte de um dos passos do workflow do N8N. Ele é responsável por receber o relatório de ameaças STRIDE, realizar uma análise que incluí os seguintes pontos do relatório gerado pelo modelo YOLO 11:
+
+- **Ameaças**: Ameaças STRIDE encontradas no diagrama.
+- **Overview de Arquitetura**: Overview de arquitetura AWS, com os componentes detectados e suas respectivas ameaças STRIDE.
+- **Matrix de Ameaças**: Matrix de ameaças, com uma lista de ameaças divididas por impacto, risco e categoria.
+- **Recomendações de priorização**: Recomendações para melhoria da arquitetura, baseadas no nível do risco que cada ameaça representa.
+- **Possível roadmap de melhoria**: Possível roadmap de melhoria da arquitetura, criando um planejamento e plano de ação de acordo com as recomendações de priorização.
+- **Próximos passos**: Com as ameçadas identificadas, o agente deve sugerir os próximos passos para desenvolvimento da estratégia de mitigação.
+
+### Telegram
+
+Um bot foi criado para permitir a interação entre o agente e o usuário. Este bot é responsável por receber as mensagens do usuário, imagens de diagramas de arquitetura AWS e enviar para o agente de feedback.
+
+### N8N
+
+O N8N é responsável por orquestrar todas as etapas deste agente. As etapas são:
+
+- **Receber mensagem do usuário enviada no Telegram**: O N8N recebe a mensagem do usuário e verifica se é uma imagem de diagrama de arquitetura AWS.
+- **Enviar imagem para o modelo**: O N8N envia a imagem para o modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS, via endpoint da API.
+- **Receber relatório do modelo**: O N8N recebe o relatório de ameaças STRIDE em formato Markdown do modelo YOLO 11 (small) treinado para detecção de componentes de arquitetura AWS.
+- **Enviar relatório para o agente de review**: O N8N envia o relatório de ameaças STRIDE em formato Markdown para o agente de review.
+- **Relatório melhorado**: O agente de review realiza uma análise do relatório gerado pelo modelo YOLO 11 (small) e gera um relatório melhorado, com base nos pontos mencionados anteriormente.
+- **Enviar relatório para o usuário**: O N8N envia final, gerado pelo agente de review, para o usuário.
+
+**Testar o agente**: Caso queira testar o agente, basta enviar uma mensagem para o bot do Telegram **bot_arch_wise** com o comando `/start`.
