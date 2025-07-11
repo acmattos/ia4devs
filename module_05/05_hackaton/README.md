@@ -12,7 +12,7 @@
 ## 📋 Evidências do projeto 
 
 - Link para o repositório:[Repositorio Git](https://github.com/acmattos/ia4devs/tree/main/module_05/05_hackaton)
-- Link para o vídeo de apresentação: [Video Apresentação]() TODO 
+- Link para o vídeo de apresentação: [Video Apresentação](https://www.youtube.com/watch?v=BHEPSVD2e0s) 
 
 ## 📚 Bibliotecas utilizadas 
 
